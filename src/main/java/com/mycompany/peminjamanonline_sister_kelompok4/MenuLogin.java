@@ -54,7 +54,7 @@ public class MenuLogin extends javax.swing.JFrame {
         btnLogin.setText("Login");
 
         txtPassword.setForeground(new java.awt.Color(204, 204, 204));
-        txtPassword.setText("Masukan Password anda...");
+        txtPassword.setText("Masukan Password...");
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Username");
@@ -157,7 +157,6 @@ public class MenuLogin extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MenuLogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
