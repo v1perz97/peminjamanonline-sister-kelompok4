@@ -97,7 +97,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         jLabel8.setText("1 %");
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel9.setText("Jumlah Cicilan");
+        jLabel9.setText("Isi");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
