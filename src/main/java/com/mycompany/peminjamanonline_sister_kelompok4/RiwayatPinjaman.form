@@ -41,6 +41,7 @@
                           <Component id="txtPinjaman" min="-2" max="-2" attributes="0"/>
                           <Component id="txtTenor" min="-2" max="-2" attributes="0"/>
                           <Component id="txtStatus" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtTenor1" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -92,7 +93,10 @@
                   <Component id="txtSisaTagihan" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
-              <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="txtTenor1" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -299,6 +303,14 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="txtTanggalBayar">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="14" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Isi"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="txtTenor1">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Segoe UI" size="14" style="1"/>

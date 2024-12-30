@@ -45,6 +45,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         btnKembali = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         txtTanggalBayar = new javax.swing.JLabel();
+        txtTenor1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -126,6 +127,9 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         txtTanggalBayar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtTanggalBayar.setText("Isi");
 
+        txtTenor1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtTenor1.setText("Isi");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -146,7 +150,8 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                             .addComponent(txtJatuhTempo)
                             .addComponent(txtPinjaman)
                             .addComponent(txtTenor)
-                            .addComponent(txtStatus)))
+                            .addComponent(txtStatus)
+                            .addComponent(txtTenor1)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(86, 86, 86)
                         .addComponent(jLabel7)
@@ -186,7 +191,9 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                     .addComponent(jLabel14)
                     .addComponent(txtSisaTagihan))
                 .addGap(1, 1, 1)
-                .addComponent(jLabel16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel16)
+                    .addComponent(txtTenor1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -263,5 +270,6 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel txtTagihan;
     private javax.swing.JLabel txtTanggalBayar;
     private javax.swing.JLabel txtTenor;
+    private javax.swing.JLabel txtTenor1;
     // End of variables declaration//GEN-END:variables
 }
