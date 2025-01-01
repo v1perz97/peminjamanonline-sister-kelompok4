@@ -30,7 +30,7 @@ public class Notifikasi extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         LstNotifikasi = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
+        btnKembali = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -64,10 +64,15 @@ public class Notifikasi extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(LstNotifikasi);
 
-        jButton1.setBackground(new java.awt.Color(102, 102, 255));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Kembali");
+        btnKembali.setBackground(new java.awt.Color(102, 102, 255));
+        btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnKembali.setForeground(new java.awt.Color(255, 255, 255));
+        btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -81,7 +86,7 @@ public class Notifikasi extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(144, 144, 144)
-                        .addComponent(jButton1)))
+                        .addComponent(btnKembali)))
                 .addContainerGap(29, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -91,12 +96,17 @@ public class Notifikasi extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       this.setVisible(false);
+    }//GEN-LAST:event_btnKembaliActionPerformed
 
     /**
      * @param args the command line arguments
@@ -135,7 +145,7 @@ public class Notifikasi extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> LstNotifikasi;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnKembali;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

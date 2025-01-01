@@ -126,6 +126,11 @@ public class MenuRegister extends javax.swing.JFrame {
         btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBatal.setForeground(new java.awt.Color(255, 255, 255));
         btnBatal.setText("Batal");
+        btnBatal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBatalActionPerformed(evt);
+            }
+        });
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel9.setText("Foto KTP");
@@ -181,15 +186,14 @@ public class MenuRegister extends javax.swing.JFrame {
                             .addComponent(jLabel5)
                             .addComponent(jLabel4))
                         .addGap(28, 28, 28)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnUnggahProfil, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnUnggahKTP, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnUnggahProfil, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                            .addComponent(btnUnggahKTP, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(rbLakiLaki)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(rbPerempuan))
-                            .addComponent(txtAlamat, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jDateChooserTanggalLahir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtAlamat, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(txtEmail)
@@ -197,7 +201,8 @@ public class MenuRegister extends javax.swing.JFrame {
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtPassword, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(txtKontak)
-                                    .addComponent(txtNIK, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)))))
+                                    .addComponent(txtNIK, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)))
+                            .addComponent(jDateChooserTanggalLahir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(68, 68, 68)
                         .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -322,6 +327,11 @@ public class MenuRegister extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage());
         }
     }//GEN-LAST:event_btnSimpanActionPerformed
+
+    private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+       MenuLogin FormMenuLogin = new MenuLogin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       this.setVisible(false);
+    }//GEN-LAST:event_btnBatalActionPerformed
 
     /**
      * @param args the command line arguments

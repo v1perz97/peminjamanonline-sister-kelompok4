@@ -96,6 +96,11 @@ public class Konfirmasi extends javax.swing.JFrame {
         btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBatal.setForeground(new java.awt.Color(255, 255, 255));
         btnBatal.setText("Batal");
+        btnBatal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBatalActionPerformed(evt);
+            }
+        });
 
         txtNama.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtNama.setText("isi");
@@ -181,6 +186,11 @@ public class Konfirmasi extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       this.setVisible(false);
+    }//GEN-LAST:event_btnBatalActionPerformed
 
     /**
      * @param args the command line arguments
