@@ -103,9 +103,14 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         txtTagihan.setText("Rp");
 
         btnBayar.setBackground(new java.awt.Color(102, 102, 255));
-        btnBayar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnBayar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnBayar.setForeground(new java.awt.Color(255, 255, 255));
         btnBayar.setText("Bayar");
+        btnBayar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBayarActionPerformed(evt);
+            }
+        });
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel14.setText("Sisa Tagihan :");
@@ -120,6 +125,11 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnKembali.setForeground(new java.awt.Color(255, 255, 255));
         btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel15.setText("Tanggal Pembayaran :");
@@ -207,13 +217,23 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(txtTagihan)
                     .addComponent(btnBayar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
                 .addComponent(btnKembali)
                 .addGap(16, 16, 16))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+       DashboardNasabah FormDashboardNasabah = new DashboardNasabah(); 
+       this.setVisible(false);
+    }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
+       Pembayaran FormPembayaran = new Pembayaran(); 
+       FormPembayaran.setVisible(true);
+    }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
      * @param args the command line arguments

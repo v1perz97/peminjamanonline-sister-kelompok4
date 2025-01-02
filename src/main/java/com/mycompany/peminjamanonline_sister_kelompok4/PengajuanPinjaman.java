@@ -33,11 +33,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         btnAjukan = new javax.swing.JButton();
-        btnKeluar = new javax.swing.JButton();
+        btnKembali = new javax.swing.JButton();
         txtJumlah = new javax.swing.JTextField();
         CbTenor = new javax.swing.JComboBox<>();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        txtBunga = new javax.swing.JLabel();
+        txtCicilan = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,11 +80,21 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         btnAjukan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAjukan.setForeground(new java.awt.Color(255, 255, 255));
         btnAjukan.setText("Ajukan");
+        btnAjukan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAjukanActionPerformed(evt);
+            }
+        });
 
-        btnKeluar.setBackground(new java.awt.Color(102, 102, 255));
-        btnKeluar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnKeluar.setForeground(new java.awt.Color(255, 255, 255));
-        btnKeluar.setText("Keluar");
+        btnKembali.setBackground(new java.awt.Color(102, 102, 255));
+        btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnKembali.setForeground(new java.awt.Color(255, 255, 255));
+        btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
 
         CbTenor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1 Bulan", "3 Bulan", "6 Bulan", "12 Bulan", " " }));
         CbTenor.addActionListener(new java.awt.event.ActionListener() {
@@ -93,11 +103,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel8.setText("1 %");
+        txtBunga.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtBunga.setText("1 %");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel9.setText("Isi");
+        txtCicilan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtCicilan.setText("Isi");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,7 +126,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                             .addComponent(CbTenor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnKeluar)
+                        .addComponent(btnKembali)
                         .addGap(68, 68, 68)
                         .addComponent(btnAjukan))
                     .addGroup(layout.createSequentialGroup()
@@ -125,12 +135,12 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel8))
+                                .addComponent(txtBunga))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)))))
-                .addContainerGap(49, Short.MAX_VALUE))
+                                .addComponent(txtCicilan)))))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -147,15 +157,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel8))
+                    .addComponent(txtBunga))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel9))
+                    .addComponent(txtCicilan))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAjukan)
-                    .addComponent(btnKeluar))
+                    .addComponent(btnKembali))
                 .addGap(27, 27, 27))
         );
 
@@ -165,6 +175,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private void CbTenorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbTenorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_CbTenorActionPerformed
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+       DashboardNasabah DashboardNasabah = new DashboardNasabah(); 
+       this.setVisible(false);
+    }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
+        
+    }//GEN-LAST:event_btnAjukanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -204,15 +223,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> CbTenor;
     private javax.swing.JButton btnAjukan;
-    private javax.swing.JButton btnKeluar;
+    private javax.swing.JButton btnKembali;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel txtBunga;
+    private javax.swing.JLabel txtCicilan;
     private javax.swing.JTextField txtJumlah;
     // End of variables declaration//GEN-END:variables
 }

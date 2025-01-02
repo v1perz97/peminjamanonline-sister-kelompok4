@@ -9,6 +9,7 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
  * @author ACER
  */
 public class DashboardAdmin extends javax.swing.JFrame {
+    
 
     /**
      * Creates new form DashboardAdmin
@@ -16,6 +17,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
     public DashboardAdmin() {
         initComponents();
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -38,9 +40,11 @@ public class DashboardAdmin extends javax.swing.JFrame {
         btnHapus = new javax.swing.JButton();
         btnEdit = new javax.swing.JButton();
         btnEksport = new javax.swing.JButton();
-        btnKonfirmasi1 = new javax.swing.JButton();
+        btnNotifikasi = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocation(new java.awt.Point(0, 0));
+        setMaximumSize(new java.awt.Dimension(707, 321));
 
         jPanel2.setBackground(new java.awt.Color(102, 102, 255));
 
@@ -67,13 +71,39 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
         tblPengajuan.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Nama", "NIK", "Jumlah", "Tenor"
+                "Id", "Nama", "NIK", "Jumlah", "Tenor"
             }
         ));
         jScrollPane1.setViewportView(tblPengajuan);
@@ -83,13 +113,15 @@ public class DashboardAdmin extends javax.swing.JFrame {
         btnCari.setForeground(new java.awt.Color(255, 255, 255));
         btnCari.setText("Cari");
 
-        txtCari.setForeground(new java.awt.Color(204, 204, 204));
-        txtCari.setText("Cari...");
-
         btnKeluar.setBackground(new java.awt.Color(102, 102, 255));
         btnKeluar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnKeluar.setForeground(new java.awt.Color(255, 255, 255));
         btnKeluar.setText("Keluar");
+        btnKeluar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKeluarActionPerformed(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(102, 102, 255));
@@ -99,11 +131,21 @@ public class DashboardAdmin extends javax.swing.JFrame {
         btnKonfirmasi.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnKonfirmasi.setForeground(new java.awt.Color(255, 255, 255));
         btnKonfirmasi.setText("Konfirmasi");
+        btnKonfirmasi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKonfirmasiActionPerformed(evt);
+            }
+        });
 
         btnHapus.setBackground(new java.awt.Color(102, 102, 255));
         btnHapus.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnHapus.setForeground(new java.awt.Color(255, 255, 255));
         btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
 
         btnEdit.setBackground(new java.awt.Color(102, 102, 255));
         btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -115,10 +157,15 @@ public class DashboardAdmin extends javax.swing.JFrame {
         btnEksport.setForeground(new java.awt.Color(255, 255, 255));
         btnEksport.setText("Eksport");
 
-        btnKonfirmasi1.setBackground(new java.awt.Color(102, 102, 255));
-        btnKonfirmasi1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnKonfirmasi1.setForeground(new java.awt.Color(255, 255, 255));
-        btnKonfirmasi1.setText("Notifikasi");
+        btnNotifikasi.setBackground(new java.awt.Color(102, 102, 255));
+        btnNotifikasi.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnNotifikasi.setForeground(new java.awt.Color(255, 255, 255));
+        btnNotifikasi.setText("Notifikasi");
+        btnNotifikasi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNotifikasiActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -130,7 +177,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(btnKonfirmasi1)
+                            .addComponent(btnNotifikasi)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(btnKonfirmasi))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 597, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -173,7 +220,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnKonfirmasi)
-                    .addComponent(btnKonfirmasi1))
+                    .addComponent(btnNotifikasi))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnKeluar)
                 .addGap(15, 15, 15))
@@ -181,6 +228,25 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnKonfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonfirmasiActionPerformed
+       Konfirmasi FormKonfirmasi = new Konfirmasi();
+       FormKonfirmasi.setVisible(true); 
+    }//GEN-LAST:event_btnKonfirmasiActionPerformed
+
+    private void btnNotifikasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotifikasiActionPerformed
+       Notifikasi FormNotifikasi = new Notifikasi();
+       FormNotifikasi.setVisible(true); 
+    }//GEN-LAST:event_btnNotifikasiActionPerformed
+
+    private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
+       MenuLogin FormMenuLogin = new MenuLogin();
+       FormMenuLogin.setVisible(true); 
+    }//GEN-LAST:event_btnKeluarActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        
+    }//GEN-LAST:event_btnHapusActionPerformed
 
     /**
      * @param args the command line arguments
@@ -224,7 +290,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JButton btnHapus;
     private javax.swing.JButton btnKeluar;
     private javax.swing.JButton btnKonfirmasi;
-    private javax.swing.JButton btnKonfirmasi1;
+    private javax.swing.JButton btnNotifikasi;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel2;
