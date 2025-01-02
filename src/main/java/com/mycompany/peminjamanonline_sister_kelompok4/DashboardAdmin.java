@@ -230,17 +230,17 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKonfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonfirmasiActionPerformed
-       Konfirmasi FormKonfirmasi = new Konfirmasi(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       Konfirmasi FormKonfirmasi = new Konfirmasi();
        FormKonfirmasi.setVisible(true); 
     }//GEN-LAST:event_btnKonfirmasiActionPerformed
 
     private void btnNotifikasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotifikasiActionPerformed
-       Notifikasi FormNotifikasi = new Notifikasi(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       Notifikasi FormNotifikasi = new Notifikasi();
        FormNotifikasi.setVisible(true); 
     }//GEN-LAST:event_btnNotifikasiActionPerformed
 
     private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
-       MenuLogin FormMenuLogin = new MenuLogin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       MenuLogin FormMenuLogin = new MenuLogin();
        FormMenuLogin.setVisible(true); 
     }//GEN-LAST:event_btnKeluarActionPerformed
 

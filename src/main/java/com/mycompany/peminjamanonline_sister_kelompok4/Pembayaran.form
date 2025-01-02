@@ -35,13 +35,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="txtTagihan" min="-2" max="-2" attributes="0"/>
-                                  <Component id="txtJatuhTempo" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="txtTagihan" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtJatuhTempo" min="-2" max="-2" attributes="0"/>
                           <Component id="jDateChooser1" max="32767" attributes="0"/>
                       </Group>
                   </Group>

@@ -226,12 +226,12 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       DashboardNasabah FormDashboardNasabah = new DashboardNasabah(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       DashboardNasabah FormDashboardNasabah = new DashboardNasabah(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-       Pembayaran FormPembayaran = new Pembayaran(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       Pembayaran FormPembayaran = new Pembayaran(); 
        FormPembayaran.setVisible(true);
     }//GEN-LAST:event_btnBayarActionPerformed
 

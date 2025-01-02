@@ -104,10 +104,9 @@
         <Component class="javax.swing.JList" name="LstNotifikasi">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="3">
-                <StringItem index="0" value="Nasabah Ananda Telah Melakukan Pembayaran"/>
-                <StringItem index="1" value="Nasabah Faiz Telah Melakukan Pengajuan Pinjaman"/>
-                <StringItem index="2" value=" "/>
+              <StringArray count="2">
+                <StringItem index="0" value=" "/>
+                <StringItem index="1" value=" "/>
               </StringArray>
             </Property>
           </Properties>

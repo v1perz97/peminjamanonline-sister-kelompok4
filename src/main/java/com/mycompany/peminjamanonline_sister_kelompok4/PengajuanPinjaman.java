@@ -36,8 +36,8 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         btnKembali = new javax.swing.JButton();
         txtJumlah = new javax.swing.JTextField();
         CbTenor = new javax.swing.JComboBox<>();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        txtBunga = new javax.swing.JLabel();
+        txtCicilan = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,6 +80,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         btnAjukan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAjukan.setForeground(new java.awt.Color(255, 255, 255));
         btnAjukan.setText("Ajukan");
+        btnAjukan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAjukanActionPerformed(evt);
+            }
+        });
 
         btnKembali.setBackground(new java.awt.Color(102, 102, 255));
         btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -98,11 +103,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel8.setText("1 %");
+        txtBunga.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtBunga.setText("1 %");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel9.setText("Isi");
+        txtCicilan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtCicilan.setText("Isi");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -130,11 +135,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel8))
+                                .addComponent(txtBunga))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)))))
+                                .addComponent(txtCicilan)))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -152,11 +157,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel8))
+                    .addComponent(txtBunga))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel9))
+                    .addComponent(txtCicilan))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAjukan)
@@ -172,9 +177,13 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_CbTenorActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       DashboardNasabah FormDashboardNasabah = new DashboardNasabah(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       DashboardNasabah DashboardNasabah = new DashboardNasabah(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
+        
+    }//GEN-LAST:event_btnAjukanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -220,9 +229,9 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel txtBunga;
+    private javax.swing.JLabel txtCicilan;
     private javax.swing.JTextField txtJumlah;
     // End of variables declaration//GEN-END:variables
 }
