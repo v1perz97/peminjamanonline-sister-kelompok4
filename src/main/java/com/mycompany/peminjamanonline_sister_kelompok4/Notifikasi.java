@@ -58,7 +58,7 @@ public class Notifikasi extends javax.swing.JFrame {
         );
 
         LstNotifikasi.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Nasabah Ananda Telah Melakukan Pembayaran", "Nasabah Faiz Telah Melakukan Pengajuan Pinjaman", " " };
+            String[] strings = { " ", " " };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
@@ -104,7 +104,7 @@ public class Notifikasi extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 

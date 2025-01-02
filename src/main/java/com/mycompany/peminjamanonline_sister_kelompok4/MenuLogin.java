@@ -5,8 +5,15 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 import java.awt.Image;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -58,6 +65,11 @@ public class MenuLogin extends javax.swing.JFrame {
         btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnLogin.setForeground(new java.awt.Color(255, 255, 255));
         btnLogin.setText("Login");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Username");
@@ -153,13 +165,87 @@ public class MenuLogin extends javax.swing.JFrame {
 
     private void CbPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbPasswordActionPerformed
         if (CbPassword.isSelected()) {
-            // Jika checkbox dicentang, tampilkan password sebagai teks biasa
-            txtPassword.setEchoChar((char) 0); // Mengatur echoChar menjadi 0 (tidak ada masking)
+            
+            txtPassword.setEchoChar((char) 0); 
         } else {
-            // Jika checkbox tidak dicentang, sembunyikan password
-            txtPassword.setEchoChar('*'); // Mengatur echoChar menjadi '*'
+            
+            txtPassword.setEchoChar('*');
         }
     }//GEN-LAST:event_CbPasswordActionPerformed
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        
+        String username = txtUsername.getText(); 
+        String password = new String(txtPassword.getPassword()); 
+
+        
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+
+        try {
+            
+            String url = "jdbc:mysql://localhost:3306/loan_app";
+            String dbUsername = "root";
+            String dbPassword = "";
+
+           
+            conn = DriverManager.getConnection(url, dbUsername, dbPassword);
+
+            
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, username);
+            pst.setString(2, password);
+
+            
+            rs = pst.executeQuery();
+
+            if (rs.next()) {
+                
+                String nama = rs.getString("username");
+                String email = rs.getString("email");
+                String nik = rs.getString("nik");
+                String kontak = rs.getString("kontak");
+                Date tanggallahir = rs.getDate("tanggallahir");
+                String alamat = rs.getString("alamat");
+                String jeniskelamin = rs.getString("jeniskelamin");
+                
+                JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+                DashboardNasabah FormDashboardNasabah = new DashboardNasabah();
+                FormDashboardNasabah.setVisible(true);
+
+                this.dispose();
+            } else {
+                
+                JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
      * @param args the command line arguments

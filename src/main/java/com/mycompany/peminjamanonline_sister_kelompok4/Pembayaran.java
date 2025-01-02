@@ -146,7 +146,7 @@ public class Pembayaran extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 

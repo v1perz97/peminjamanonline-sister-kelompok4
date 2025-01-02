@@ -188,7 +188,7 @@ public class Konfirmasi extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
-       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); // Pastikan KonfirmasiForm adalah nama class form Anda
+       DashboardAdmin FormDashboardAdmin = new DashboardAdmin();
        this.setVisible(false);
     }//GEN-LAST:event_btnBatalActionPerformed
 
