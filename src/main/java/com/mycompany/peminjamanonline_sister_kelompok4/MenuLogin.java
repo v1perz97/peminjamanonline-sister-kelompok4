@@ -4,15 +4,11 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
-import java.awt.Image;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -26,7 +22,7 @@ public class MenuLogin extends javax.swing.JFrame {
      */
     public MenuLogin() {
         initComponents();
-        
+
     }
 
     /**
@@ -158,27 +154,25 @@ public class MenuLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-       MenuRegister FormMenuRegister = new MenuRegister(); 
-       FormMenuRegister.setVisible(true); 
-       this.dispose(); 
+        MenuRegister FormMenuRegister = new MenuRegister();
+        FormMenuRegister.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void CbPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbPasswordActionPerformed
         if (CbPassword.isSelected()) {
-            
-            txtPassword.setEchoChar((char) 0); 
+
+            txtPassword.setEchoChar((char) 0);
         } else {
-            
+
             txtPassword.setEchoChar('*');
         }
     }//GEN-LAST:event_CbPasswordActionPerformed
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        
-        String username = txtUsername.getText(); 
-        String password = new String(txtPassword.getPassword()); 
+        String username = txtUsername.getText();
+        String password = new String(txtPassword.getPassword());
 
-        
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -189,47 +183,42 @@ public class MenuLogin extends javax.swing.JFrame {
         ResultSet rs = null;
 
         try {
-            
             String url = "jdbc:mysql://localhost:3306/loan_app";
             String dbUsername = "root";
             String dbPassword = "";
 
-           
             conn = DriverManager.getConnection(url, dbUsername, dbPassword);
 
-            
             String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
             pst = conn.prepareStatement(sql);
             pst.setString(1, username);
             pst.setString(2, password);
 
-            
             rs = pst.executeQuery();
 
             if (rs.next()) {
-                
-                String nama = rs.getString("username");
-                String email = rs.getString("email");
-                String nik = rs.getString("nik");
-                String kontak = rs.getString("kontak");
-                Date tanggallahir = rs.getDate("tanggallahir");
-                String alamat = rs.getString("alamat");
-                String jeniskelamin = rs.getString("jeniskelamin");
-                
+                String role = rs.getString("role"); // Ambil role pengguna
+
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
-                DashboardNasabah FormDashboardNasabah = new DashboardNasabah();
-                FormDashboardNasabah.setVisible(true);
+                // Arahkan berdasarkan role
+                if ("admin".equals(role)) {
+                    // Jika admin, buka Dashboard Admin
+                    DashboardAdmin dashboardAdmin = new DashboardAdmin(); // Ganti dengan nama kelas Dashboard Admin Anda
+                    dashboardAdmin.setVisible(true);
+                } else {
+                    // Jika user, buka Dashboard Nasabah
+                    DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
+                    dashboardNasabah.setVisible(true);
+                }
 
-                this.dispose();
+                this.dispose(); // Tutup jendela login
             } else {
-                
                 JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
-            
             try {
                 if (rs != null) {
                     rs.close();
@@ -244,7 +233,6 @@ public class MenuLogin extends javax.swing.JFrame {
                 ex.printStackTrace();
             }
         }
-
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**

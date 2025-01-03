@@ -177,7 +177,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_CbTenorActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       DashboardNasabah DashboardNasabah = new DashboardNasabah(); 
+    //   DashboardNasabah DashboardNasabah = new DashboardNasabah(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 

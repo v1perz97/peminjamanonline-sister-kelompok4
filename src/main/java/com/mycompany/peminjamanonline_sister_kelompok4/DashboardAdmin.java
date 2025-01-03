@@ -4,12 +4,19 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.io.FileOutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 /**
  *
  * @author ACER
  */
 public class DashboardAdmin extends javax.swing.JFrame {
-    
 
     /**
      * Creates new form DashboardAdmin
@@ -17,7 +24,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
     public DashboardAdmin() {
         initComponents();
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -38,7 +44,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         btnKonfirmasi = new javax.swing.JButton();
         btnHapus = new javax.swing.JButton();
-        btnEdit = new javax.swing.JButton();
         btnEksport = new javax.swing.JButton();
         btnNotifikasi = new javax.swing.JButton();
 
@@ -106,6 +111,15 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 "Id", "Nama", "NIK", "Jumlah", "Tenor"
             }
         ));
+        tblPengajuan.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                tblPengajuanAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
         jScrollPane1.setViewportView(tblPengajuan);
 
         btnCari.setBackground(new java.awt.Color(102, 102, 255));
@@ -147,15 +161,15 @@ public class DashboardAdmin extends javax.swing.JFrame {
             }
         });
 
-        btnEdit.setBackground(new java.awt.Color(102, 102, 255));
-        btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnEdit.setForeground(new java.awt.Color(255, 255, 255));
-        btnEdit.setText("Edit");
-
         btnEksport.setBackground(new java.awt.Color(102, 102, 255));
         btnEksport.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnEksport.setForeground(new java.awt.Color(255, 255, 255));
         btnEksport.setText("Eksport");
+        btnEksport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEksportActionPerformed(evt);
+            }
+        });
 
         btnNotifikasi.setBackground(new java.awt.Color(102, 102, 255));
         btnNotifikasi.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -191,8 +205,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnEksport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnHapus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnHapus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -212,8 +225,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnEdit)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnHapus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnEksport)))
@@ -230,23 +241,53 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKonfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonfirmasiActionPerformed
-       Konfirmasi FormKonfirmasi = new Konfirmasi();
-       FormKonfirmasi.setVisible(true); 
+        Konfirmasi FormKonfirmasi = new Konfirmasi();
+        FormKonfirmasi.setVisible(true);
     }//GEN-LAST:event_btnKonfirmasiActionPerformed
 
     private void btnNotifikasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotifikasiActionPerformed
-       Notifikasi FormNotifikasi = new Notifikasi();
-       FormNotifikasi.setVisible(true); 
+        Notifikasi FormNotifikasi = new Notifikasi();
+        FormNotifikasi.setVisible(true);
     }//GEN-LAST:event_btnNotifikasiActionPerformed
 
     private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
-       MenuLogin FormMenuLogin = new MenuLogin();
-       FormMenuLogin.setVisible(true); 
+        MenuLogin FormMenuLogin = new MenuLogin();
+        FormMenuLogin.setVisible(true);
     }//GEN-LAST:event_btnKeluarActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
-        
+        int selectedRow = tblPengajuan.getSelectedRow();
+
+        // Cek apakah ada baris yang dipilih
+        if (selectedRow != -1) {
+            // Ambil ID dari baris yang dipilih, misalkan ID berada di kolom pertama
+            int idToDelete = (int) tblPengajuan.getValueAt(selectedRow, 0);
+
+            // Hapus dari model tabel
+            ((DefaultTableModel) tblPengajuan.getModel()).removeRow(selectedRow);
+
+            // Hapus dari database menggunakan DatabaseConnection
+            try (Connection conn = DatabaseConnection.getConnection(); // Mengambil koneksi dari DatabaseConnection
+                     PreparedStatement pstmt = conn.prepareStatement("DELETE FROM nama_tabel WHERE id = ?")) {
+                pstmt.setInt(1, idToDelete);
+                pstmt.executeUpdate();
+
+                javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil dihapus!", "Informasi", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus!", "Warning", javax.swing.JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void btnEksportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEksportActionPerformed
+        exportToExcel();
+    }//GEN-LAST:event_btnEksportActionPerformed
+
+    private void tblPengajuanAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tblPengajuanAncestorAdded
+        fetchData();
+    }//GEN-LAST:event_tblPengajuanAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -285,7 +326,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCari;
-    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnEksport;
     private javax.swing.JButton btnHapus;
     private javax.swing.JButton btnKeluar;
@@ -298,4 +338,67 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JTable tblPengajuan;
     private javax.swing.JTextField txtCari;
     // End of variables declaration//GEN-END:variables
+
+    private void exportToExcel() {
+        try {
+            // Buat workbook baru
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Data Pengajuan");
+
+            // Ambil model dari JTable
+            javax.swing.table.TableModel model = tblPengajuan.getModel();
+
+            // Buat header dari tabel
+            Row headerRow = sheet.createRow(0);
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+            }
+
+            // Masukkan data dari JTable ke sheet Excel
+            for (int row = 0; row < model.getRowCount(); row++) {
+                Row excelRow = sheet.createRow(row + 1);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Cell cell = excelRow.createCell(col);
+                    Object value = model.getValueAt(row, col);
+                    if (value != null) {
+                        cell.setCellValue(value.toString());
+                    }
+                }
+            }
+
+            // Simpan workbook ke file
+            FileOutputStream fileOut = new FileOutputStream("DataPengajuan.xlsx");
+            workbook.write(fileOut);
+            fileOut.close();
+            workbook.close();
+
+            javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil diekspor ke Excel!", "Informasi", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat ekspor: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void fetchData() {
+        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
+        model.setRowCount(0); // Kosongkan model sebelum mengisi data baru
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM nama_tabel")) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nama = rs.getString("nama");
+                String nik = rs.getString("nik");
+                int jumlah = rs.getInt("jumlah");
+                int tenor = rs.getInt("tenor");
+
+                // Tambahkan baris baru ke model
+                model.addRow(new Object[]{id, nama, nik, jumlah, tenor});
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
