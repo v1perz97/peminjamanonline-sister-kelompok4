@@ -4,6 +4,8 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+
 /**
  *
  * @author ACER
@@ -177,7 +179,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_CbTenorActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-    //   DashboardNasabah DashboardNasabah = new DashboardNasabah(); 
+       
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 
@@ -219,7 +221,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void configureKafkaProducer() {
+        var props = new java.util.Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
+        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> CbTenor;
     private javax.swing.JButton btnAjukan;

@@ -226,7 +226,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-      // DashboardNasabah FormDashboardNasabah = new DashboardNasabah(); 
+       
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 

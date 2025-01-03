@@ -16,7 +16,7 @@ import org.apache.kafka.clients.producer.*;
  */
 public class MenuRegister extends javax.swing.JFrame {
 
-    private File ktpFile, profilFile;
+    private File ktpFile;
     private Connection connection;
     private Producer<String, String> kafkaProducer;
 
@@ -58,9 +58,7 @@ public class MenuRegister extends javax.swing.JFrame {
         btnBatal = new javax.swing.JButton();
         txtAlamat = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
         btnUnggahKTP = new javax.swing.JButton();
-        btnUnggahProfil = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
         rbLakiLaki = new javax.swing.JRadioButton();
         rbPerempuan = new javax.swing.JRadioButton();
@@ -135,9 +133,6 @@ public class MenuRegister extends javax.swing.JFrame {
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel9.setText("Foto KTP");
 
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel10.setText("Foto Profil");
-
         btnUnggahKTP.setBackground(new java.awt.Color(102, 102, 255));
         btnUnggahKTP.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnUnggahKTP.setForeground(new java.awt.Color(255, 255, 255));
@@ -145,16 +140,6 @@ public class MenuRegister extends javax.swing.JFrame {
         btnUnggahKTP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnUnggahKTPActionPerformed(evt);
-            }
-        });
-
-        btnUnggahProfil.setBackground(new java.awt.Color(102, 102, 255));
-        btnUnggahProfil.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnUnggahProfil.setForeground(new java.awt.Color(255, 255, 255));
-        btnUnggahProfil.setText("Unggah");
-        btnUnggahProfil.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUnggahProfilActionPerformed(evt);
             }
         });
 
@@ -181,13 +166,11 @@ public class MenuRegister extends javax.swing.JFrame {
                             .addComponent(jLabel11)
                             .addComponent(jLabel8)
                             .addComponent(jLabel9)
-                            .addComponent(jLabel10)
                             .addComponent(jLabel6)
                             .addComponent(jLabel5)
                             .addComponent(jLabel4))
                         .addGap(28, 28, 28)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnUnggahProfil, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                             .addComponent(btnUnggahKTP, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(rbLakiLaki)
@@ -204,7 +187,7 @@ public class MenuRegister extends javax.swing.JFrame {
                                     .addComponent(txtNIK, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)))
                             .addComponent(jDateChooserTanggalLahir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(68, 68, 68)
+                        .addGap(64, 64, 64)
                         .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(51, 51, 51)
                         .addComponent(btnSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -258,15 +241,11 @@ public class MenuRegister extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jLabel9)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel10)
-                    .addComponent(btnUnggahProfil))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(34, 34, 34))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         pack();
@@ -279,14 +258,6 @@ public class MenuRegister extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "File KTP berhasil diunggah: " + ktpFile.getName());
         }
     }//GEN-LAST:event_btnUnggahKTPActionPerformed
-
-    private void btnUnggahProfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnggahProfilActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            profilFile = fileChooser.getSelectedFile();
-            JOptionPane.showMessageDialog(this, "File Profil berhasil diunggah: " + profilFile.getName());
-        }
-    }//GEN-LAST:event_btnUnggahProfilActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
         try {
@@ -309,16 +280,9 @@ public class MenuRegister extends javax.swing.JFrame {
                 stmt.setNull(9, Types.BLOB);
             }
 
-            if (profilFile != null) {
-                FileInputStream fis = new FileInputStream(profilFile);
-                stmt.setBinaryStream(10, fis, (int) profilFile.length());
-            } else {
-                stmt.setNull(10, Types.BLOB);
-            }
-
+            
             stmt.executeUpdate();
 
-            // Kirim data ke Kafka
             kafkaProducer.send(new ProducerRecord<>("register", "User registered: " + txtNama.getText()));
 
             JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
@@ -373,10 +337,8 @@ public class MenuRegister extends javax.swing.JFrame {
     private javax.swing.JButton btnBatal;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JButton btnUnggahKTP;
-    private javax.swing.JButton btnUnggahProfil;
     private com.toedter.calendar.JDateChooser jDateChooserTanggalLahir;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -418,7 +380,7 @@ public class MenuRegister extends javax.swing.JFrame {
     private void createAdminUser() {
         try {
             String adminUsername = "admin";
-            String adminPassword = "admin123"; // Password admin default
+            String adminPassword = "admin123";
             String checkSql = "SELECT * FROM users WHERE username = ?";
             PreparedStatement checkStmt = connection.prepareStatement(checkSql);
             checkStmt.setString(1, adminUsername);
@@ -429,7 +391,7 @@ public class MenuRegister extends javax.swing.JFrame {
                 PreparedStatement insertStmt = connection.prepareStatement(insertSql);
                 insertStmt.setString(1, adminUsername);
                 insertStmt.setString(2, "admin@example.com");
-                insertStmt.setString(3, adminPassword); // Simpan tanpa hashing untuk kemudahan awal
+                insertStmt.setString(3, adminPassword); 
                 insertStmt.setString(4, "admin");
                 insertStmt.executeUpdate();
                 System.out.println("Admin user created: Username=admin, Password=admin123");
@@ -449,7 +411,6 @@ public class MenuRegister extends javax.swing.JFrame {
         rbLakiLaki.setSelected(false);
         rbPerempuan.setSelected(false);
         ktpFile = null;
-        profilFile = null;
         jDateChooserTanggalLahir.setDate(null);
     }
     
