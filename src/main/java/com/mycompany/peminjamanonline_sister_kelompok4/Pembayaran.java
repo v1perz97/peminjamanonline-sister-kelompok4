@@ -4,17 +4,25 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.util.Date;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
+ private RiwayatPinjaman riwayatPinjaman;
 
     /**
      * Creates new form Pembayaran
      */
     public Pembayaran() {
+        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
+        // Tampilkan data dari riwayatPinjaman
+        txtTagihan.setText(riwayatPinjaman.getTagihan());
+        txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
     }
 
     /**
@@ -81,6 +89,11 @@ public class Pembayaran extends javax.swing.JFrame {
         btnBayar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBayar.setForeground(new java.awt.Color(255, 255, 255));
         btnBayar.setText("Bayar");
+        btnBayar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBayarActionPerformed(evt);
+            }
+        });
 
         btnKembali.setBackground(new java.awt.Color(102, 102, 255));
         btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -107,11 +120,8 @@ public class Pembayaran extends javax.swing.JFrame {
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtTagihan)
-                                    .addComponent(txtJatuhTempo))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(txtTagihan)
+                            .addComponent(txtJatuhTempo)
                             .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnKembali)
@@ -146,9 +156,32 @@ public class Pembayaran extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
-       this.setVisible(false);
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman();
+        FormRiwayatPinjaman.setVisible(true);
+        this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
+        try {
+            double tagihan = Double.parseDouble(txtTagihan.getText());
+            Date tanggal = jDateChooser1.getDate();
+            String jatuhTempo = txtJatuhTempo.getText();
+
+            if (tanggal == null || jatuhTempo.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Harap lengkapi semua field.");
+                return;
+            }
+
+            // Proses pembayaran
+            riwayatPinjaman.setSisaTagihan(riwayatPinjaman.getSisaTagihan() - tagihan);
+            JOptionPane.showMessageDialog(this, "Pembayaran berhasil. Sisa tagihan: " + riwayatPinjaman.getSisaTagihan());
+
+            // Setelah pembayaran, bisa kembali ke form riwayat pinjaman atau menutup form ini
+            this.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tagihan harus berupa angka.");
+        }
+    }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
      * @param args the command line arguments
