@@ -17,14 +17,17 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author ACER
  */
 public class DashboardAdmin extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form DashboardAdmin
      */
     public DashboardAdmin() {
-        initComponents();
-    }
-
+    initComponents();
+    fetchData(); // Tambahkan ini agar data langsung dimuat
+}
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -181,8 +184,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 btnNotifikasiActionPerformed(evt);
             }
         });
-
-        jLabel3.setIcon(new javax.swing.ImageIcon("D:\\finalproject\\netbeans\\peminjamanonline-sister-kelompok4\\src\\main\\java\\com\\mycompany\\peminjamanonline_sister_kelompok4\\aset\\profiladmin (1).png")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -381,27 +382,36 @@ public class DashboardAdmin extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat ekspor: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    public void addRowToTable(Object[] rowData) {
+        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
+        model.addRow(rowData);
+    }
 
     private void fetchData() {
-        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
-        model.setRowCount(0); // Kosongkan model sebelum mengisi data baru
+         DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
+    model.setRowCount(0); // Kosongkan tabel sebelum mengisi data baru
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM nama_tabel")) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM pinjaman")) {
 
-            ResultSet rs = pstmt.executeQuery();
+        ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String nama = rs.getString("nama");
-                String nik = rs.getString("nik");
-                int jumlah = rs.getInt("jumlah");
-                int tenor = rs.getInt("tenor");
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String nama = rs.getString("nama");
+            String nik = rs.getString("nik");
+            int jumlah = rs.getInt("jumlah");
+            int tenor = rs.getInt("tenor");
 
-                // Tambahkan baris baru ke model
-                model.addRow(new Object[]{id, nama, nik, jumlah, tenor});
-            }
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            // Tambahkan data ke tabel
+            model.addRow(new Object[]{id, nama, nik, jumlah, tenor});
         }
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "Terjadi kesalahan saat mengambil data: " + e.getMessage(), 
+            "Error", 
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
     }
 }

@@ -4,6 +4,11 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 
 /**
@@ -40,6 +45,9 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         CbTenor = new javax.swing.JComboBox<>();
         txtBunga = new javax.swing.JLabel();
         txtCicilan = new javax.swing.JLabel();
+        btnTampil = new javax.swing.JButton();
+        txtNasabah_id = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,44 +119,71 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         txtCicilan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtCicilan.setText("Isi");
 
+        btnTampil.setBackground(new java.awt.Color(102, 102, 255));
+        btnTampil.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnTampil.setForeground(new java.awt.Color(255, 255, 255));
+        btnTampil.setText("Tampil");
+        btnTampil.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTampilActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel8.setText("Id Nasabah :");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnTampil)
+                .addGap(113, 113, 113))
             .addGroup(layout.createSequentialGroup()
-                .addGap(52, 52, 52)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(CbTenor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnKembali)
-                        .addGap(68, 68, 68)
-                        .addComponent(btnAjukan))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
+                        .addGap(52, 52, 52)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtBunga))
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel6)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(txtBunga))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(txtCicilan))))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtCicilan)))))
+                                .addComponent(btnKembali)
+                                .addGap(68, 68, 68)
+                                .addComponent(btnAjukan))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel8))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNasabah_id, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(CbTenor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtNasabah_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
@@ -164,7 +199,9 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(txtCicilan))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addComponent(btnTampil, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAjukan)
                     .addComponent(btnKembali))
@@ -184,8 +221,123 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
-        
+        try {
+        // Mengambil input jumlah pinjaman dari txtJumlah
+        double jumlah = Double.parseDouble(txtJumlah.getText());
+
+        // Mendapatkan tenor dari combo box dan mengonversinya menjadi angka
+        String tenorStr = (String) CbTenor.getSelectedItem();
+        int tenor = Integer.parseInt(tenorStr.split(" ")[0]);
+
+        // Bunga tetap 1% (0.01)
+        double bunga = 0.01;
+
+        // Menghitung cicilan per bulan
+        double cicilan = (jumlah + (jumlah * bunga)) / tenor;
+
+        // Menampilkan hasil cicilan pada txtCicilan
+        txtCicilan.setText(String.format("%.2f", cicilan));
+
+        // Mendapatkan nilai nasabah_id dari text field
+        String nasabah_id = txtNasabah_id.getText();  // Mendapatkan nilai ID Nasabah dari txtNasabah_id
+
+        if (nasabah_id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "ID Nasabah tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Mengirim data ke database
+        insertPinjaman(txtJumlah.getText(), tenorStr, String.format("%.2f", bunga * 100), String.format("%.2f", cicilan));
+
+    } catch (NumberFormatException e) {
+        // Menampilkan pesan error jika input jumlah tidak valid
+        JOptionPane.showMessageDialog(this, "Masukkan jumlah pinjaman yang valid!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnAjukanActionPerformed
+
+    private void btnTampilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTampilActionPerformed
+        try {
+    // Mengambil input jumlah pinjaman dari txtJumlah
+    double jumlah = Double.parseDouble(txtJumlah.getText());
+
+    // Mendapatkan tenor dari combo box dan mengonversinya menjadi angka
+    String tenorStr = (String) CbTenor.getSelectedItem();
+    int tenor = Integer.parseInt(tenorStr.split(" ")[0]);
+
+    // Bunga tetap 1% (0.01)
+    double bunga = 0.01;
+
+    // Memformat bunga menjadi persen (misalnya 0.01 menjadi 1.00)
+    String bungaFormatted = String.format("%.2f", bunga * 100);  // Ini akan menyimpan 1.00 untuk 1%
+
+    // Menghitung cicilan per bulan
+    double cicilan = (jumlah + (jumlah * bunga)) / tenor;
+
+    // Membulatkan cicilan menjadi bilangan bulat
+    long cicilanBulat = Math.round(cicilan); // Membulatkan cicilan ke angka bulat
+
+    // Menampilkan hasil cicilan pada txtCicilan
+    txtCicilan.setText(String.valueOf(cicilanBulat)); // Menampilkan cicilan dalam bentuk bilangan bulat
+
+    // Kirim data ke database
+    insertPinjaman(txtJumlah.getText(), tenorStr, bungaFormatted, String.valueOf(cicilanBulat));  // Mengirimkan bunga yang sudah diformat
+
+} catch (NumberFormatException e) {
+    // Menampilkan pesan error jika input jumlah tidak valid
+    JOptionPane.showMessageDialog(this, "Masukkan jumlah pinjaman yang valid!", "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+
+        
+    }//GEN-LAST:event_btnTampilActionPerformed
+    private void insertPinjaman(String jumlah, String tenor, String bunga, String cicilan) {
+    Connection conn = null;
+    PreparedStatement pst = null;
+
+    try {
+        // Koneksi ke database MySQL
+        String url = "jdbc:mysql://localhost:3306/loan_app";  // Ganti dengan URL database Anda
+        String user = "root";  // Ganti dengan username database Anda
+        String password = "";  // Ganti dengan password database Anda
+        conn = DriverManager.getConnection(url, user, password);
+
+        // Mengonversi tenor menjadi angka (jumlah bulan)
+        String tenorStr = (String) CbTenor.getSelectedItem();
+        int tenorInt = Integer.parseInt(tenorStr.split(" ")[0]); // Mengambil angka dari string "1 Bulan" menjadi 1
+
+        // SQL query untuk insert data
+        String sql = "INSERT INTO pinjaman (nasabah_id, jumlah, tenor, suku_bunga, angsuran_bulanan) VALUES (?, ?, ?, ?, ?)";
+
+        // Persiapkan statement
+        pst = conn.prepareStatement(sql);
+        String nasabah_id = null;
+
+        // Menetapkan parameter dengan urutan yang benar
+        pst.setString(1, nasabah_id);  // Menetapkan nasabah_id
+        pst.setString(2, jumlah);  // Menetapkan jumlah
+        pst.setInt(3, tenorInt);    // Menetapkan tenor sebagai angka
+        pst.setString(4, bunga);    // Menetapkan bunga
+        pst.setString(5, cicilan);  // Menetapkan cicilan
+
+        // Eksekusi query
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Data berhasil diajukan", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+        // Pindah ke halaman DashboardAdmin setelah pengajuan
+        new DashboardAdmin().setVisible(true);
+        this.setVisible(false);  // Menutup halaman pengajuan setelah berhasil
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        try {
+            if (pst != null) pst.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menutup koneksi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
 
     /**
      * @param args the command line arguments
@@ -234,14 +386,17 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> CbTenor;
     private javax.swing.JButton btnAjukan;
     private javax.swing.JButton btnKembali;
+    private javax.swing.JButton btnTampil;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel txtBunga;
     private javax.swing.JLabel txtCicilan;
     private javax.swing.JTextField txtJumlah;
+    private javax.swing.JTextField txtNasabah_id;
     // End of variables declaration//GEN-END:variables
 }
