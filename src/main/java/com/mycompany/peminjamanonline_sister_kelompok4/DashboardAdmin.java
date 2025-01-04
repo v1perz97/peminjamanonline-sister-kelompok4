@@ -192,7 +192,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(296, 296, 296)
+                        .addGap(307, 307, 307)
                         .addComponent(jLabel3))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
@@ -222,7 +222,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(3, 3, 3)
@@ -238,7 +237,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnHapus)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnKonfirmasi)
                     .addComponent(btnNotifikasi)
                     .addComponent(btnKeluar))
@@ -267,16 +266,14 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
         int selectedRow = tblPengajuan.getSelectedRow();
 
-        // Cek apakah ada baris yang dipilih
+        
         if (selectedRow != -1) {
-            // Ambil ID dari baris yang dipilih, misalkan ID berada di kolom pertama
+            
             int idToDelete = (int) tblPengajuan.getValueAt(selectedRow, 0);
 
-            // Hapus dari model tabel
             ((DefaultTableModel) tblPengajuan.getModel()).removeRow(selectedRow);
 
-            // Hapus dari database menggunakan DatabaseConnection
-            try (Connection conn = DatabaseConnection.getConnection(); // Mengambil koneksi dari DatabaseConnection
+            try (Connection conn = DatabaseConnection.getConnection(); 
                      PreparedStatement pstmt = conn.prepareStatement("DELETE FROM nama_tabel WHERE id = ?")) {
                 pstmt.setInt(1, idToDelete);
                 pstmt.executeUpdate();
@@ -351,21 +348,18 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
     private void exportToExcel() {
         try {
-            // Buat workbook baru
+            
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Data Pengajuan");
 
-            // Ambil model dari JTable
             javax.swing.table.TableModel model = tblPengajuan.getModel();
 
-            // Buat header dari tabel
             Row headerRow = sheet.createRow(0);
             for (int col = 0; col < model.getColumnCount(); col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(model.getColumnName(col));
             }
 
-            // Masukkan data dari JTable ke sheet Excel
             for (int row = 0; row < model.getRowCount(); row++) {
                 Row excelRow = sheet.createRow(row + 1);
                 for (int col = 0; col < model.getColumnCount(); col++) {
@@ -377,7 +371,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 }
             }
 
-            // Simpan workbook ke file
             FileOutputStream fileOut = new FileOutputStream("DataPengajuan.xlsx");
             workbook.write(fileOut);
             fileOut.close();
