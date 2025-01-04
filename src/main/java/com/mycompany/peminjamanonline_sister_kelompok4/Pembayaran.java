@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.util.Date;
+import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -13,15 +11,22 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
+    private RiwayatPinjaman riwayatPinjaman;
     private Producer<String, String> kafkaProducer;
+
     /**
      * Creates new form Pembayaran
      */
-    
-    
-    public Pembayaran() {
+    public Pembayaran(RiwayatPinjaman riwayatPinjaman) {
+        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
         configureKafkaProducer();
+
+        // Tampilkan data dari riwayatPinjaman
+        if (riwayatPinjaman != null) {
+            txtTagihan.setText(String.valueOf(riwayatPinjaman.getSisaTagihan()));
+            txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
+        }
     }
 
     /**
@@ -155,12 +160,34 @@ public class Pembayaran extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
-       this.setVisible(false);
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman();
+        FormRiwayatPinjaman.setVisible(true);
+        this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + txtTagihan.getText()));
+        try {
+            double tagihan = Double.parseDouble(txtTagihan.getText());
+            Date tanggal = jDateChooser1.getDate();
+            String jatuhTempo = txtJatuhTempo.getText();
+
+            if (tanggal == null || jatuhTempo.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Harap lengkapi semua field.");
+                return;
+            }
+
+            // Proses pembayaran
+            riwayatPinjaman.setSisaTagihan(riwayatPinjaman.getSisaTagihan() - tagihan);
+            JOptionPane.showMessageDialog(this, "Pembayaran berhasil. Sisa tagihan: " + riwayatPinjaman.getSisaTagihan());
+
+            // Kirim data ke Kafka
+            kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + riwayatPinjaman.getSisaTagihan()));
+
+            // Setelah pembayaran, bisa kembali ke form riwayat pinjaman atau menutup form ini
+            this.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tagihan harus berupa angka.");
+        }
     }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
@@ -193,19 +220,20 @@ public class Pembayaran extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran().setVisible(true);
+                new Pembayaran(new RiwayatPinjaman()).setVisible(true);
             }
         });
     }
-    
+
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+        kafkaProducer = new KafkaProducer<>(props);
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBayar;
     private javax.swing.JButton btnKembali;
