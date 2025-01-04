@@ -4,17 +4,55 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.function.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+
 /**
  *
  * @author ACER
  */
 public class Notifikasi extends javax.swing.JFrame {
-
+    
+    private Vector<String> notifikasiList = new Vector<>();
     /**
      * Creates new form Notifikasi
      */
     public Notifikasi() {
         initComponents();
+    }
+    
+    private void startKafkaConsumer() {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092"); // Ganti dengan server Kafka Anda
+        props.put("group.id", "notifikasi-group");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        KafkaConsumer<Object, Object> kafkaConsumer = new KafkaConsumer<>(props);
+        kafkaConsumer.subscribe(Arrays.asList("pembayaran")); // Ganti dengan topik yang sesuai
+
+        Thread consumerThread = new Thread(() -> {
+            try {
+                while (true) {
+                    ConsumerRecords<Object, Object> records = kafkaConsumer.poll(1000);
+                    for (ConsumerRecord<Object, Object> record : records) {
+                        String pesan = (String) record.value();
+                        notifikasiList.add(pesan);
+                        LstNotifikasi.setListData(notifikasiList);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                kafkaConsumer.close();
+            }
+        });
+        consumerThread.start();
     }
 
     /**

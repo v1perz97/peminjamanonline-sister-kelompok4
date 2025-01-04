@@ -16,12 +16,13 @@ import javax.swing.JOptionPane;
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form MenuLogin
      */
     public MenuLogin() {
         initComponents();
+        
 
     }
 
@@ -151,9 +152,9 @@ public class MenuLogin extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(CbPassword)
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -207,22 +208,21 @@ public class MenuLogin extends javax.swing.JFrame {
             rs = pst.executeQuery();
 
             if (rs.next()) {
-                String role = rs.getString("role"); // Ambil role pengguna
+                String role = rs.getString("role");
 
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
-                // Arahkan berdasarkan role
                 if ("admin".equals(role)) {
-                    // Jika admin, buka Dashboard Admin
-                    DashboardAdmin dashboardAdmin = new DashboardAdmin(); // Ganti dengan nama kelas Dashboard Admin Anda
+                    
+                    DashboardAdmin dashboardAdmin = new DashboardAdmin();
                     dashboardAdmin.setVisible(true);
                 } else {
-                    // Jika user, buka Dashboard Nasabah
+                    
                     DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
                     dashboardNasabah.setVisible(true);
                 }
 
-                this.dispose(); // Tutup jendela login
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
             }

@@ -5,18 +5,23 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
-
+    private Producer<String, String> kafkaProducer;
     /**
      * Creates new form Pembayaran
      */
+    
+    
     public Pembayaran() {
         initComponents();
+        configureKafkaProducer();
     }
 
     /**
@@ -83,6 +88,11 @@ public class Pembayaran extends javax.swing.JFrame {
         btnBayar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBayar.setForeground(new java.awt.Color(255, 255, 255));
         btnBayar.setText("Bayar");
+        btnBayar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBayarActionPerformed(evt);
+            }
+        });
 
         btnKembali.setBackground(new java.awt.Color(102, 102, 255));
         btnKembali.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -109,11 +119,8 @@ public class Pembayaran extends javax.swing.JFrame {
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtTagihan)
-                                    .addComponent(txtJatuhTempo))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(txtTagihan)
+                            .addComponent(txtJatuhTempo)
                             .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnKembali)
@@ -151,6 +158,10 @@ public class Pembayaran extends javax.swing.JFrame {
        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
+        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + txtTagihan.getText()));
+    }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
      * @param args the command line arguments
