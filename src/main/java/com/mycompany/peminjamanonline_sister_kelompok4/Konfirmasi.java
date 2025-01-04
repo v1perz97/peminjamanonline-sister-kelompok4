@@ -4,6 +4,8 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+
 /**
  *
  * @author ACER
@@ -227,7 +229,15 @@ public class Konfirmasi extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void configureKafkaProducer() {
+        var props = new java.util.Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
+        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBatal;
     private javax.swing.JButton btnDisetujui;

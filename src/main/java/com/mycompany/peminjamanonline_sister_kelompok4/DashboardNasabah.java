@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 /**
  *
@@ -15,14 +18,26 @@ import java.util.Date;
  */
 public class DashboardNasabah extends javax.swing.JFrame {
 
-    private String username; // Store the username
+    private String username; 
 
     /**
      * Creates new form DashboardNasabah
      * @param username
      */
     public DashboardNasabah(String username) {
-        this.username = username; // Set the username
+        this.username = username;
+        
+        URL location = getClass().getResource("/com.mycompany.peminjamanonline_sister_kelompok4.aset/Notifikasi.png");
+        if (location != null) {
+            ImageIcon icon = new ImageIcon(location);
+            JLabel label = new JLabel(icon);
+            add(label);
+        } else {
+            System.err.println("Gambar tidak ditemukan di package 'image'.");
+        }
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        pack();// Set the username
         initComponents();
         tampilkanProfilNasabah();
     }
@@ -59,6 +74,8 @@ public class DashboardNasabah extends javax.swing.JFrame {
         btnRiwayatPinjaman = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         txtTanggalLahir = new javax.swing.JLabel();
+        btnUbahData = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,10 +89,10 @@ public class DashboardNasabah extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(189, 189, 189)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(215, 215, 215))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -165,33 +182,47 @@ public class DashboardNasabah extends javax.swing.JFrame {
         txtTanggalLahir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtTanggalLahir.setText("Isi");
 
+        btnUbahData.setBackground(new java.awt.Color(102, 102, 255));
+        btnUbahData.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnUbahData.setForeground(new java.awt.Color(255, 255, 255));
+        btnUbahData.setText("Ubah Data");
+        btnUbahData.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnUbahDataMouseClicked(evt);
+            }
+        });
+        btnUbahData.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUbahDataActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setIcon(new javax.swing.ImageIcon("D:\\finalproject\\netbeans\\peminjamanonline-sister-kelompok4\\src\\main\\java\\com\\mycompany\\peminjamanonline_sister_kelompok4\\aset\\foto-admin.png")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(115, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(98, 98, 98))
             .addGroup(layout.createSequentialGroup()
                 .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtAlamat))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnKeluar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAjukanPinjaman)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRiwayatPinjaman))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtJeniskelamin))
-                    .addComponent(jLabel2)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtTanggalLahir))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtKontak))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtAlamat))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -200,48 +231,61 @@ public class DashboardNasabah extends javax.swing.JFrame {
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtEmail))
+                    .addComponent(jLabel2)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtNama))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel8)
+                        .addComponent(btnKeluar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtKontak))
+                        .addComponent(btnUbahData)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel10)
+                        .addGap(88, 88, 88)
+                        .addComponent(btnAjukanPinjaman)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtTanggalLahir)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnRiwayatPinjaman))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(155, 155, 155)
+                        .addComponent(jLabel12)))
+                .addGap(19, 19, 19))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(100, 100, 100))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
-                .addGap(20, 20, 20)
+                .addGap(28, 28, 28)
                 .addComponent(jLabel2)
                 .addGap(9, 9, 9)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(txtNama))
-                .addGap(3, 3, 3)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtEmail))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(txtNIK))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(txtTanggalLahir))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(txtAlamat))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(txtNama))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(txtEmail))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(txtNIK))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(txtTanggalLahir))
+                        .addGap(5, 5, 5)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(txtAlamat)))
+                    .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
@@ -250,12 +294,15 @@ public class DashboardNasabah extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(txtJeniskelamin))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnKeluar)
-                    .addComponent(btnAjukanPinjaman)
-                    .addComponent(btnRiwayatPinjaman))
-                .addGap(0, 23, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnKeluar)
+                        .addComponent(btnUbahData))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnAjukanPinjaman)
+                        .addComponent(btnRiwayatPinjaman)))
+                .addGap(20, 20, 20))
         );
 
         pack();
@@ -276,6 +323,18 @@ public class DashboardNasabah extends javax.swing.JFrame {
         FormMenuLogin.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnKeluarActionPerformed
+
+    private void btnUbahDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahDataActionPerformed
+       
+        MenuEdit formMenuEdit = new MenuEdit(username);
+        formMenuEdit.setVisible(true);
+        this.dispose();
+        
+    }//GEN-LAST:event_btnUbahDataActionPerformed
+
+    private void btnUbahDataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnUbahDataMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnUbahDataMouseClicked
 
     /**
      * @param args the command line arguments
@@ -312,12 +371,15 @@ public class DashboardNasabah extends javax.swing.JFrame {
         });
     }
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAjukanPinjaman;
     private javax.swing.JButton btnKeluar;
     private javax.swing.JButton btnRiwayatPinjaman;
+    private javax.swing.JButton btnUbahData;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -337,34 +399,41 @@ public class DashboardNasabah extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void tampilkanProfilNasabah() {
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) { // Query using username
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) {
 
+            
             pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                // Retrieve data from ResultSet
-                String nama = rs.getString("username");
-                String email = rs.getString("email");
-                String nik = rs.getString("nik");
-                String kontak = rs.getString("kontak");
-                Date tanggalLahir = rs.getDate("tanggal_lahir");
-                String alamat = rs.getString("alamat");
-                String jenisKelamin = rs.getString("jenis_kelamin");
+            String nama = rs.getString("username");
+            String email = rs.getString("email");
+            String nik = rs.getString("nik");
+            String kontak = rs.getString("kontak");
+            Date tanggalLahir = rs.getDate("tanggal_lahir");
+            String alamat = rs.getString("alamat");
+            String jenisKelamin = rs.getString("jenis_kelamin");
+            byte[] fotoBlob = rs.getBytes("foto_profil");
 
-                // Display data in GUI components
-                txtNama.setText(nama);
-                txtEmail.setText(email);
-                txtNIK.setText(nik);
-                txtKontak.setText(kontak);
-                txtTanggalLahir.setText(tanggalLahir.toString()); // Format the date as needed
-                txtAlamat.setText(alamat);
-                txtJeniskelamin.setText(jenisKelamin);
+            // Display data in GUI components
+            txtNama.setText(nama);
+            txtEmail.setText(email);
+            txtNIK.setText(nik);
+            txtKontak.setText(kontak);
+            txtTanggalLahir.setText(tanggalLahir.toString());
+            txtAlamat.setText(alamat);
+            txtJeniskelamin.setText(jenisKelamin);
+
+            
             } else {
                 javax.swing.JOptionPane.showMessageDialog(this, "Data nasabah tidak ditemukan!", "Info", javax.swing.JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String getSelectedNasabahUsername() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
