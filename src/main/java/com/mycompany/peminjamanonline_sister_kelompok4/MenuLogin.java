@@ -10,19 +10,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
-    
+    private Producer<String, String> kafkaProducer;
     /**
      * Creates new form MenuLogin
      */
     public MenuLogin() {
         initComponents();
-        
+        configureKafkaProducer();
 
     }
 
@@ -204,14 +207,16 @@ public class MenuLogin extends javax.swing.JFrame {
             pst = conn.prepareStatement(sql);
             pst.setString(1, username);
             pst.setString(2, password);
-
+            
             rs = pst.executeQuery();
+            
 
             if (rs.next()) {
                 String role = rs.getString("role");
-
+                
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
+                kafkaProducer.send(new ProducerRecord<>("login", "User: " + username + " berhasil login"));
+                
                 if ("admin".equals(role)) {
                     
                     DashboardAdmin dashboardAdmin = new DashboardAdmin();
@@ -221,11 +226,14 @@ public class MenuLogin extends javax.swing.JFrame {
                     DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
                     dashboardNasabah.setVisible(true);
                 }
+                
+                
 
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
             }
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
@@ -292,4 +300,11 @@ public class MenuLogin extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
-}
+private void configureKafkaProducer() {
+        var props = new java.util.Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        kafkaProducer = new KafkaProducer<>(props);
+    }}
