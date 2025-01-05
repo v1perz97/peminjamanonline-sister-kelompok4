@@ -5,18 +5,21 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class Konfirmasi extends javax.swing.JFrame {
-
+    private Producer<String, String> kafkaProducer;
     /**
      * Creates new form RiwayatPinjaman
      */
     public Konfirmasi() {
         initComponents();
+        configureKafkaProducer();
     }
 
     /**
@@ -88,11 +91,21 @@ public class Konfirmasi extends javax.swing.JFrame {
         btnDitolak.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDitolak.setForeground(new java.awt.Color(255, 255, 255));
         btnDitolak.setText("Ditolak");
+        btnDitolak.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDitolakActionPerformed(evt);
+            }
+        });
 
         btnDisetujui.setBackground(new java.awt.Color(102, 102, 255));
         btnDisetujui.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDisetujui.setForeground(new java.awt.Color(255, 255, 255));
         btnDisetujui.setText("Disetujui");
+        btnDisetujui.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDisetujuiActionPerformed(evt);
+            }
+        });
 
         btnBatal.setBackground(new java.awt.Color(102, 102, 255));
         btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -194,6 +207,14 @@ public class Konfirmasi extends javax.swing.JFrame {
        this.setVisible(false);
     }//GEN-LAST:event_btnBatalActionPerformed
 
+    private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
+        kafkaProducer.send(new ProducerRecord<>("konfirmasi", "Pengajuan Anda Telah Disetujui Oleh Admin"));
+    }//GEN-LAST:event_btnDisetujuiActionPerformed
+
+    private void btnDitolakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDitolakActionPerformed
+        kafkaProducer.send(new ProducerRecord<>("konfirmasi", "Pengajuan Anda Ditolak Oleh Admin"));
+    }//GEN-LAST:event_btnDitolakActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -236,7 +257,7 @@ public class Konfirmasi extends javax.swing.JFrame {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+        kafkaProducer = new KafkaProducer<>(props);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBatal;

@@ -160,7 +160,7 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + txtTagihan.getText()));
+        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Informasi Pembayaran ========= " + "Jumlah Tagihan: " + txtTagihan.getText() +" "+ "Pada Tanggal" + DtTanggal.getDate()+ "Berhasil Dibayarkan"));
     }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
@@ -204,7 +204,7 @@ public class Pembayaran extends javax.swing.JFrame {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+        kafkaProducer = new KafkaProducer<>(props);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser DtTanggal;

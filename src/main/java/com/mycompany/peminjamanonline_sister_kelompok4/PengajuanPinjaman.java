@@ -12,18 +12,22 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class PengajuanPinjaman extends javax.swing.JFrame {
+     private Producer<String, String> kafkaProducer;
 
     /**
      * Creates new form PengajuanPinjaman
      */
     public PengajuanPinjaman() {
         initComponents();
+        configureKafkaProducer();
     }
 
     /**
@@ -220,6 +224,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Silakan isi jumlah pinjaman dan tampilkan cicilan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        kafkaProducer.send(new ProducerRecord<>("pengajuan", "Informasi Pengajuan ========= " + "Jumlah Pengajuan Pinjaman: " + txtJumlah.getText() +" "+ "Cicilan Per bulan: " + txtCicilan.getText()));
 
         // Panggil metode insertData untuk menyimpan data ke database
         insertData(jumlah, tenor, suku_bunga, angsuran_bulanan);
@@ -357,7 +362,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+        kafkaProducer = new KafkaProducer<>(props);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> CbTenor;
