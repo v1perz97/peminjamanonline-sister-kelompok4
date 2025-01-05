@@ -4,6 +4,9 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+
 /**
  *
  * @author ACER
@@ -13,9 +16,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     /**
      * Creates new form RiwayatPinjaman
      */
-    public RiwayatPinjaman() {
-        initComponents();
-    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -268,6 +269,23 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 new RiwayatPinjaman().setVisible(true);
             }
         });
+    }
+    
+
+    
+    private Date hitungJatuhTempo(Date tanggalPengajuan) {
+        long millisPerDay = 24 * 60 * 60 * 1000L;
+        return new Date(tanggalPengajuan.getTime() + (7 * millisPerDay));
+    }
+    
+    private Date hitungTanggalPencairan(Date jatuhTempo) {
+        long millisPerDay = 24 * 60 * 60 * 1000L;
+        return new Date(jatuhTempo.getTime() + millisPerDay);
+    }
+    
+     private String formatTanggal(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        return sdf.format(date);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

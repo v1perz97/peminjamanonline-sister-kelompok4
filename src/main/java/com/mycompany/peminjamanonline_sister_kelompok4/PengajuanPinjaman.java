@@ -4,6 +4,13 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 
 /**
@@ -40,6 +47,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         CbTenor = new javax.swing.JComboBox<>();
         txtBunga = new javax.swing.JLabel();
         txtCicilan = new javax.swing.JLabel();
+        btnTampil = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,6 +119,16 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         txtCicilan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtCicilan.setText("Isi");
 
+        btnTampil.setBackground(new java.awt.Color(102, 102, 255));
+        btnTampil.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnTampil.setForeground(new java.awt.Color(255, 255, 255));
+        btnTampil.setText("Tampil");
+        btnTampil.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTampilActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -141,7 +159,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtCicilan)))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtCicilan)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(btnTampil)))))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -164,7 +186,9 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(txtCicilan))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnTampil, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAjukan)
                     .addComponent(btnKembali))
@@ -184,9 +208,114 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
-        
-    }//GEN-LAST:event_btnAjukanActionPerformed
+         try {
+        // Ambil input dari form
+        String jumlah = txtJumlah.getText();
+        String tenor = (String) CbTenor.getSelectedItem();
+        String suku_bunga = txtBunga.getText();
+        String angsuran_bulanan = txtCicilan.getText();
 
+        // Validasi input
+        if (jumlah.isEmpty() || angsuran_bulanan.equals("Isi")) {
+            JOptionPane.showMessageDialog(this, "Silakan isi jumlah pinjaman dan tampilkan cicilan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Panggil metode insertData untuk menyimpan data ke database
+        insertData(jumlah, tenor, suku_bunga, angsuran_bulanan);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_btnAjukanActionPerformed
+    private void insertData(String jumlah, String tenor, String suku_bunga, String angsuran_bulanan) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        String url = "jdbc:mysql://localhost:3306/loan_app"; // Ganti dengan URL database Anda
+        String user = "root"; // Ganti dengan username database Anda
+        String password = ""; // Ganti dengan password database Anda
+
+        try {
+            conn = DriverManager.getConnection(url, user, password);
+
+            LocalDate tanggalPengajuan = LocalDate.now();
+
+            LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String tanggalCairStr = tanggalCair.format(formatter);
+
+            int jumlahPinjaman = Integer.parseInt(jumlah);
+            double bunga = 0.01;
+            double totalCair = jumlahPinjaman * (1 + bunga);
+
+     
+            String query = "INSERT INTO pinjaman (jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair) "
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
+
+            ps = conn.prepareStatement(query);
+            ps.setString(1, jumlah);
+            ps.setString(2, tenor);
+            ps.setString(3, suku_bunga);
+            ps.setString(4, angsuran_bulanan);
+            ps.setString(5, tanggalCairStr);
+            ps.setDouble(6, totalCair);
+
+            int rowsInserted = ps.executeUpdate();
+            if (rowsInserted > 0) {
+                JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void btnTampilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTampilActionPerformed
+        try {
+        // Ambil input jumlah pinjaman dan tenor
+        int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
+        int tenor = 1; // Default tenor
+        double bunga = 0.01; // Bunga 1%
+
+        // Cek tenor berdasarkan pilihan di ComboBox
+        String pilihanTenor = (String) CbTenor.getSelectedItem();
+        switch (pilihanTenor) {
+            case "1 Bulan":
+                tenor = 1;
+                break;
+            case "3 Bulan":
+                tenor = 3;
+                break;
+            case "6 Bulan":
+                tenor = 6;
+                break;
+            case "12 Bulan":
+                tenor = 12;
+                break;
+        }
+
+        // Hitung cicilan
+        double cicilan = (jumlahPinjaman * (1 + bunga)) / tenor;
+        int cicilanBulanan = (int) Math.round(cicilan); // Konversi ke bilangan bulat
+
+        // Tampilkan hasil cicilan
+        txtCicilan.setText(String.valueOf(cicilanBulanan));
+    } catch (NumberFormatException e) {
+        txtCicilan.setText("Input tidak valid!");
+    }
+    }//GEN-LAST:event_btnTampilActionPerformed
+    
     /**
      * @param args the command line arguments
      */
@@ -234,6 +363,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> CbTenor;
     private javax.swing.JButton btnAjukan;
     private javax.swing.JButton btnKembali;
+    private javax.swing.JButton btnTampil;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
