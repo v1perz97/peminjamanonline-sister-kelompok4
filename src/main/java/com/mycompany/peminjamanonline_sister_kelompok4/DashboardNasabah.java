@@ -328,7 +328,7 @@ public class DashboardNasabah extends javax.swing.JFrame {
        
         MenuEdit formMenuEdit = new MenuEdit(username);
         formMenuEdit.setVisible(true);
-        this.dispose();
+        
         
     }//GEN-LAST:event_btnUbahDataActionPerformed
 
