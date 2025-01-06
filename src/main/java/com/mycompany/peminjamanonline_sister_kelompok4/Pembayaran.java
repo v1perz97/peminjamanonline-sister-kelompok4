@@ -1,32 +1,37 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
-import java.util.Date;
-import javax.swing.JOptionPane;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+//import java.sql.Connection;
+//import java.util.Date;
+//import javax.swing.JOptionPane;
+//import org.apache.kafka.clients.producer.KafkaProducer;
+//import org.apache.kafka.clients.producer.Producer;
+//import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
-    private RiwayatPinjaman riwayatPinjaman;
-    private Producer<String, String> kafkaProducer;
+
+//    private RiwayatPinjaman riwayatPinjaman;
+//    private DefaultListModel<String> notificationsModel;
+//    private static final String NOTIFICATIONS_FILE = "notifications.txt";
+//    private Producer<String, String> kafkaProducer;
 
     /**
      * Creates new form Pembayaran
      */
-    public Pembayaran(RiwayatPinjaman riwayatPinjaman) {
-        this.riwayatPinjaman = riwayatPinjaman;
+    public Pembayaran() {
+//        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
-        configureKafkaProducer();
-
-        // Tampilkan data dari riwayatPinjaman
-        if (riwayatPinjaman != null) {
-            txtTagihan.setText(String.valueOf(riwayatPinjaman.getSisaTagihan()));
-            txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
-        }
+//        configureKafkaProducer();
+//        updateNotificationsList();
+//
+//        // Tampilkan data dari riwayatPinjaman
+//        if (riwayatPinjaman != null) {
+//            txtTagihan.setText(String.valueOf(riwayatPinjaman.getSisaTagihan()));
+//            txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
+//        }
     }
 
     /**
@@ -166,73 +171,63 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        try {
-            double tagihan = Double.parseDouble(txtTagihan.getText());
-            Date tanggal = jDateChooser1.getDate();
-            String jatuhTempo = txtJatuhTempo.getText();
+//        try {
+//            double tagihan = Double.parseDouble(txtTagihan.getText());
+//            Date tanggal = DtTanggal.getDate();
+//            String jatuhTempo = txtJatuhTempo.getText();
+//
+//            if (tanggal == null || jatuhTempo.isEmpty()) {
+//                JOptionPane.showMessageDialog(this, "Harap lengkapi semua field.");
+//                return;
+//            }
+//
+//            // Proses pembayaran
+//            riwayatPinjaman.setSisaTagihan(riwayatPinjaman.getSisaTagihan() - tagihan);
+//            JOptionPane.showMessageDialog(this, "Pembayaran berhasil. Sisa tagihan: " + riwayatPinjaman.getSisaTagihan());
+//
+//            // Kirim data ke Kafka
+//            kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + riwayatPinjaman.getSisaTagihan()));
+//
+//            // Update sisa angsuran di database
+//            try (Connection connection = DatabaseConnection.getConnection()) { // Pastikan Anda memiliki metode untuk mendapatkan koneksi
+//                riwayatPinjaman.updateSisaAngsuran(connection);
+//            }
+//
+//            // Tambahkan notifikasi setelah pembayaran
+//            String notification = "Pembayaran: " + tagihan + ", Sisa Tagihan: " + riwayatPinjaman.getSisaTagihan();
+//            riwayatPinjaman.addNotification(notification);
+//            saveNotificationToFile(notification); // Save notification to file
+//            updateNotificationsList();
+//
+//            // Setelah pembayaran, bisa kembali ke form riwayat pinjaman atau menutup form ini
+//            this.dispose();
+//        } catch (NumberFormatException e) {
+//            JOptionPane.showMessageDialog(this, "Tagihan harus berupa angka.");
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
+//        }
+    }
 
-            if (tanggal == null || jatuhTempo.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Harap lengkapi semua field.");
-                return;
-            }
-
-            // Proses pembayaran
-            riwayatPinjaman.setSisaTagihan(riwayatPinjaman.getSisaTagihan() - tagihan);
-            JOptionPane.showMessageDialog(this, "Pembayaran berhasil. Sisa tagihan: " + riwayatPinjaman.getSisaTagihan());
-
-            // Kirim data ke Kafka
-            kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + riwayatPinjaman.getSisaTagihan()));
-
-            // Setelah pembayaran, bisa kembali ke form riwayat pinjaman atau menutup form ini
-            this.dispose();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tagihan harus berupa angka.");
-        }
-    }//GEN-LAST:event_btnBayarActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+        // Set the Nimbus look and feel
+        // ... (kode setting look and feel yang sama seperti sebelumnya) ...
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran(new RiwayatPinjaman()).setVisible(true);
+                new Pembayaran().setVisible(true);
             }
         });
-    }
+    }//GEN-LAST:event_btnBayarActionPerformed
 
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        kafkaProducer = new KafkaProducer<>(props);
-    }
+//    private void configureKafkaProducer() {
+//        var props = new java.util.Properties();
+//        props.put("bootstrap.servers", "localhost:9092");
+//        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+//        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+//
+//        kafkaProducer = new KafkaProducer<>(props);
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser DtTanggal;
