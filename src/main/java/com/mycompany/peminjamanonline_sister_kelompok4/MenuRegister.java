@@ -19,6 +19,9 @@ public class MenuRegister extends javax.swing.JFrame {
     private File ktpFile;
     private Connection connection;
     private Producer<String, String> kafkaProducer;
+    private Connection broker1Connection;
+    private Connection broker2Connection;
+    private Connection broker3Connection;
 
     /**
      * Creates new form MenuRegister
@@ -260,42 +263,27 @@ public class MenuRegister extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUnggahKTPActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
-        try {
-            String sql = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt = connection.prepareStatement(sql);
+        String nama = txtNama.getText();
+        String email = txtEmail.getText();
+        String password = txtPassword.getText();
+        String nik = txtNIK.getText();
+        String kontak = txtKontak.getText();
+        Date tanggalLahir = (Date) jDateChooserTanggalLahir.getDate();
+        String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-laki" : "Perempuan";
+        String alamat = txtAlamat.getText();
 
-            stmt.setString(1, txtNama.getText());
-            stmt.setString(2, txtEmail.getText());
-            stmt.setString(3, txtPassword.getText());
-            stmt.setString(4, txtNIK.getText());
-            stmt.setString(5, txtKontak.getText());
-            stmt.setDate(6, new java.sql.Date(jDateChooserTanggalLahir.getDate().getTime()));
-            stmt.setString(7, txtAlamat.getText());
-            stmt.setString(8, rbLakiLaki.isSelected() ? "Laki-laki" : "Perempuan");
-
-            if (ktpFile != null) {
-                FileInputStream fis = new FileInputStream(ktpFile);
-                stmt.setBinaryStream(9, fis, (int) ktpFile.length());
-            } else {
-                stmt.setNull(9, Types.BLOB);
-            }
-
-            
-            stmt.executeUpdate();
-
-            kafkaProducer.send(new ProducerRecord<>("register", "Informasi Register ====== "+"User: "+ txtNama.getText()+" "+"Email: "+ txtEmail.getText() +" "+ " Berhasil Melakukan Register"));
-
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
-            clearForm();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage());
+        if (ktpFile == null) {
+            JOptionPane.showMessageDialog(this, "Harap unggah foto KTP terlebih dahulu!");
+            return;
         }
+
+        saveDataToBrokers(nama, email, password, nik, kontak, tanggalLahir, jenisKelamin, alamat, ktpFile);
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
-       MenuLogin FormMenuLogin = new MenuLogin(); 
-       FormMenuLogin.setVisible(true); 
-       this.dispose(); 
+        MenuLogin FormMenuLogin = new MenuLogin();
+        FormMenuLogin.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBatalActionPerformed
 
     /**
@@ -361,20 +349,81 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private void connectToDatabase() {
         try {
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/loan_app", "root", "");
+            // Koneksi ke database broker 1
+            broker1Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.98:3306/loan_app", "root", "");
+
+            // Koneksi ke database broker 2
+            broker2Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.134:3306/loan_app", "root", "");
+
+            // Koneksi ke database broker 3
+            broker3Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.97:3306/loan_app", "root", "");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Gagal terhubung ke database: " + e.getMessage());
         }
     }
 
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
-        props.put("bootstrap.servers", "192.168.35.239:9092,192.168.37.230.239:9093,192.168.36.75:9094");
+        props.put("bootstrap.servers", "192.168.43.98:9092,192.168.43.134:9093,192.168.43.97:9094");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         kafkaProducer = new KafkaProducer<>(props);
+    }
+
+    private void saveDataToBrokers(String nama, String email, String password, String nik,
+            String kontak, Date tanggalLahir, String jenisKelamin,
+            String alamat, File ktpFile) {
+        String sql = "INSERT INTO users (nama, email, password, nik, kontak, tanggal_lahir, jenis_kelamin, alamat, foto_ktp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        FileInputStream fis = null;
+
+        try {
+            fis = new FileInputStream(ktpFile);
+
+            // Simpan ke broker 1
+            try (PreparedStatement ps = broker1Connection.prepareStatement(sql)) {
+                fillPreparedStatement(ps, nama, email, password, nik, kontak, tanggalLahir, jenisKelamin, alamat, fis);
+                ps.executeUpdate();
+            }
+
+            // Simpan ke broker 2
+            try (PreparedStatement ps = broker2Connection.prepareStatement(sql)) {
+                fillPreparedStatement(ps, nama, email, password, nik, kontak, tanggalLahir, jenisKelamin, alamat, fis);
+                ps.executeUpdate();
+            }
+
+            // Simpan ke broker 3
+            try (PreparedStatement ps = broker3Connection.prepareStatement(sql)) {
+                fillPreparedStatement(ps, nama, email, password, nik, kontak, tanggalLahir, jenisKelamin, alamat, fis);
+                ps.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Data berhasil disimpan ke semua broker!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage());
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void fillPreparedStatement(PreparedStatement ps, String nama, String email, String password,
+            String nik, String kontak, Date tanggalLahir,
+            String jenisKelamin, String alamat, FileInputStream fis) throws SQLException {
+        ps.setString(1, nama);
+        ps.setString(2, email);
+        ps.setString(3, password);
+        ps.setString(4, nik);
+        ps.setString(5, kontak);
+        ps.setDate(6, new java.sql.Date(tanggalLahir.getTime()));
+        ps.setString(7, jenisKelamin);
+        ps.setString(8, alamat);
+        ps.setBinaryStream(9, fis, (int) ktpFile.length());
     }
 
     private void createAdminUser() {
@@ -391,7 +440,7 @@ public class MenuRegister extends javax.swing.JFrame {
                 PreparedStatement insertStmt = connection.prepareStatement(insertSql);
                 insertStmt.setString(1, adminUsername);
                 insertStmt.setString(2, "admin@example.com");
-                insertStmt.setString(3, adminPassword); 
+                insertStmt.setString(3, adminPassword);
                 insertStmt.setString(4, "admin");
                 insertStmt.executeUpdate();
                 System.out.println("Admin user created: Username=admin, Password=admin123");
@@ -413,5 +462,5 @@ public class MenuRegister extends javax.swing.JFrame {
         ktpFile = null;
         jDateChooserTanggalLahir.setDate(null);
     }
-    
+
 }
