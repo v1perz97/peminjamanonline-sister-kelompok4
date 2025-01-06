@@ -314,7 +314,8 @@ public class DashboardNasabah extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAjukanPinjamanActionPerformed
 
     private void btnRiwayatPinjamanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiwayatPinjamanActionPerformed
-       
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman();
+        FormRiwayatPinjaman.setVisible(true);
     }//GEN-LAST:event_btnRiwayatPinjamanActionPerformed
 
     private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
