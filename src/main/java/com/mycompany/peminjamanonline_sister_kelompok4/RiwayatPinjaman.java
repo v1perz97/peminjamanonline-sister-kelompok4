@@ -232,8 +232,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-//        Pembayaran FormPembayaran = new Pembayaran();
-//        FormPembayaran.setVisible(true);
+
     }//GEN-LAST:event_btnBayarActionPerformed
 
     /**

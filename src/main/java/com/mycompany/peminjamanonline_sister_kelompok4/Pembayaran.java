@@ -171,41 +171,6 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-//        try {
-//            double tagihan = Double.parseDouble(txtTagihan.getText());
-//            Date tanggal = DtTanggal.getDate();
-//            String jatuhTempo = txtJatuhTempo.getText();
-//
-//            if (tanggal == null || jatuhTempo.isEmpty()) {
-//                JOptionPane.showMessageDialog(this, "Harap lengkapi semua field.");
-//                return;
-//            }
-//
-//            // Proses pembayaran
-//            riwayatPinjaman.setSisaTagihan(riwayatPinjaman.getSisaTagihan() - tagihan);
-//            JOptionPane.showMessageDialog(this, "Pembayaran berhasil. Sisa tagihan: " + riwayatPinjaman.getSisaTagihan());
-//
-//            // Kirim data ke Kafka
-//            kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + riwayatPinjaman.getSisaTagihan()));
-//
-//            // Update sisa angsuran di database
-//            try (Connection connection = DatabaseConnection.getConnection()) { // Pastikan Anda memiliki metode untuk mendapatkan koneksi
-//                riwayatPinjaman.updateSisaAngsuran(connection);
-//            }
-//
-//            // Tambahkan notifikasi setelah pembayaran
-//            String notification = "Pembayaran: " + tagihan + ", Sisa Tagihan: " + riwayatPinjaman.getSisaTagihan();
-//            riwayatPinjaman.addNotification(notification);
-//            saveNotificationToFile(notification); // Save notification to file
-//            updateNotificationsList();
-//
-//            // Setelah pembayaran, bisa kembali ke form riwayat pinjaman atau menutup form ini
-//            this.dispose();
-//        } catch (NumberFormatException e) {
-//            JOptionPane.showMessageDialog(this, "Tagihan harus berupa angka.");
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
-//        }
     }
 
     public static void main(String args[]) {
@@ -217,17 +182,17 @@ public class Pembayaran extends javax.swing.JFrame {
                 new Pembayaran().setVisible(true);
             }
         });
-    }//GEN-LAST:event_btnBayarActionPerformed
 
+    }
+    
+    private void configureKafkaProducer() {
+        var props = new java.util.Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-//    private void configureKafkaProducer() {
-//        var props = new java.util.Properties();
-//        props.put("bootstrap.servers", "localhost:9092");
-//        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//
-//        kafkaProducer = new KafkaProducer<>(props);
-//    }
+        kafkaProducer = new KafkaProducer<>(props);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser DtTanggal;

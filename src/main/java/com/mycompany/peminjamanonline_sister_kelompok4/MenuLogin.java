@@ -10,19 +10,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
-    
+    private Producer<String, String> kafkaProducer;
     /**
      * Creates new form MenuLogin
      */
     public MenuLogin() {
         initComponents();
-        
+        configureKafkaProducer();
 
     }
 
@@ -117,9 +120,6 @@ public class MenuLogin extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(138, 138, 138)
-                        .addComponent(foto))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(97, 97, 97)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -135,16 +135,19 @@ public class MenuLogin extends javax.swing.JFrame {
                                 .addGroup(layout.createSequentialGroup()
                                     .addGap(76, 76, 76)
                                     .addComponent(jLabel1)))
-                            .addComponent(CbPassword))))
+                            .addComponent(CbPassword)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(141, 141, 141)
+                        .addComponent(foto)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
                 .addComponent(foto)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -158,7 +161,7 @@ public class MenuLogin extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
@@ -204,14 +207,16 @@ public class MenuLogin extends javax.swing.JFrame {
             pst = conn.prepareStatement(sql);
             pst.setString(1, username);
             pst.setString(2, password);
-
+            
             rs = pst.executeQuery();
+            
 
             if (rs.next()) {
                 String role = rs.getString("role");
-
+                
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
+                kafkaProducer.send(new ProducerRecord<>("login", "User: " + username + " berhasil login"));
+                
                 if ("admin".equals(role)) {
                     
                     DashboardAdmin dashboardAdmin = new DashboardAdmin();
@@ -221,11 +226,14 @@ public class MenuLogin extends javax.swing.JFrame {
                     DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
                     dashboardNasabah.setVisible(true);
                 }
+                
+                
 
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
             }
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {
@@ -292,4 +300,11 @@ public class MenuLogin extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
-}
+private void configureKafkaProducer() {
+        var props = new java.util.Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        kafkaProducer = new KafkaProducer<>(props);
+    }}

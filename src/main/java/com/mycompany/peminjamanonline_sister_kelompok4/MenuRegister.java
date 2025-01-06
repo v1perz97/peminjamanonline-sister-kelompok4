@@ -261,7 +261,7 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
         try {
-            String sql = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp, foto_profil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = connection.prepareStatement(sql);
 
             stmt.setString(1, txtNama.getText());
@@ -283,7 +283,7 @@ public class MenuRegister extends javax.swing.JFrame {
             
             stmt.executeUpdate();
 
-            kafkaProducer.send(new ProducerRecord<>("register", "User registered: " + txtNama.getText()));
+            kafkaProducer.send(new ProducerRecord<>("register", "Informasi Register ====== "+"User: "+ txtNama.getText()+" "+"Email: "+ txtEmail.getText() +" "+ " Berhasil Melakukan Register"));
 
             JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
             clearForm();
