@@ -7,9 +7,9 @@ import org.apache.kafka.clients.producer.Producer;
 
 //import java.util.Date;
 //import javax.swing.JOptionPane;
-//import org.apache.kafka.clients.producer.KafkaProducer;
-//import org.apache.kafka.clients.producer.Producer;
-//import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
