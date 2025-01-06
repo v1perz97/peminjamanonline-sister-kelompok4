@@ -4,7 +4,9 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
 
 /**
@@ -16,8 +18,6 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     /**
      * Creates new form RiwayatPinjaman
      */
-    
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -227,12 +227,12 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       
-       this.setVisible(false);
+
+        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-       
+
     }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
@@ -269,20 +269,18 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
             }
         });
     }
-    
 
-    
     private Date hitungJatuhTempo(Date tanggalPengajuan) {
         long millisPerDay = 24 * 60 * 60 * 1000L;
         return new Date(tanggalPengajuan.getTime() + (7 * millisPerDay));
     }
-    
+
     private Date hitungTanggalPencairan(Date jatuhTempo) {
         long millisPerDay = 24 * 60 * 60 * 1000L;
         return new Date(jatuhTempo.getTime() + millisPerDay);
     }
-    
-     private String formatTanggal(Date date) {
+
+    private String formatTanggal(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         return sdf.format(date);
     }

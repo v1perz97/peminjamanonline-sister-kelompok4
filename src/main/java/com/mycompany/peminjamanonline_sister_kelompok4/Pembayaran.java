@@ -1,27 +1,37 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+//import java.sql.Connection;
+//import java.util.Date;
+//import javax.swing.JOptionPane;
+//import org.apache.kafka.clients.producer.KafkaProducer;
+//import org.apache.kafka.clients.producer.Producer;
+//import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
-    private Producer<String, String> kafkaProducer;
+
+//    private RiwayatPinjaman riwayatPinjaman;
+//    private DefaultListModel<String> notificationsModel;
+//    private static final String NOTIFICATIONS_FILE = "notifications.txt";
+//    private Producer<String, String> kafkaProducer;
+
     /**
      * Creates new form Pembayaran
      */
-    
-    
     public Pembayaran() {
+//        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
-        configureKafkaProducer();
+//        configureKafkaProducer();
+//        updateNotificationsList();
+//
+//        // Tampilkan data dari riwayatPinjaman
+//        if (riwayatPinjaman != null) {
+//            txtTagihan.setText(String.valueOf(riwayatPinjaman.getSisaTagihan()));
+//            txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
+//        }
     }
 
     /**
@@ -155,47 +165,24 @@ public class Pembayaran extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
-       this.setVisible(false);
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman();
+        FormRiwayatPinjaman.setVisible(true);
+        this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Informasi Pembayaran ========= " + "Jumlah Tagihan: " + txtTagihan.getText() +" "+ "Pada Tanggal" + DtTanggal.getDate()+ "Berhasil Dibayarkan"));
-    }//GEN-LAST:event_btnBayarActionPerformed
+    }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+        // Set the Nimbus look and feel
+        // ... (kode setting look and feel yang sama seperti sebelumnya) ...
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Pembayaran().setVisible(true);
             }
         });
+
     }
     
     private void configureKafkaProducer() {
@@ -206,6 +193,7 @@ public class Pembayaran extends javax.swing.JFrame {
 
         kafkaProducer = new KafkaProducer<>(props);
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser DtTanggal;
     private javax.swing.JButton btnBayar;
