@@ -3,9 +3,9 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
 //import java.sql.Connection;
 //import java.util.Date;
 //import javax.swing.JOptionPane;
-//import org.apache.kafka.clients.producer.KafkaProducer;
-//import org.apache.kafka.clients.producer.Producer;
-//import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
@@ -16,7 +16,7 @@ public class Pembayaran extends javax.swing.JFrame {
 //    private RiwayatPinjaman riwayatPinjaman;
 //    private DefaultListModel<String> notificationsModel;
 //    private static final String NOTIFICATIONS_FILE = "notifications.txt";
-//    private Producer<String, String> kafkaProducer;
+    private Producer<String, String> kafkaProducer;
 
     /**
      * Creates new form Pembayaran
@@ -170,7 +170,7 @@ public class Pembayaran extends javax.swing.JFrame {
         this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
 
-    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {                                         
     }
 
     public static void main(String args[]) {
