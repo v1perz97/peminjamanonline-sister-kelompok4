@@ -370,7 +370,7 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "192.168.35.239:9092,192.168.37.230.239:9093,192.168.36.75:9094");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
