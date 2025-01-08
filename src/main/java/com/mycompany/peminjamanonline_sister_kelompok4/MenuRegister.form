@@ -8,6 +8,9 @@
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
     <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
+  <Events>
+    <EventHandler event="windowOpened" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowOpened"/>
+  </Events>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -59,7 +62,7 @@
                                   <Component id="txtNIK" pref="243" max="32767" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="jDateChooserTanggalLahir" alignment="0" max="32767" attributes="0"/>
+                          <Component id="txtTanggalLahir" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -105,7 +108,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="jDateChooserTanggalLahir" min="-2" max="-2" attributes="0"/>
+                  <Component id="txtTanggalLahir" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -332,7 +335,7 @@
         <Property name="text" type="java.lang.String" value="Perempuan"/>
       </Properties>
     </Component>
-    <Component class="com.toedter.calendar.JDateChooser" name="jDateChooserTanggalLahir">
+    <Component class="com.toedter.calendar.JDateChooser" name="txtTanggalLahir">
     </Component>
   </SubComponents>
 </Form>

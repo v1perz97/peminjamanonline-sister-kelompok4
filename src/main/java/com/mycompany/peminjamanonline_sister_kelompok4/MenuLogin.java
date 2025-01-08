@@ -170,7 +170,7 @@ public class MenuLogin extends javax.swing.JFrame {
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         MenuRegister FormMenuRegister = new MenuRegister();
         FormMenuRegister.setVisible(true);
-        this.dispose();
+        
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void CbPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbPasswordActionPerformed
@@ -226,8 +226,6 @@ public class MenuLogin extends javax.swing.JFrame {
                     DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
                     dashboardNasabah.setVisible(true);
                 }
-                
-                
 
                 this.dispose();
             } else {

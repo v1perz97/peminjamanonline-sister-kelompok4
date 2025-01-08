@@ -8,8 +8,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -20,14 +22,32 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class PengajuanPinjaman extends javax.swing.JFrame {
-     private Producer<String, String> kafkaProducer;
+    pengajuan pgj = new pengajuan();
+    Properties props = new Properties();
+    private Connection connection;
+    
+    void kirimdata(){
+        pgj.setJumlah(txtJumlah.getText());
+        pgj.setSukuBunga(txtBunga.getText());
+        pgj.setTenor(CbTenor.getSelectedItem().toString()); 
+        pgj.setAngsuran(txtCicilan.getText());
+        
+        try (Producer<String, String> producer = new KafkaProducer<>(props)) {
+            producer.send(new ProducerRecord<>("pengajuan", "", pgj.toString()));
+            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengirim data ke Kafka: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+    }
 
     /**
      * Creates new form PengajuanPinjaman
      */
     public PengajuanPinjaman() {
         initComponents();
-        configureKafkaProducer();
+        connectToDatabase();
+        
     }
 
     /**
@@ -54,6 +74,11 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         btnTampil = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 255));
 
@@ -206,87 +231,56 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         // TODO add your handling code here:
     }                                       
 
+
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {                                           
        
+
        this.setVisible(false);
     }                                          
 
-    private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {                                          
-         try {
-        // Ambil input dari form
-        String jumlah = txtJumlah.getText();
-        String tenor = (String) CbTenor.getSelectedItem();
-        String suku_bunga = txtBunga.getText();
-        String angsuran_bulanan = txtCicilan.getText();
 
-        // Validasi input
-        if (jumlah.isEmpty() || angsuran_bulanan.equals("Isi")) {
-            JOptionPane.showMessageDialog(this, "Silakan isi jumlah pinjaman dan tampilkan cicilan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        kafkaProducer.send(new ProducerRecord<>("pengajuan", "Informasi Pengajuan ========= " + "Jumlah Pengajuan Pinjaman: " + txtJumlah.getText() +" "+ "Cicilan Per bulan: " + txtCicilan.getText()));
-
-        // Panggil metode insertData untuk menyimpan data ke database
-        insertData(jumlah, tenor, suku_bunga, angsuran_bulanan);
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }                                         
-    private void insertData(String jumlah, String tenor, String suku_bunga, String angsuran_bulanan) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        String url = "jdbc:mysql://localhost:3306/loan_app"; // Ganti dengan URL database Anda
-        String user = "root"; // Ganti dengan username database Anda
-        String password = ""; // Ganti dengan password database Anda
-
+    private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
+        kirimdata();
+        simpanDataKeDatabase();
+    }//GEN-LAST:event_btnAjukanActionPerformed
+    private void simpanDataKeDatabase() {
+    
         try {
-            conn = DriverManager.getConnection(url, user, password);
-
             LocalDate tanggalPengajuan = LocalDate.now();
-
             LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String tanggalCairStr = tanggalCair.format(formatter);
 
-            int jumlahPinjaman = Integer.parseInt(jumlah);
+            int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
             double bunga = 0.01;
             double totalCair = jumlahPinjaman * (1 + bunga);
-
-     
+            
             String query = "INSERT INTO pinjaman (jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+                         + "VALUES (?, ?, ?, ?, ?, ?)";
 
-            ps = conn.prepareStatement(query);
-            ps.setString(1, jumlah);
-            ps.setString(2, tenor);
-            ps.setString(3, suku_bunga);
-            ps.setString(4, angsuran_bulanan);
-            ps.setString(5, tanggalCairStr);
-            ps.setDouble(6, totalCair);
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, jumlahPinjaman);
+                ps.setString(2, CbTenor.getSelectedItem().toString());
+                ps.setDouble(3, bunga);
+                ps.setDouble(4, totalCair / Integer.parseInt(CbTenor.getSelectedItem().toString().split(" ")[0]));
+                ps.setString(5, tanggalCairStr);
+                ps.setDouble(6, totalCair);
 
-            int rowsInserted = ps.executeUpdate();
-            if (rowsInserted > 0) {
-                JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                int rowsInserted = ps.executeUpdate();
+                if (rowsInserted > 0) {
+                    JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Masukkan jumlah pinjaman yang valid.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void btnTampilActionPerformed(java.awt.event.ActionEvent evt) {                                          
+
         try {
         // Ambil input jumlah pinjaman dan tenor
         int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
@@ -319,7 +313,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     } catch (NumberFormatException e) {
         txtCicilan.setText("Input tidak valid!");
     }
-    }                                         
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+    }//GEN-LAST:event_formWindowOpened
+
     
     /**
      * @param args the command line arguments
@@ -356,15 +358,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         });
     }
     
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "192.168.35.239:9092,192.168.37.230.239:9093,192.168.36.75:9094");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        kafkaProducer = new KafkaProducer<>(props);
-    }
-    // Variables declaration - do not modify                     
     private javax.swing.JComboBox<String> CbTenor;
     private javax.swing.JButton btnAjukan;
     private javax.swing.JButton btnKembali;
@@ -378,5 +372,15 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel txtBunga;
     private javax.swing.JLabel txtCicilan;
     private javax.swing.JTextField txtJumlah;
-    // End of variables declaration                   
+
+
+private void connectToDatabase() {
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/loan_app", "root", "");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
+        }
+    }
+
 }
