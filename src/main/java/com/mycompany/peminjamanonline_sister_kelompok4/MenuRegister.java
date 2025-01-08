@@ -8,7 +8,12 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Properties;
 import org.apache.kafka.clients.producer.*;
+import java.sql.SQLException;
+
 
 /**
  *
@@ -18,7 +23,42 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private File ktpFile;
     private Connection connection;
-    private Producer<String, String> kafkaProducer;
+    pinjaman pjm = new pinjaman();
+    Properties props = new Properties();
+    
+    void kirimdata(){
+        pjm.setUsername(txtNama.getText());
+        pjm.setEmail(txtEmail.getText());
+        pjm.setPassword(txtPassword.getText());
+        pjm.setNik(txtNIK.getText());
+        pjm.setKontak(txtKontak.getText());
+        java.util.Date date = txtTanggalLahir.getDate();
+        if (date != null) {
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = sdf.format(date);
+            LocalDate tanggalLahir = LocalDate.parse(formattedDate);
+            pjm.setTanggalLahir(tanggalLahir);
+        }
+        pjm.setAlamat(txtAlamat.getText());
+        String jenisKelamin;
+        if (rbLakiLaki.isSelected()) {
+            jenisKelamin = "Laki-laki";
+        } else if (rbPerempuan.isSelected()) {
+            jenisKelamin = "Perempuan";
+        } else {
+            jenisKelamin = ""; // Jika tidak ada yang dipilih, nilai kosong
+        }
+        pjm.setJenisKelamin(jenisKelamin);
+        
+        try (Producer<String, String> producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props)) {
+            producer.send(new ProducerRecord<>("register", "", pjm.toString()));
+        }
+        JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");   
+        clearForm();
+        this.dispose();
+
+    }
 
     /**
      * Creates new form MenuRegister
@@ -26,8 +66,6 @@ public class MenuRegister extends javax.swing.JFrame {
     public MenuRegister() {
         initComponents();
         connectToDatabase();
-        configureKafkaProducer();
-        createAdminUser();
         clearForm();
     }
 
@@ -62,9 +100,14 @@ public class MenuRegister extends javax.swing.JFrame {
         jLabel11 = new javax.swing.JLabel();
         rbLakiLaki = new javax.swing.JRadioButton();
         rbPerempuan = new javax.swing.JRadioButton();
-        jDateChooserTanggalLahir = new com.toedter.calendar.JDateChooser();
+        txtTanggalLahir = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 255));
 
@@ -185,7 +228,7 @@ public class MenuRegister extends javax.swing.JFrame {
                                     .addComponent(txtPassword, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(txtKontak)
                                     .addComponent(txtNIK, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)))
-                            .addComponent(jDateChooserTanggalLahir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(txtTanggalLahir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(64, 64, 64)
                         .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -220,7 +263,7 @@ public class MenuRegister extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
-                    .addComponent(jDateChooserTanggalLahir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTanggalLahir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel11)
@@ -260,36 +303,7 @@ public class MenuRegister extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUnggahKTPActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
-        try {
-            String sql = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-
-            stmt.setString(1, txtNama.getText());
-            stmt.setString(2, txtEmail.getText());
-            stmt.setString(3, txtPassword.getText());
-            stmt.setString(4, txtNIK.getText());
-            stmt.setString(5, txtKontak.getText());
-            stmt.setDate(6, new java.sql.Date(jDateChooserTanggalLahir.getDate().getTime()));
-            stmt.setString(7, txtAlamat.getText());
-            stmt.setString(8, rbLakiLaki.isSelected() ? "Laki-laki" : "Perempuan");
-
-            if (ktpFile != null) {
-                FileInputStream fis = new FileInputStream(ktpFile);
-                stmt.setBinaryStream(9, fis, (int) ktpFile.length());
-            } else {
-                stmt.setNull(9, Types.BLOB);
-            }
-
-            
-            stmt.executeUpdate();
-
-            kafkaProducer.send(new ProducerRecord<>("register", "Informasi Register ====== "+"User: "+ txtNama.getText()+" "+"Email: "+ txtEmail.getText() +" "+ " Berhasil Melakukan Register"));
-
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
-            clearForm();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage());
-        }
+        kirimdata();
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
@@ -297,6 +311,13 @@ public class MenuRegister extends javax.swing.JFrame {
        FormMenuLogin.setVisible(true); 
        this.dispose(); 
     }//GEN-LAST:event_btnBatalActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -337,7 +358,6 @@ public class MenuRegister extends javax.swing.JFrame {
     private javax.swing.JButton btnBatal;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JButton btnUnggahKTP;
-    private com.toedter.calendar.JDateChooser jDateChooserTanggalLahir;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
@@ -357,6 +377,7 @@ public class MenuRegister extends javax.swing.JFrame {
     private javax.swing.JTextField txtNIK;
     private javax.swing.JTextField txtNama;
     private javax.swing.JTextField txtPassword;
+    private com.toedter.calendar.JDateChooser txtTanggalLahir;
     // End of variables declaration//GEN-END:variables
 
     private void connectToDatabase() {
@@ -365,39 +386,6 @@ public class MenuRegister extends javax.swing.JFrame {
                     "jdbc:mysql://localhost:3306/loan_app", "root", "");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
-        }
-    }
-
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
-    }
-
-    private void createAdminUser() {
-        try {
-            String adminUsername = "admin";
-            String adminPassword = "admin123";
-            String checkSql = "SELECT * FROM users WHERE username = ?";
-            PreparedStatement checkStmt = connection.prepareStatement(checkSql);
-            checkStmt.setString(1, adminUsername);
-
-            ResultSet rs = checkStmt.executeQuery();
-            if (!rs.next()) {
-                String insertSql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-                PreparedStatement insertStmt = connection.prepareStatement(insertSql);
-                insertStmt.setString(1, adminUsername);
-                insertStmt.setString(2, "admin@example.com");
-                insertStmt.setString(3, adminPassword); 
-                insertStmt.setString(4, "admin");
-                insertStmt.executeUpdate();
-                System.out.println("Admin user created: Username=admin, Password=admin123");
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Failed to create admin user: " + e.getMessage());
         }
     }
 
@@ -411,7 +399,7 @@ public class MenuRegister extends javax.swing.JFrame {
         rbLakiLaki.setSelected(false);
         rbPerempuan.setSelected(false);
         ktpFile = null;
-        jDateChooserTanggalLahir.setDate(null);
+        txtTanggalLahir.setDate(null);
     }
     
 }
