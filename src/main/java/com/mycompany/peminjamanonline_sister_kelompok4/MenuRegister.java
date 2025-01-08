@@ -59,6 +59,11 @@ public class MenuRegister extends javax.swing.JFrame {
         this.dispose();
 
     }
+    private Producer<String, String> kafkaProducer;
+    private Connection broker1Connection;
+    private Connection broker2Connection;
+    private Connection broker3Connection;
+
 
     /**
      * Creates new form MenuRegister
@@ -303,13 +308,15 @@ public class MenuRegister extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUnggahKTPActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
+
         kirimdata();
+
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
-       MenuLogin FormMenuLogin = new MenuLogin(); 
-       FormMenuLogin.setVisible(true); 
-       this.dispose(); 
+        MenuLogin FormMenuLogin = new MenuLogin();
+        FormMenuLogin.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBatalActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -382,12 +389,19 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private void connectToDatabase() {
         try {
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/loan_app", "root", "");
+            // Koneksi ke database broker 1
+            broker1Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.98:3306/loan_app", "root", "");
+
+            // Koneksi ke database broker 2
+            broker2Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.134:3306/loan_app", "root", "");
+
+            // Koneksi ke database broker 3
+            broker3Connection = DriverManager.getConnection("jdbc:mysql://192.168.43.97:3306/loan_app", "root", "");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Gagal terhubung ke database: " + e.getMessage());
         }
     }
+
 
     private void clearForm() {
         txtNama.setText("");
@@ -401,5 +415,5 @@ public class MenuRegister extends javax.swing.JFrame {
         ktpFile = null;
         txtTanggalLahir.setDate(null);
     }
-    
+
 }

@@ -8,6 +8,9 @@ import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,6 +26,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
      */
     public DashboardAdmin() {
         initComponents();
+        fetchData(); // Tambahkan ini agar data langsung dimuat
     }
 
     /**
@@ -182,8 +186,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setIcon(new javax.swing.ImageIcon("D:\\finalproject\\netbeans\\peminjamanonline-sister-kelompok4\\src\\main\\java\\com\\mycompany\\peminjamanonline_sister_kelompok4\\aset\\profiladmin (1).png")); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -258,23 +260,21 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }//GEN-LAST:event_btnNotifikasiActionPerformed
 
     private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
-       MenuLogin FormMenuLogin = new MenuLogin(); 
-       FormMenuLogin.setVisible(true); 
-       this.dispose(); 
+        MenuLogin FormMenuLogin = new MenuLogin();
+        FormMenuLogin.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnKeluarActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
         int selectedRow = tblPengajuan.getSelectedRow();
 
-        
         if (selectedRow != -1) {
-            
+
             int idToDelete = (int) tblPengajuan.getValueAt(selectedRow, 0);
 
             ((DefaultTableModel) tblPengajuan.getModel()).removeRow(selectedRow);
 
-            try (Connection conn = DatabaseConnection.getConnection(); 
-                     PreparedStatement pstmt = conn.prepareStatement("DELETE FROM nama_tabel WHERE id = ?")) {
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("DELETE FROM nama_tabel WHERE id = ?")) {
                 pstmt.setInt(1, idToDelete);
                 pstmt.executeUpdate();
 
@@ -348,60 +348,74 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
     private void exportToExcel() {
         try {
-            
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Data Pengajuan");
+            Sheet sheet = workbook.createSheet("Pengajuan Data");
+            DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
 
-            javax.swing.table.TableModel model = tblPengajuan.getModel();
-
+            // Create header row
             Row headerRow = sheet.createRow(0);
-            for (int col = 0; col < model.getColumnCount(); col++) {
-                Cell cell = headerRow.createCell(col);
-                cell.setCellValue(model.getColumnName(col));
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(model.getColumnName(i));
             }
 
-            for (int row = 0; row < model.getRowCount(); row++) {
-                Row excelRow = sheet.createRow(row + 1);
-                for (int col = 0; col < model.getColumnCount(); col++) {
-                    Cell cell = excelRow.createCell(col);
-                    Object value = model.getValueAt(row, col);
-                    if (value != null) {
-                        cell.setCellValue(value.toString());
-                    }
+            // Populate table data
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Row row = sheet.createRow(i + 1);
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    Cell cell = row.createCell(j);
+                    Object value = model.getValueAt(i, j);
+                    cell.setCellValue(value != null ? value.toString() : "");
                 }
             }
 
-            FileOutputStream fileOut = new FileOutputStream("DataPengajuan.xlsx");
+            // Save to file
+            FileOutputStream fileOut = new FileOutputStream("PengajuanData.xlsx");
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
 
-            javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil diekspor ke Excel!", "Informasi", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil dieksport ke PengajuanData.xlsx");
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat ekspor: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengekspor data.");
         }
     }
+
+//    public void addRowToTable(Object[] rowData) {
+//        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
+//        model.addRow(rowData);
+//    }
 
     private void fetchData() {
-        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
-        model.setRowCount(0); // Kosongkan model sebelum mengisi data baru
+        // Inisialisasi tabel
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Nama", "NIK", "Jumlah Pinjaman", "Tenor", "Angsuran Bulanan", "Status"}, 0
+        );
+        tblPengajuan.setModel(model);
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM nama_tabel")) {
+        String query = "SELECT users.iduser AS user_id, users.username, users.nik, pinjaman.jumlah, pinjaman.tenor, pinjaman.angsuran_bulanan, pinjaman.status FROM users LEFT JOIN pinjaman ON users.iduser = pinjaman.iduser";
 
-            ResultSet rs = pstmt.executeQuery();
+        try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String nama = rs.getString("nama");
-                String nik = rs.getString("nik");
-                int jumlah = rs.getInt("jumlah");
-                int tenor = rs.getInt("tenor");
-
-                // Tambahkan baris baru ke model
-                model.addRow(new Object[]{id, nama, nik, jumlah, tenor});
+                model.addRow(new Object[]{
+                    rs.getInt("user_id"), // ID
+                    rs.getString("username"), // Nama
+                    rs.getString("nik"), // NIK
+                    rs.getDouble("jumlah"), // Jumlah Pinjaman
+                    rs.getString("tenor"), // Tenor
+                    rs.getDouble("angsuran_bulanan"), // Angsuran Bulanan
+                    rs.getString("status") // Status
+                });
             }
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage());
         }
+
+        // Penyegaran GUI
+        tblPengajuan.repaint();
     }
+
 }
