@@ -23,6 +23,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class PengajuanPinjaman extends javax.swing.JFrame {
 
+    private int iduser; // Store the user ID
     pengajuan pgj = new pengajuan();
     Properties props = new Properties();
     private Connection connection;
@@ -45,7 +46,8 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     /**
      * Creates new form PengajuanPinjaman
      */
-    public PengajuanPinjaman() {
+    public PengajuanPinjaman(int userId) {
+        this.iduser = userId;
         initComponents();
         connectToDatabase();
 
@@ -243,28 +245,30 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         simpanDataKeDatabase();
     }//GEN-LAST:event_btnAjukanActionPerformed
     private void simpanDataKeDatabase() {
-
-        try {
+          try {
             LocalDate tanggalPengajuan = LocalDate.now();
             LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String tanggalCairStr = tanggalCair.format(formatter);
 
             int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
-            double bunga = 0.01;
+            double bunga = 0.01; // Bunga 1%
             double totalCair = jumlahPinjaman * (1 + bunga);
+            String tenor = CbTenor.getSelectedItem().toString();
+            int tenorBulan = Integer.parseInt(tenor.split(" ")[0]); 
+            double angsuranBulanan = totalCair / tenorBulan;
 
-            String query = "INSERT INTO pinjaman (jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, jumlahPinjaman);
-                ps.setString(2, CbTenor.getSelectedItem().toString());
-                ps.setDouble(3, bunga);
-                ps.setDouble(4, totalCair / Integer.parseInt(CbTenor.getSelectedItem().toString().split(" ")[0]));
-                ps.setString(5, tanggalCairStr);
-                ps.setDouble(6, totalCair);
+                ps.setInt(1, iduser); // Use the passed iduser
+                ps.setInt(2, jumlahPinjaman);
+                ps.setString(3, tenor);
+                ps.setDouble(4, bunga);
+                ps.setDouble(5, angsuranBulanan);
+                ps.setString(6, tanggalCairStr);
+                ps.setDouble(7, totalCair);
 
                 int rowsInserted = ps.executeUpdate();
                 if (rowsInserted > 0) {
@@ -350,9 +354,10 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        int loggedInUserId = 1;
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new PengajuanPinjaman().setVisible(true);
+                new PengajuanPinjaman(loggedInUserId).setVisible(true);
             }
         });
     }
@@ -379,5 +384,4 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
         }
     }
-
 }

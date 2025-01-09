@@ -18,14 +18,15 @@ import javax.swing.JLabel;
  */
 public class DashboardNasabah extends javax.swing.JFrame {
 
-    private String username; 
+    private final int iduser; 
 
     /**
      * Creates new form DashboardNasabah
-     * @param username
+     * 
+     * @param iduser
      */
-    public DashboardNasabah(String username) {
-        this.username = username;
+    public DashboardNasabah(int iduser) {
+        this.iduser = iduser;
         
         URL location = getClass().getResource("/com.mycompany.peminjamanonline_sister_kelompok4.aset/Notifikasi.png");
         if (location != null) {
@@ -309,7 +310,7 @@ public class DashboardNasabah extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAjukanPinjamanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanPinjamanActionPerformed
-        PengajuanPinjaman FormPengajuanPinjaman = new PengajuanPinjaman();
+        PengajuanPinjaman FormPengajuanPinjaman = new PengajuanPinjaman(iduser);
         FormPengajuanPinjaman.setVisible(true);
     }//GEN-LAST:event_btnAjukanPinjamanActionPerformed
 
@@ -326,7 +327,7 @@ public class DashboardNasabah extends javax.swing.JFrame {
 
     private void btnUbahDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahDataActionPerformed
        
-        MenuEdit formMenuEdit = new MenuEdit(username);
+        MenuEdit formMenuEdit = new MenuEdit(iduser);
         formMenuEdit.setVisible(true);
         
         
@@ -363,10 +364,11 @@ public class DashboardNasabah extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        int loggedInUserId = 1;
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new DashboardNasabah("").setVisible(true);
+                new DashboardNasabah(loggedInUserId).setVisible(true);
             }
         });
     }
@@ -399,10 +401,10 @@ public class DashboardNasabah extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void tampilkanProfilNasabah() {
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE iduser = ?")) {
 
             
-            pstmt.setString(1, username);
+            pstmt.setInt(1, iduser);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {

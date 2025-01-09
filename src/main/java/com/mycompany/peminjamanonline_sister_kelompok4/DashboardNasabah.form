@@ -400,11 +400,6 @@
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel12">
-      <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="2" name="D:\finalproject\netbeans\peminjamanonline-sister-kelompok4\src\main\java\com\mycompany\peminjamanonline_sister_kelompok4\aset\foto-admin.png"/>
-        </Property>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>

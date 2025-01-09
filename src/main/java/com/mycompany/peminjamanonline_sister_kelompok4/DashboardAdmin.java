@@ -386,7 +386,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
 //        DefaultTableModel model = (DefaultTableModel) tblPengajuan.getModel();
 //        model.addRow(rowData);
 //    }
-
     private void fetchData() {
         // Inisialisasi tabel
         DefaultTableModel model = new DefaultTableModel(
@@ -394,7 +393,17 @@ public class DashboardAdmin extends javax.swing.JFrame {
         );
         tblPengajuan.setModel(model);
 
-        String query = "SELECT users.iduser AS user_id, users.username, users.nik, pinjaman.jumlah, pinjaman.tenor, pinjaman.angsuran_bulanan, pinjaman.status FROM users LEFT JOIN pinjaman ON users.iduser = pinjaman.iduser";
+        String query = "SELECT "
+                + "users.iduser AS user_id, "
+                + "users.username, "
+                + "users.nik, "
+                + "COALESCE(pinjaman.jumlah, 0) AS jumlah, "
+                + "COALESCE(pinjaman.tenor, '') AS tenor, "
+                + "COALESCE(pinjaman.angsuran_bulanan, 0) AS angsuran_bulanan, "
+                + "COALESCE(pinjaman.status, '') AS status "
+                + "FROM users "
+                + "LEFT JOIN pinjaman "
+                + "ON users.iduser = pinjaman.iduser";
 
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
