@@ -6,7 +6,6 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -310,7 +309,6 @@ public class MenuRegister extends javax.swing.JFrame {
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
 
         kirimdata();
-
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
