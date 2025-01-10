@@ -22,11 +22,12 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 public class Utama extends Thread{
     private KafkaConsumer<String, String> kafkaConsumer;
     private Connection connection;
+    private Connection connection2;
     
     public Utama() {
         
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "192.168.34.167:9092, 192.168.34.167:9093");
         props.put("group.id", "Konfirmasi");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -35,8 +36,8 @@ public class Utama extends Thread{
         kafkaConsumer.subscribe(Arrays.asList("register", "pengajuan", "konfirmasi"));
 
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/loan_app", "root", "");
-//            connection2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/loan_app", "root", "");
+            connection = DriverManager.getConnection("jdbc:mysql://192.168.34.167:3306/loan_app", "root", "");
+            connection2 = DriverManager.getConnection("jdbc:mysql://192.168.35.245:3306/loan_app", "root", "");
 //            connection3 = DriverManager.getConnection("jdbc:mysql://localhost:3306/loan_app", "root", "");
         } catch (SQLException e) {
             e.printStackTrace();

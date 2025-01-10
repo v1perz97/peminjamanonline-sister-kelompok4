@@ -338,10 +338,9 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            // Koneksi ke database
+            
             conn = DatabaseConnection.getConnection();
 
-            // Query untuk mendapatkan data pinjaman user
             String query = "SELECT * FROM pinjaman WHERE iduser = ? AND status = 'Disetujui'";
             ps = conn.prepareStatement(query);
             ps.setInt(1, iduser); // Set parameter ID user dengan tipe int
@@ -349,16 +348,16 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
 
             if (rs.next()) {
                 // Data pinjaman ditemukan
-                txtPinjaman.setText(rs.getString("pinjaman"));
-                txtJatuhTempo.setText(rs.getString("jatuh_tempo"));
-                txtTanggalCair.setText(rs.getString("tanggal_pencairan"));
+                txtPinjaman.setText(rs.getString("jumlah"));
+//                txtJatuhTempo.setText(rs.getString("jatuh_tempo"));
+                txtTanggalCair.setText(rs.getString("tanggal_cair"));
                 txtTenor.setText(rs.getString("tenor"));
                 txtStatus.setText(rs.getString("status"));
-                txtTagihan.setText(rs.getString("tagihan"));
-                txtTanggalBayar.setText(rs.getString("tanggal_pembayaran"));
-                txtSisaTagihan.setText(rs.getString("sisa_tagihan"));
+                txtTagihan.setText(rs.getString("angsuran_bulanan"));
+//                txtTanggalBayar.setText(rs.getString("tanggal_pembayaran"));
+//                txtSisaTagihan.setText(rs.getString("sisa_tagihan"));
             } else {
-                // Jika tidak ada data pinjaman yang disetujui
+                
                 txtPinjaman.setText("-");
                 txtJatuhTempo.setText("-");
                 txtTanggalCair.setText("-");
