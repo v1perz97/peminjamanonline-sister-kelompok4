@@ -250,8 +250,23 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKonfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonfirmasiActionPerformed
-        Konfirmasi FormKonfirmasi = new Konfirmasi();
-        FormKonfirmasi.setVisible(true);
+        int selectedRow = tblPengajuan.getSelectedRow();
+    
+    if (selectedRow != -1) {
+        // Ambil data dari row yang dipilih
+        String nama = tblPengajuan.getValueAt(selectedRow, 1).toString();
+        String nik = tblPengajuan.getValueAt(selectedRow, 2).toString();
+        String jumlah = tblPengajuan.getValueAt(selectedRow, 3).toString();
+        String tenor = tblPengajuan.getValueAt(selectedRow, 4).toString();
+        String cicilan = tblPengajuan.getValueAt(selectedRow, 5).toString();
+
+        // Membuka Form Konfirmasi dan mengirim data ke sana
+        Konfirmasi formKonfirmasi = new Konfirmasi();
+        formKonfirmasi.setData(nama, nik, jumlah, tenor, cicilan);
+        formKonfirmasi.setVisible(true);
+        this.setVisible(false);
+    }
+        
     }//GEN-LAST:event_btnKonfirmasiActionPerformed
 
     private void btnNotifikasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotifikasiActionPerformed

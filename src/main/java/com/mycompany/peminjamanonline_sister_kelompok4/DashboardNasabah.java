@@ -28,17 +28,17 @@ public class DashboardNasabah extends javax.swing.JFrame {
     public DashboardNasabah(int iduser) {
         this.iduser = iduser;
         
-        URL location = getClass().getResource("/com.mycompany.peminjamanonline_sister_kelompok4.aset/Notifikasi.png");
-        if (location != null) {
-            ImageIcon icon = new ImageIcon(location);
-            JLabel label = new JLabel(icon);
-            add(label);
-        } else {
-            System.err.println("Gambar tidak ditemukan di package 'image'.");
-        }
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        pack();// Set the username
+//        URL location = getClass().getResource("/com.mycompany.peminjamanonline_sister_kelompok4.aset/Notifikasi.png");
+//        if (location != null) {
+//            ImageIcon icon = new ImageIcon(location);
+//            JLabel label = new JLabel(icon);
+//            add(label);
+//        } else {
+//            System.err.println("Gambar tidak ditemukan di package 'image'.");
+//        }
+//
+//        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+//        pack();// Set the username
         initComponents();
         tampilkanProfilNasabah();
     }
@@ -435,7 +435,5 @@ public class DashboardNasabah extends javax.swing.JFrame {
         }
     }
 
-    private String getSelectedNasabahUsername() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    
 }

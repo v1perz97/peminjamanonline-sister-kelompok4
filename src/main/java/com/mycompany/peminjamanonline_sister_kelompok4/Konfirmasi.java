@@ -4,6 +4,9 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -202,19 +205,84 @@ public class Konfirmasi extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void setData(String nama, String nik, String jumlah, String tenor, String cicilan) {
+    txtNama.setText(nama);
+    txtNik.setText(nik);
+    txtJumlah.setText(jumlah);
+    txtTenor.setText(tenor);
+    txtCicilan.setText(cicilan);
+}
+
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
-       DashboardAdmin FormDashboardAdmin = new DashboardAdmin();
-       this.setVisible(false);
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBatalActionPerformed
 
-    private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("konfirmasi", "Pengajuan Anda Telah Disetujui Oleh Admin"));
-    }//GEN-LAST:event_btnDisetujuiActionPerformed
-
     private void btnDitolakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDitolakActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("konfirmasi", "Pengajuan Anda Ditolak Oleh Admin"));
+        StatusTolak(txtNik.getText(), "Ditolak");
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnDitolakActionPerformed
 
+    private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
+        StatusSetuju(txtNik.getText(), "Disetujui");
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDisetujuiActionPerformed
+    
+    private void StatusTolak(String nik, String status){
+        String updateQuery = "UPDATE pinjaman p "
+            + "JOIN users u ON p.iduser = u.iduser "
+            + "SET p.status = ? "
+            + "WHERE u.nik = ?";
+    
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+        
+        statement.setString(1, status);
+        statement.setString(2, nik);
+        
+        int rowsAffected = statement.executeUpdate();
+        
+        if (rowsAffected > 0) {
+            
+            System.out.println("Status pinjaman diperbarui menjadi: " + status);
+        } else {
+            
+            System.out.println("Gagal memperbarui status pinjaman.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    }
+    private void StatusSetuju(String nik, String status) {
+    String updateQuery = "UPDATE pinjaman p "
+            + "JOIN users u ON p.iduser = u.iduser "
+            + "SET p.status = ? "
+            + "WHERE u.nik = ?";
+    
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+        
+        statement.setString(1, status);
+        statement.setString(2, nik);
+        
+        int rowsAffected = statement.executeUpdate();
+        
+        if (rowsAffected > 0) {
+            
+            System.out.println("Status pinjaman diperbarui menjadi: " + status);
+        } else {
+            
+            System.out.println("Gagal memperbarui status pinjaman.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    }
     /**
      * @param args the command line arguments
      */

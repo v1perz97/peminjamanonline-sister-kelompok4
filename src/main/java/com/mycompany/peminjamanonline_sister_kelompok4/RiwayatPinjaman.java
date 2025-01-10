@@ -7,6 +7,7 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -19,10 +20,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class RiwayatPinjaman extends javax.swing.JFrame {
     private Producer<String, String> kafkaProducer;
     
+    
     public RiwayatPinjaman() {
         initComponents();
-        configureKafkaProducer();
+        configureKafkaProducer();   
     }
+    
 
     /**
      * Creates new form RiwayatPinjaman
@@ -56,7 +59,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         btnKembali = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         txtTanggalBayar = new javax.swing.JLabel();
-        txtTenor1 = new javax.swing.JLabel();
+        txtTanggalCair = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -99,19 +102,19 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         jLabel8.setText("Pinjaman :");
 
         txtPinjaman.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtPinjaman.setText("Isi");
+        txtPinjaman.setText("-");
 
         txtJatuhTempo.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtJatuhTempo.setText("Isi");
+        txtJatuhTempo.setText("-");
 
         txtTenor.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtTenor.setText("Isi");
+        txtTenor.setText("-");
 
         txtStatus.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtStatus.setText("Pending");
 
         txtTagihan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtTagihan.setText("Rp");
+        txtTagihan.setText("-");
 
         btnBayar.setBackground(new java.awt.Color(102, 102, 255));
         btnBayar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -127,7 +130,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         jLabel14.setText("Sisa Tagihan :");
 
         txtSisaTagihan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtSisaTagihan.setText("Isi");
+        txtSisaTagihan.setText("-");
 
         jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel16.setText("Tanggal Pencairan :");
@@ -146,10 +149,10 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         jLabel15.setText("Tanggal Pembayaran :");
 
         txtTanggalBayar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtTanggalBayar.setText("Isi");
+        txtTanggalBayar.setText("-");
 
-        txtTenor1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        txtTenor1.setText("Isi");
+        txtTanggalCair.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtTanggalCair.setText("-");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -172,13 +175,13 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                             .addComponent(txtPinjaman)
                             .addComponent(txtTenor)
                             .addComponent(txtStatus)
-                            .addComponent(txtTenor1)))
+                            .addComponent(txtTanggalCair)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(86, 86, 86)
                         .addComponent(jLabel7)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtTagihan)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel15)
@@ -189,9 +192,9 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                         .addComponent(jLabel14)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtSisaTagihan)))
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(93, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(229, 229, 229)
+                .addGap(219, 219, 219)
                 .addComponent(btnKembali)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -214,7 +217,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 .addGap(1, 1, 1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
-                    .addComponent(txtTenor1))
+                    .addComponent(txtTanggalCair))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -321,7 +324,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel txtStatus;
     private javax.swing.JLabel txtTagihan;
     private javax.swing.JLabel txtTanggalBayar;
+    private javax.swing.JLabel txtTanggalCair;
     private javax.swing.JLabel txtTenor;
-    private javax.swing.JLabel txtTenor1;
     // End of variables declaration//GEN-END:variables
 }
