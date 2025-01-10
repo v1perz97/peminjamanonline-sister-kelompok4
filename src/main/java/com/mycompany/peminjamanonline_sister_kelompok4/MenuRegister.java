@@ -311,7 +311,7 @@ public class MenuRegister extends javax.swing.JFrame {
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
         MenuLogin FormMenuLogin = new MenuLogin();
-        FormMenuLogin.setVisible(true);
+        FormMenuLogin.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_btnBatalActionPerformed
 

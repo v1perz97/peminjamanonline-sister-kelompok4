@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -235,7 +234,6 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {
-
         this.setVisible(false);
     }
 
