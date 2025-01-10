@@ -1,7 +1,6 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 //import java.sql.Connection;
-
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -20,14 +19,16 @@ public class Pembayaran extends javax.swing.JFrame {
 //    private RiwayatPinjaman riwayatPinjaman;
 //    private DefaultListModel<String> notificationsModel;
 //    private static final String NOTIFICATIONS_FILE = "notifications.txt";
-private Producer<String, String> kafkaProducer;
+    private Producer<String, String> kafkaProducer;
+    private final int iduser;
 
     /**
      * Creates new form Pembayaran
      */
-    public Pembayaran() {
+    public Pembayaran(int iduser) {
 //        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
+        this.iduser = iduser;
 //        configureKafkaProducer();
 //        updateNotificationsList();
 //
@@ -169,26 +170,26 @@ private Producer<String, String> kafkaProducer;
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman();
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(iduser);
         FormRiwayatPinjaman.setVisible(true);
         this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
 
-    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public static void main(String args[]) {
         // Set the Nimbus look and feel
         // ... (kode setting look and feel yang sama seperti sebelumnya) ...
-
+        int loggedInUserId = 1;
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran().setVisible(true);
+                new Pembayaran(loggedInUserId).setVisible(true);
             }
         });
 
     }
-    
+
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
         props.put("bootstrap.servers", "192.168.35.239:9092,192.168.37.230.239:9093,192.168.36.75:9094");
