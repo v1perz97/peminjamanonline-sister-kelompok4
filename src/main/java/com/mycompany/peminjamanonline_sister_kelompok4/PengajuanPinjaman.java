@@ -7,7 +7,9 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -22,7 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class PengajuanPinjaman extends javax.swing.JFrame {
 
-    private int iduser; // Store the user ID
+    private final int iduser; // Store the user ID
     pengajuan pgj = new pengajuan();
     Properties props = new Properties();
     private Connection connection;
@@ -44,6 +46,8 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
 
     /**
      * Creates new form PengajuanPinjaman
+     *
+     * @param userId
      */
     public PengajuanPinjaman(int userId) {
         this.iduser = userId;
@@ -243,36 +247,88 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         simpanDataKeDatabase();
     }//GEN-LAST:event_btnAjukanActionPerformed
     private void simpanDataKeDatabase() {
-          try {
+        try {
+            // Batas maksimum pinjaman
+            int batasMaksPinjaman = 20000000; // 20 juta
+            int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
+
+            // Validasi jumlah pinjaman
+            if (jumlahPinjaman > batasMaksPinjaman) {
+                JOptionPane.showMessageDialog(this, "Jumlah pinjaman tidak boleh lebih dari Rp 20.000.000.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             LocalDate tanggalPengajuan = LocalDate.now();
             LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String tanggalPengajuanStr = tanggalPengajuan.format(formatter);
             String tanggalCairStr = tanggalCair.format(formatter);
 
-            int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
             double bunga = 0.01; // Bunga 1%
             double totalCair = jumlahPinjaman * (1 + bunga);
             String tenor = CbTenor.getSelectedItem().toString();
-            int tenorBulan = Integer.parseInt(tenor.split(" ")[0]); 
+            int tenorBulan = Integer.parseInt(tenor.split(" ")[0]);
             double angsuranBulanan = totalCair / tenorBulan;
 
-            String query = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // Insert data ke tabel `pinjaman`
+            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran, tanggal_cair, total_cair, sisa_angsuran) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            int pinjamanId;
 
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, iduser); // Use the passed iduser
-                ps.setInt(2, jumlahPinjaman);
-                ps.setString(3, tenor);
-                ps.setDouble(4, bunga);
-                ps.setDouble(5, angsuranBulanan);
-                ps.setString(6, tanggalCairStr);
-                ps.setDouble(7, totalCair);
+            try (PreparedStatement psPinjaman = connection.prepareStatement(queryPinjaman, Statement.RETURN_GENERATED_KEYS)) {
+                psPinjaman.setInt(1, iduser); // ID user
+                psPinjaman.setInt(2, jumlahPinjaman);
+                psPinjaman.setString(3, tenor);
+                psPinjaman.setDouble(4, bunga);
+                psPinjaman.setDouble(5, angsuranBulanan);
+                psPinjaman.setString(6, tanggalCairStr);
+                psPinjaman.setDouble(7, totalCair);
+                psPinjaman.setDouble(8, totalCair);
 
-                int rowsInserted = ps.executeUpdate();
+                int rowsInserted = psPinjaman.executeUpdate();
                 if (rowsInserted > 0) {
-                    JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                    ResultSet generatedKeys = psPinjaman.getGeneratedKeys();
+                    if (generatedKeys.next()) {
+                        pinjamanId = generatedKeys.getInt(1); // ID pinjaman yang baru dibuat
+                    } else {
+                        throw new SQLException("Gagal mendapatkan ID pinjaman.");
+                    }
+                } else {
+                    throw new SQLException("Gagal menyimpan data ke tabel pinjaman.");
                 }
             }
+
+            // Insert data ke tabel `pengajuan_pinjaman`
+            String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status) "
+                    + "VALUES (?, ?, ?, ?)";
+            try (PreparedStatement psPengajuan = connection.prepareStatement(queryPengajuan)) {
+                psPengajuan.setInt(1, iduser);
+                psPengajuan.setInt(2, pinjamanId);
+                psPengajuan.setString(3, tanggalPengajuanStr);
+                psPengajuan.setString(4, "Disetujui"); // Status default
+
+                psPengajuan.executeUpdate();
+            }
+
+            // Insert data ke tabel `tagihan` untuk setiap bulan sesuai tenor
+            String queryTagihan = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) "
+                    + "VALUES (?, ?, ?, ?)";
+            try (PreparedStatement psTagihan = connection.prepareStatement(queryTagihan)) {
+                for (int i = 1; i <= tenorBulan; i++) {
+                    LocalDate jatuhTempo = tanggalCair.plusMonths(i);
+                    String jatuhTempoStr = jatuhTempo.format(formatter);
+
+                    psTagihan.setInt(1, pinjamanId);
+                    psTagihan.setString(2, tanggalCairStr);
+                    psTagihan.setDouble(3, angsuranBulanan);
+                    psTagihan.setString(4, jatuhTempoStr);
+
+                    psTagihan.addBatch();
+                }
+                psTagihan.executeBatch();
+            }
+
+            JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
