@@ -338,34 +338,41 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            
             conn = DatabaseConnection.getConnection();
 
-            String query = "SELECT * FROM pinjaman WHERE iduser = ? AND status = 'Disetujui'";
+            // Updated SQL query to match the new table and column structure
+            String query = "SELECT p.jumlah AS jumlah_pengajuan, t.jatuh_tempo, p.tanggal_cair, "
+                    + "p.tenor, p.angsuran_bulanan, pp.status AS status_pengajuan, "
+                    + "p.sisa_angsuran, t.jumlah_bayar, t.tanggal_pembayaran "
+                    + "FROM pengajuan_pinjaman pp "
+                    + "LEFT JOIN pinjaman p ON pp.pinjaman_id = p.pinjaman_id "
+                    + "LEFT JOIN tagihan t ON p.pinjaman_id = t.pinjaman_id "
+                    + "WHERE pp.iduser = ?";
+
             ps = conn.prepareStatement(query);
-            ps.setInt(1, iduser); // Set parameter ID user dengan tipe int
+            ps.setInt(1, iduser); // Set parameter ID user with type int
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                // Data pinjaman ditemukan
-                txtPinjaman.setText(rs.getString("jumlah"));
-//                txtJatuhTempo.setText(rs.getString("jatuh_tempo"));
-                txtTanggalCair.setText(rs.getString("tanggal_cair"));
-                txtTenor.setText(rs.getString("tenor"));
-                txtStatus.setText(rs.getString("status"));
-                txtTagihan.setText(rs.getString("angsuran_bulanan"));
-//                txtTanggalBayar.setText(rs.getString("tanggal_pembayaran"));
-//                txtSisaTagihan.setText(rs.getString("sisa_tagihan"));
+                // Data found
+                txtPinjaman.setText(rs.getString("jumlah_pengajuan") != null ? rs.getString("jumlah_pengajuan") : "-");
+                txtJatuhTempo.setText(rs.getString("jatuh_tempo") != null ? rs.getString("jatuh_tempo") : "-");
+                txtTanggalCair.setText(rs.getString("tanggal_cair") != null ? rs.getString("tanggal_cair") : "-");
+                txtTenor.setText(rs.getString("tenor") != null ? rs.getString("tenor") : "-");
+                txtStatus.setText(rs.getString("status_pengajuan") != null ? rs.getString("status_pengajuan") : "-");
+                txtTagihan.setText(rs.getString("jumlah_bayar") != null ? rs.getString("jumlah_bayar") : "-");
+                txtSisaTagihan.setText(rs.getString("sisa_angsuran") != null ? rs.getString("sisa_angsuran") : "-");
+                txtTanggalBayar.setText(rs.getString("tanggal_pembayaran") != null ? rs.getString("tanggal_pembayaran") : "-");
             } else {
-                
+                // Data not found
                 txtPinjaman.setText("-");
                 txtJatuhTempo.setText("-");
                 txtTanggalCair.setText("-");
                 txtTenor.setText("-");
                 txtStatus.setText("Pending");
                 txtTagihan.setText("-");
-                txtTanggalBayar.setText("-");
                 txtSisaTagihan.setText("-");
+                txtTanggalBayar.setText("-");
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());

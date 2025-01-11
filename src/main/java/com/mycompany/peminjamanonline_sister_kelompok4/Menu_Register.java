@@ -345,7 +345,7 @@ public class Menu_Register extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBatal1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "192.168.38.245:9092,192.168.35.245:9093,192.168.32.190:9094");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     }//GEN-LAST:event_formWindowOpened
