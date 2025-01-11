@@ -251,22 +251,22 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
     private void btnKonfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKonfirmasiActionPerformed
         int selectedRow = tblPengajuan.getSelectedRow();
-    
-    if (selectedRow != -1) {
-        // Ambil data dari row yang dipilih
-        String nama = tblPengajuan.getValueAt(selectedRow, 1).toString();
-        String nik = tblPengajuan.getValueAt(selectedRow, 2).toString();
-        String jumlah = tblPengajuan.getValueAt(selectedRow, 3).toString();
-        String tenor = tblPengajuan.getValueAt(selectedRow, 4).toString();
-        String cicilan = tblPengajuan.getValueAt(selectedRow, 5).toString();
 
-        // Membuka Form Konfirmasi dan mengirim data ke sana
-        Konfirmasi formKonfirmasi = new Konfirmasi();
-        formKonfirmasi.setData(nama, nik, jumlah, tenor, cicilan);
-        formKonfirmasi.setVisible(true);
-        this.setVisible(false);
-    }
-        
+        if (selectedRow != -1) {
+            // Ambil data dari row yang dipilih
+            String nama = tblPengajuan.getValueAt(selectedRow, 1).toString();
+            String nik = tblPengajuan.getValueAt(selectedRow, 2).toString();
+            String jumlah = tblPengajuan.getValueAt(selectedRow, 3).toString();
+            String tenor = tblPengajuan.getValueAt(selectedRow, 4).toString();
+            String cicilan = tblPengajuan.getValueAt(selectedRow, 5).toString();
+
+            // Membuka Form Konfirmasi dan mengirim data ke sana
+            Konfirmasi formKonfirmasi = new Konfirmasi();
+            formKonfirmasi.setData(nama, nik, jumlah, tenor, cicilan);
+            formKonfirmasi.setVisible(true);
+            this.setVisible(false);
+        }
+
     }//GEN-LAST:event_btnKonfirmasiActionPerformed
 
     private void btnNotifikasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotifikasiActionPerformed
@@ -402,44 +402,60 @@ public class DashboardAdmin extends javax.swing.JFrame {
 //        model.addRow(rowData);
 //    }
     private void fetchData() {
-        // Inisialisasi tabel
+        // Initialize table model
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"ID", "Nama", "NIK", "Jumlah Pinjaman", "Tenor", "Angsuran Bulanan", "Status"}, 0
         );
         tblPengajuan.setModel(model);
 
+        // Query to fetch user data along with their roles
         String query = "SELECT "
                 + "users.iduser AS user_id, "
                 + "users.username, "
                 + "users.nik, "
+                + "users.role, " // Assuming 'role' is a column in the users table
                 + "COALESCE(pinjaman.jumlah, 0) AS jumlah, "
                 + "COALESCE(pinjaman.tenor, '') AS tenor, "
                 + "COALESCE(pinjaman.angsuran_bulanan, 0) AS angsuran_bulanan, "
                 + "COALESCE(pinjaman.status, '') AS status "
                 + "FROM users "
-                + "LEFT JOIN pinjaman "
-                + "ON users.iduser = pinjaman.iduser";
+                + "LEFT JOIN pinjaman ON users.iduser = pinjaman.iduser";
 
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("user_id"), // ID
-                    rs.getString("username"), // Nama
-                    rs.getString("nik"), // NIK
-                    rs.getDouble("jumlah"), // Jumlah Pinjaman
-                    rs.getString("tenor"), // Tenor
-                    rs.getDouble("angsuran_bulanan"), // Angsuran Bulanan
-                    rs.getString("status") // Status
-                });
+                // Check user role and decide whether to add the row
+                String role = rs.getString("role");
+                if (shouldDisplayRowBasedOnRole(role)) { // Custom method to check role
+                    model.addRow(new Object[]{
+                        rs.getInt("user_id"), // ID
+                        rs.getString("username"), // Nama
+                        rs.getString("nik"), // NIK
+                        rs.getDouble("jumlah"), // Jumlah Pinjaman
+                        rs.getString("tenor"), // Tenor
+                        rs.getDouble("angsuran_bulanan"), // Angsuran Bulanan
+                        rs.getString("status") // Status
+                    });
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error fetching data: " + e.getMessage());
         }
 
-        // Penyegaran GUI
+        // Refresh GUI
         tblPengajuan.repaint();
+    }
+
+    private boolean shouldDisplayRowBasedOnRole(String role) {
+        // Implement your logic to decide whether to display the row based on the role
+        // Example:
+        if ("admin".equals(role)) {
+            return false;
+        } else if ("user".equals(role)) {
+            return true; // Show limited data for regular users
+        }
+        return false; // Hide data for other roles
     }
 
 }

@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Properties;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -24,11 +23,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Menu_Register extends javax.swing.JFrame {
+
     private File ktpFile;
     private Connection connection;
     pinjaman pjm = new pinjaman();
     Properties props = new Properties();
-    
+
     void kirimdata() {
         pjm.setUsername(txtNama.getText());
         pjm.setEmail(txtEmail.getText());
@@ -53,6 +53,9 @@ public class Menu_Register extends javax.swing.JFrame {
             jenisKelamin = ""; // Jika tidak ada yang dipilih, nilai kosong
         }
         pjm.setJenisKelamin(jenisKelamin);
+
+        pjm.setPekerjaan(txtPekerjaan.getText()); // Ambil pekerjaan dari TextField
+        pjm.setGajiPokok(CbGaji.getSelectedItem().toString()); // Ambil gaji pokok dari ComboBox
 
         try (Producer<String, String> producer = new KafkaProducer<>(props)) {
             producer.send(new ProducerRecord<>("register", "", pjm.toString()));
@@ -412,7 +415,7 @@ public class Menu_Register extends javax.swing.JFrame {
     private com.toedter.calendar.JDateChooser txtTanggalLahir;
     // End of variables declaration//GEN-END:variables
 
-private void connectToDatabase() {
+    private void connectToDatabase() {
         try {
             connection = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/loan_app", "root", "");
@@ -449,7 +452,8 @@ private void connectToDatabase() {
 
             String alamat = txtAlamat.getText();
             String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan"; // RadioButton untuk memilih jenis kelamin
-
+            String pekerjaan = txtPekerjaan.getText();
+            String gaji_pokok = CbGaji.getSelectedItem().toString();
             // Mengambil path foto KTP dari JFileChooser
             String fotoKTP = btnUnggah.getText();
 //            if (ktpFile != null) {
@@ -471,8 +475,10 @@ private void connectToDatabase() {
                 ps.setString(6, tanggalLahirStr); // tanggal_lahir harus berupa String atau Date
                 ps.setString(7, alamat); // alamat harus berupa String
                 ps.setString(8, jenisKelamin); // jenis_kelamin harus berupa String
-                ps.setString(9, fotoKTP); // foto_ktp harus berupa String (path atau URL)
-                ps.setString(10, role); // role default adalah "user"
+                ps.setString(9, pekerjaan); // Simpan pekerjaan sebagai string
+                ps.setString(10, gaji_pokok); // Simpan gaji_pokok sebagai string
+                ps.setString(11, fotoKTP); // foto_ktp harus berupa String (path atau URL)
+                ps.setString(12, role); // role default adalah "user"
 
                 int rowsInserted = ps.executeUpdate();
                 if (rowsInserted > 0) {
@@ -496,7 +502,6 @@ private void connectToDatabase() {
 //            btnUnggahKTP.setText(ktpFile.getAbsolutePath());
 //        }
 //    }
-
     private void buatAkunAdmin() {
         try {
             String username = "admin";
@@ -535,4 +540,5 @@ private void connectToDatabase() {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal membuat akun admin.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }}
+    }
+}

@@ -21,6 +21,8 @@ public class pinjaman {
     String tanggal_lahir;
     String alamat;
     String jenis_kelamin;
+    String pekerjaan;
+    String gaji_pokok;
 
     public String getUsername() {
         return username;
@@ -61,18 +63,18 @@ public class pinjaman {
     public void setKontak(String kontak) {
         this.kontak = kontak;
     }
-    
+
     public String getTanggalLahir() {
         return tanggal_lahir;
     }
 
 //    public void setTanggalLahir(LocalDate tanggal_lahir) {
-////       this.tanggal_lahir = tanggal_lahir;
+    ////       this.tanggal_lahir = tanggal_lahir;
 //    }
     public void setTanggalLahir(LocalDate tanggal_lahir) {
         this.tanggal_lahir = tanggal_lahir != null ? tanggal_lahir.toString() : null;
     }
-    
+
     public String getAlamat() {
         return alamat;
     }
@@ -80,7 +82,7 @@ public class pinjaman {
     public void setAlamat(String alamat) {
         this.alamat = alamat;
     }
-    
+
     public String getJenisKelamin() {
         return jenis_kelamin;
     }
@@ -88,28 +90,40 @@ public class pinjaman {
     public void setJenisKelamin(String jenis_kelamin) {
         this.jenis_kelamin = jenis_kelamin;
     }
-
-    @Override
     
-    public String toString() {
-        return String.format("[{username:%s,email:%s,password:%s,nik:%s,kontak:%s,tanggallahir:%s,alamat:%s,jeniskelamin:%s}]",
-                username, email, password, nik, kontak, tanggal_lahir != null ? tanggal_lahir.toString() : "null", alamat, jenis_kelamin);
+    public void setPekerjaan(String pekerjaan) {
+        this.pekerjaan = pekerjaan;
     }
 
+    public String getPekerjaan() {
+        return pekerjaan;
+    }
 
-    
+    public void setGajiPokok(String gaji_pokok) {
+        this.gaji_pokok = gaji_pokok;
+    }
+
+    public String getGajiPokok() {
+        return gaji_pokok;
+    }
+
+    @Override
+
+    public String toString() {
+        return String.format("[{username:%s,email:%s,password:%s,nik:%s,kontak:%s,tanggallahir:%s,alamat:%s,jeniskelamin:%s,pekerjaan:%s,gaji_pokok:%s}]",
+                username, email, password, nik, kontak, tanggal_lahir != null ? tanggal_lahir.toString() : "null", alamat, jenis_kelamin, pekerjaan, gaji_pokok);
+    }
+
     public void toObject(String string) {
-    username = string.substring(string.indexOf("username") + 9, string.indexOf("email") - 1);
-    email = string.substring(string.indexOf("email") + 6, string.indexOf("password") - 1);
-    password = string.substring(string.indexOf("password") + 9, string.indexOf("nik") - 1);
-    nik = string.substring(string.indexOf("nik") + 4, string.indexOf("kontak") - 1);
-    kontak = string.substring(string.indexOf("kontak") + 7, string.indexOf("tanggallahir") - 1);
-    tanggal_lahir = string.substring(string.indexOf("tanggallahir") + 13, string.indexOf("alamat") - 1);
-    alamat = string.substring(string.indexOf("alamat") + 7, string.indexOf("jeniskelamin") - 1);
-    jenis_kelamin = string.substring(string.indexOf("jenis_kelamin") + 14, string.indexOf("}") - 1);
+        username = string.substring(string.indexOf("username") + 9, string.indexOf("email") - 1);
+        email = string.substring(string.indexOf("email") + 6, string.indexOf("password") - 1);
+        password = string.substring(string.indexOf("password") + 9, string.indexOf("nik") - 1);
+        nik = string.substring(string.indexOf("nik") + 4, string.indexOf("kontak") - 1);
+        kontak = string.substring(string.indexOf("kontak") + 7, string.indexOf("tanggallahir") - 1);
+        tanggal_lahir = string.substring(string.indexOf("tanggallahir") + 13, string.indexOf("alamat") - 1);
+        alamat = string.substring(string.indexOf("alamat") + 7, string.indexOf("jeniskelamin") - 1);
+        jenis_kelamin = string.substring(string.indexOf("jenis_kelamin") + 14, string.indexOf("}") - 1);
+        pekerjaan = string.substring(string.indexOf("pekerjaan") + 14, string.indexOf("}") - 1);
+        gaji_pokok = string.substring(string.indexOf("gaji_pokok") + 14, string.indexOf("}") - 1);
+    }
 }
-
-}
-
-
-
