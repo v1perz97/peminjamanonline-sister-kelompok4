@@ -271,7 +271,6 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             double angsuranBulanan = totalCair / tenorBulan;
             double sisaAngsuran = jumlahPinjaman * (1 + bunga);
 
-            // Insert data ke tabel `pinjaman`
             String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_angsuran) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             int pinjamanId;
@@ -299,7 +298,6 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 }
             }
 
-            // Insert data ke tabel `pengajuan_pinjaman`
             String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status) "
                     + "VALUES (?, ?, ?, ?)";
             try (PreparedStatement psPengajuan = connection.prepareStatement(queryPengajuan)) {
@@ -311,7 +309,6 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPengajuan.executeUpdate();
             }
 
-            // Insert data ke tabel `tagihan` untuk setiap bulan sesuai tenor
             String queryTagihan = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) "
                     + "VALUES (?, ?, ?, ?)";
             try (PreparedStatement psTagihan = connection.prepareStatement(queryTagihan)) {
