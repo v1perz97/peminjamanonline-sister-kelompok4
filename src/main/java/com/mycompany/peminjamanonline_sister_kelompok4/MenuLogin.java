@@ -213,8 +213,7 @@ public class MenuLogin extends javax.swing.JFrame {
                 int iduser = rs.getInt("iduser");
                 
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                kafkaProducer.send(new ProducerRecord<>("login", "User: " + username + " berhasil login"));
-                
+                               
                 if ("admin".equals(role)) {
                     
                     DashboardAdmin dashboardAdmin = new DashboardAdmin();

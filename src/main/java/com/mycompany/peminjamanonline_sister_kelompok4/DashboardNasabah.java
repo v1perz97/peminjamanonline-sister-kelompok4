@@ -415,7 +415,7 @@ public class DashboardNasabah extends javax.swing.JFrame {
             Date tanggalLahir = rs.getDate("tanggal_lahir");
             String alamat = rs.getString("alamat");
             String jenisKelamin = rs.getString("jenis_kelamin");
-            byte[] fotoBlob = rs.getBytes("foto_profil");
+            byte[] fotoBlob = rs.getBytes("foto_ktp");
 
             // Display data in GUI components
             txtNama.setText(nama);

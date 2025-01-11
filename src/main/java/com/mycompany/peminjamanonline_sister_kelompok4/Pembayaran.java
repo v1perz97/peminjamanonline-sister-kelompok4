@@ -24,19 +24,13 @@ public class Pembayaran extends javax.swing.JFrame {
 
     /**
      * Creates new form Pembayaran
+     * @param iduser
      */
     public Pembayaran(int iduser) {
-//        this.riwayatPinjaman = riwayatPinjaman;
         initComponents();
         this.iduser = iduser;
-//        configureKafkaProducer();
-//        updateNotificationsList();
-//
-//        // Tampilkan data dari riwayatPinjaman
-//        if (riwayatPinjaman != null) {
-//            txtTagihan.setText(String.valueOf(riwayatPinjaman.getSisaTagihan()));
-//            txtJatuhTempo.setText(riwayatPinjaman.getJatuhTempo());
-//        }
+        configureKafkaProducer();
+//       
     }
 
     /**
@@ -192,7 +186,7 @@ public class Pembayaran extends javax.swing.JFrame {
 
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
-        props.put("bootstrap.servers", "192.168.35.239:9092,192.168.37.230.239:9093,192.168.36.75:9094");
+        props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 

@@ -16,7 +16,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Konfirmasi extends javax.swing.JFrame {
+
     private Producer<String, String> kafkaProducer;
+
     /**
      * Creates new form RiwayatPinjaman
      */
@@ -206,12 +208,12 @@ public class Konfirmasi extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public void setData(String nama, String nik, String jumlah, String tenor, String cicilan) {
-    txtNama.setText(nama);
-    txtNik.setText(nik);
-    txtJumlah.setText(jumlah);
-    txtTenor.setText(tenor);
-    txtCicilan.setText(cicilan);
-}
+        txtNama.setText(nama);
+        txtNik.setText(nik);
+        txtJumlah.setText(jumlah);
+        txtTenor.setText(tenor);
+        txtCicilan.setText(cicilan);
+    }
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
         DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
@@ -220,69 +222,43 @@ public class Konfirmasi extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBatalActionPerformed
 
     private void btnDitolakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDitolakActionPerformed
-        StatusTolak(txtNik.getText(), "Ditolak");
+        updateStatusPengajuan(txtNik.getText(), "ditolak");
         DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
         FormDashboardNasabah.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnDitolakActionPerformed
 
     private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
-        StatusSetuju(txtNik.getText(), "Disetujui");
+        updateStatusPengajuan(txtNik.getText(), "disetujui");
         DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
         FormDashboardNasabah.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnDisetujuiActionPerformed
-    
-    private void StatusTolak(String nik, String status){
-        String updateQuery = "UPDATE pinjaman p "
-            + "JOIN users u ON p.iduser = u.iduser "
-            + "SET p.status = ? "
-            + "WHERE u.nik = ?";
-    
-    try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
-        
-        statement.setString(1, status);
-        statement.setString(2, nik);
-        
-        int rowsAffected = statement.executeUpdate();
-        
-        if (rowsAffected > 0) {
-            
-            System.out.println("Status pinjaman diperbarui menjadi: " + status);
-        } else {
-            
-            System.out.println("Gagal memperbarui status pinjaman.");
+
+    private void updateStatusPengajuan(String nik, String status) {
+        // Query untuk memperbarui status pada tabel pengajuan_pinjaman
+        String updateQuery = "UPDATE pengajuan_pinjaman pp "
+                + "JOIN users u ON pp.iduser = u.iduser "
+                + "SET pp.status = ? "
+                + "WHERE u.nik = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+
+            statement.setString(1, status); // Set nilai status (ditolak/disetujui)
+            statement.setString(2, nik);    // Set nilai NIK
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Status pengajuan pinjaman diperbarui menjadi: " + status);
+            } else {
+                System.out.println("Gagal memperbarui status pengajuan pinjaman.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-    }
-    private void StatusSetuju(String nik, String status) {
-    String updateQuery = "UPDATE pinjaman p "
-            + "JOIN users u ON p.iduser = u.iduser "
-            + "SET p.status = ? "
-            + "WHERE u.nik = ?";
-    
-    try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
-        
-        statement.setString(1, status);
-        statement.setString(2, nik);
-        
-        int rowsAffected = statement.executeUpdate();
-        
-        if (rowsAffected > 0) {
-            
-            System.out.println("Status pinjaman diperbarui menjadi: " + status);
-        } else {
-            
-            System.out.println("Gagal memperbarui status pinjaman.");
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    }
+
     /**
      * @param args the command line arguments
      */
@@ -318,7 +294,7 @@ public class Konfirmasi extends javax.swing.JFrame {
             }
         });
     }
-    
+
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
         props.put("bootstrap.servers", "localhost:9092");

@@ -269,9 +269,10 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             String tenor = CbTenor.getSelectedItem().toString();
             int tenorBulan = Integer.parseInt(tenor.split(" ")[0]);
             double angsuranBulanan = totalCair / tenorBulan;
+            double sisaAngsuran = jumlahPinjaman * (1 + bunga);
 
             // Insert data ke tabel `pinjaman`
-            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran, tanggal_cair, total_cair, sisa_angsuran) "
+            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_angsuran) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             int pinjamanId;
 
@@ -283,7 +284,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPinjaman.setDouble(5, angsuranBulanan);
                 psPinjaman.setString(6, tanggalCairStr);
                 psPinjaman.setDouble(7, totalCair);
-                psPinjaman.setDouble(8, totalCair);
+                psPinjaman.setDouble(8, sisaAngsuran);
 
                 int rowsInserted = psPinjaman.executeUpdate();
                 if (rowsInserted > 0) {
@@ -305,7 +306,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPengajuan.setInt(1, iduser);
                 psPengajuan.setInt(2, pinjamanId);
                 psPengajuan.setString(3, tanggalPengajuanStr);
-                psPengajuan.setString(4, "Disetujui"); // Status default
+                psPengajuan.setString(4, "menunggu"); // Status default
 
                 psPengajuan.executeUpdate();
             }
