@@ -284,8 +284,8 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
         int pinjamanId = 0;
 
         try {
-            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_angsuran) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_tagihan, status) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement psPinjaman = connection.prepareStatement(queryPinjaman, Statement.RETURN_GENERATED_KEYS)) {
                 psPinjaman.setInt(1, iduser);
@@ -296,6 +296,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPinjaman.setString(6, tanggalCairStr);
                 psPinjaman.setDouble(7, totalCair);
                 psPinjaman.setDouble(8, sisaAngsuran);
+                psPinjaman.setString(9, "belum lunas");
 
                 int rowsInserted = psPinjaman.executeUpdate();
                 if (rowsInserted > 0) {
