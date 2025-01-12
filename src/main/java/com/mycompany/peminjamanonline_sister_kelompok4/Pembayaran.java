@@ -1,6 +1,11 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 //import java.sql.Connection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -16,20 +21,21 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class Pembayaran extends javax.swing.JFrame {
 
-//    private RiwayatPinjaman riwayatPinjaman;
-//    private DefaultListModel<String> notificationsModel;
-//    private static final String NOTIFICATIONS_FILE = "notifications.txt";
     private Producer<String, String> kafkaProducer;
     private final int iduser;
+    private Connection connection;
 
     /**
      * Creates new form Pembayaran
+     *
      * @param iduser
      */
     public Pembayaran(int iduser) {
         initComponents();
         this.iduser = iduser;
         configureKafkaProducer();
+        connectToDatabase();
+        loadTagihan(); // Load tagihan saat form dibuka
 //       
     }
 
@@ -170,6 +176,46 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            // Get the amount to be paid from txtTagihan
+            int amountToPay = Integer.parseInt(txtTagihan.getText());
+
+            // Get the payment date from the date chooser
+            java.util.Date paymentDate = DtTanggal.getDate();
+            if (paymentDate == null) {
+                JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembayaran.");
+                return;
+            }
+
+            // Convert date to SQL date
+            java.sql.Date sqlPaymentDate = new java.sql.Date(paymentDate.getTime());
+
+            // Insert payment record into the tagihan table
+            String insertPaymentQuery = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) VALUES (?, ?, ?, ?)";
+            PreparedStatement insertPaymentStmt = connection.prepareStatement(insertPaymentQuery);
+            insertPaymentStmt.setInt(1, iduser); // Assuming iduser corresponds to pinjaman_id
+            insertPaymentStmt.setDate(2, sqlPaymentDate);
+            insertPaymentStmt.setInt(3, amountToPay);
+            insertPaymentStmt.setString(4, txtJatuhTempo.getText());
+            insertPaymentStmt.executeUpdate();
+
+            // Update sisa_tagihan in pinjaman table and change status to 'lunas' if fully paid
+            String updatePinjamanQuery = "UPDATE pinjaman SET sisa_tagihan = sisa_tagihan - ?, status = CASE WHEN sisa_tagihan - ? <= 0 THEN 'lunas' ELSE status END WHERE iduser = ?";
+            PreparedStatement updatePinjamanStmt = connection.prepareStatement(updatePinjamanQuery);
+            updatePinjamanStmt.setInt(1, amountToPay);
+            updatePinjamanStmt.setInt(2, amountToPay);
+            updatePinjamanStmt.setInt(3, iduser); // Assuming iduser corresponds to the user ID in pinjaman
+            updatePinjamanStmt.executeUpdate();
+
+            // Notify the user
+            JOptionPane.showMessageDialog(this, "Pembayaran berhasil!");
+
+            // Reload tagihan after payment
+            loadTagihan();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal melakukan pembayaran: " + e.getMessage());
+        }
     }
 
     public static void main(String args[]) {
@@ -205,4 +251,37 @@ public class Pembayaran extends javax.swing.JFrame {
     private javax.swing.JLabel txtJatuhTempo;
     private javax.swing.JLabel txtTagihan;
     // End of variables declaration//GEN-END:variables
+
+    private void connectToDatabase() {
+        try {
+            // Ganti dengan URL database Anda
+            String url = "jdbc:mysql://localhost:3306/loan_app";
+            String user = "root"; // Ganti dengan username database Anda
+            String password = ""; // Ganti dengan password database Anda
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Koneksi database gagal: " + e.getMessage());
+        }
+    }
+
+    private void loadTagihan() {
+        try {
+            String query = "SELECT * FROM tagihan WHERE pinjaman_id = ? AND tanggal_bayar IS NULL LIMIT 1";
+            PreparedStatement pst = connection.prepareStatement(query);
+            pst.setInt(1, iduser);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                txtTagihan.setText(String.valueOf(rs.getInt("jumlah")));
+                txtJatuhTempo.setText(rs.getString("jatuh_tempo"));
+            } else {
+                txtTagihan.setText("Tidak ada tagihan.");
+                txtJatuhTempo.setText("");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat tagihan: " + e.getMessage());
+        }
+    }
 }

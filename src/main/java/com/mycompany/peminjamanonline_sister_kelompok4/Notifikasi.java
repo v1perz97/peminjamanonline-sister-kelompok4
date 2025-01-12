@@ -7,10 +7,10 @@ package com.mycompany.peminjamanonline_sister_kelompok4;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.function.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -18,7 +18,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
  */
 public class Notifikasi extends javax.swing.JFrame {
     
-    private Vector<String> notifikasiList = new Vector<>();
+     private final Vector<String> notifikasiList = new Vector<>();
+    private KafkaConsumer<Object, Object> kafkaConsumer;
     /**
      * Creates new form Notifikasi
      */
