@@ -322,8 +322,8 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPengajuan.executeUpdate();
             }
 
-            String queryTagihan = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) "
-                    + "VALUES (?, ?, ?, ?)";
+            String queryTagihan = "INSERT INTO tagihan (pinjaman_id, jumlah_bayar, jatuh_tempo) "
+                    + "VALUES (?, ?, ?)";
             try (PreparedStatement psTagihan = connection.prepareStatement(queryTagihan)) {
                 for (int i = 1; i <= tenorBulan; i++) {
                     LocalDate jatuhTempo = tanggalCair.plusMonths(i);
@@ -331,8 +331,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
 
                     psTagihan.setInt(1, pinjamanId);
                     psTagihan.setString(2, tanggalCairStr);
-                    psTagihan.setDouble(3, angsuranBulanan);
-                    psTagihan.setString(4, jatuhTempoStr);
+                    psTagihan.setString(3, jatuhTempoStr);
 
                     psTagihan.addBatch();
                 }

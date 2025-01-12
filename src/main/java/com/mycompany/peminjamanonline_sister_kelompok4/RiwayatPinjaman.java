@@ -343,7 +343,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
             // Updated SQL query to match the new table and column structure
             String query = "SELECT p.jumlah AS jumlah_pengajuan, t.jatuh_tempo, p.tanggal_cair, "
                     + "p.tenor, p.angsuran_bulanan, pp.status AS status_pengajuan, "
-                    + "p.sisa_angsuran, t.jumlah_bayar, t.tanggal_pembayaran "
+                    + "p.sisa_tagihan, t.jumlah_bayar, t.tanggal_pembayaran "
                     + "FROM pengajuan_pinjaman pp "
                     + "LEFT JOIN pinjaman p ON pp.pinjaman_id = p.pinjaman_id "
                     + "LEFT JOIN tagihan t ON p.pinjaman_id = t.pinjaman_id "
@@ -361,7 +361,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 txtTenor.setText(rs.getString("tenor") != null ? rs.getString("tenor") : "-");
                 txtStatus.setText(rs.getString("status_pengajuan") != null ? rs.getString("status_pengajuan") : "-");
                 txtTagihan.setText(rs.getString("jumlah_bayar") != null ? rs.getString("jumlah_bayar") : "-");
-                txtSisaTagihan.setText(rs.getString("sisa_angsuran") != null ? rs.getString("sisa_angsuran") : "-");
+                txtSisaTagihan.setText(rs.getString("sisa_tagihan") != null ? rs.getString("sisa_tagihan") : "-");
                 txtTanggalBayar.setText(rs.getString("tanggal_pembayaran") != null ? rs.getString("tanggal_pembayaran") : "-");
             } else {
                 // Data not found
