@@ -13,7 +13,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class KafkaPembayaranProducer {
-    public static void KirimDataPembayaran() {
+    public static void KirimDataPembayaran(String amountToPayStr, String paymentDateStr) {
 
     Properties props = new Properties();
     props.put("bootstrap.servers", "localhost:9092");
@@ -22,7 +22,7 @@ public class KafkaPembayaranProducer {
 
     KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
-    String message = "";
+    String message = "User Melakukan Pembayaran Sebesar : "+amountToPayStr+" Pada Tanggal : " +paymentDateStr;
 
     producer.send(new ProducerRecord<>("pembayaran", null, message));
 

@@ -49,22 +49,21 @@ public class KafkaPengajuanConsumer extends JFrame {
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(30, 144, 255));
         headerPanel.setPreferredSize(new Dimension(700, 60));
-        headerPanel.setLayout(new BorderLayout());  // Menggunakan BorderLayout untuk menempatkan label di tengah
+        headerPanel.setLayout(new BorderLayout());
 
-        JLabel headerLabel = new JLabel("Kafka Consumer Konfirmasi", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("Topik Pengajuan", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         headerLabel.setForeground(Color.WHITE);
-        headerPanel.add(headerLabel, BorderLayout.CENTER);  // Menambahkan label di tengah
+        headerPanel.add(headerLabel, BorderLayout.CENTER);
 
         logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
         logArea.setBackground(new Color(240, 248, 255));
         logArea.setBorder(new EmptyBorder(10, 10, 10, 10));
-        logArea.setCaretPosition(logArea.getDocument().getLength());  // Menempatkan posisi caret di akhir teks
         JScrollPane scrollPane = new JScrollPane(logArea);
 
-        statusLabel = new JLabel("Status: Menunggu pesan...", SwingConstants.CENTER);  // Menambahkan centering di sini
+        statusLabel = new JLabel("Status: Menunggu pesan...", SwingConstants.CENTER);
         statusLabel.setFont(new Font("Arial", Font.ITALIC, 16));
         statusLabel.setForeground(Color.GRAY);
 
@@ -80,10 +79,10 @@ public class KafkaPengajuanConsumer extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
 
         setVisible(true);
-
+        startConsumer();
     }
-    private void ConsumerRegister() {
-        
+
+    private void startConsumer() {
         new Thread(() -> {
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -98,11 +97,10 @@ public class KafkaPengajuanConsumer extends JFrame {
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, String> record : records) {
-
                     String[] data = record.value().split(",");
 
                     if (data.length != 8) {
-                        log("Invalid message format: " + record.value());
+                        log("Pesan : " + record.value());
                         continue;
                     }
 
@@ -116,7 +114,6 @@ public class KafkaPengajuanConsumer extends JFrame {
                     String sisa_angsuran = data[7];
 
                     try (Connection conn = DatabaseConnection.getConnection()) {
-                        
                         String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_angsuran) "
                                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                         try (PreparedStatement stmt = conn.prepareStatement(queryPinjaman)) {
@@ -133,43 +130,39 @@ public class KafkaPengajuanConsumer extends JFrame {
                         }
 
                         String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status) "
-                                + "VALUES (?, ?, ?, ?)";
+                                + "VALUES (?, LAST_INSERT_ID(), ?, ?)";
                         try (PreparedStatement stmt = conn.prepareStatement(queryPengajuan)) {
                             stmt.setString(1, iduser);
-                            stmt.setString(2, "AUTO_GENERATED_ID");
-                            stmt.setString(3, tanggal_cair);
-                            stmt.setString(4, "Pending");
+                            stmt.setString(2, tanggal_cair);
+                            stmt.setString(3, "Pending");
                             stmt.executeUpdate();
                             log("Data saved to 'pengajuan_pinjaman' table: " + iduser);
                         }
 
                         String queryTagihan = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) "
-                                + "VALUES (?, ?, ?, ?)";
+                                + "VALUES (LAST_INSERT_ID(), ?, ?, ?)";
                         try (PreparedStatement stmt = conn.prepareStatement(queryTagihan)) {
-                            stmt.setString(1, "AUTO_GENERATED_ID");
-                            stmt.setString(2, "2025-01-01");
-                            stmt.setString(3, "0");
-                            stmt.setString(4, "2025-02-01");
+                            stmt.setString(1, "2025-01-01");
+                            stmt.setString(2, "0");
+                            stmt.setString(3, "2025-02-01");
                             stmt.executeUpdate();
                             log("Data saved to 'tagihan' table: " + iduser);
                         }
-
                     } catch (Exception e) {
                         log("Error saving data to database: " + e.getMessage());
-                        e.printStackTrace();
                     }
                 }
             }
-
         }).start();
     }
+
     private void log(String message) {
         SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
     }
+
     public static void main(String[] args) {
-       SwingUtilities.invokeLater(() -> {
-            KafkaPengajuanConsumer gui = new KafkaPengajuanConsumer();
-            gui.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new KafkaPengajuanConsumer().setVisible(true);
         });
     }
 }

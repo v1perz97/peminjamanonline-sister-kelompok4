@@ -248,7 +248,8 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Berhasil Melakukan Pembayaran"));
+        Pembayaran FormPembayaran = new Pembayaran(iduser);
+        FormPembayaran.setVisible(true);
     }//GEN-LAST:event_btnBayarActionPerformed
 
     /**
