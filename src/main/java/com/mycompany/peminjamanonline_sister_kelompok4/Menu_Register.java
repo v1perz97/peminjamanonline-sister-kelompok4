@@ -456,15 +456,12 @@ public class Menu_Register extends javax.swing.JFrame {
             String gaji_pokok = CbGaji.getSelectedItem().toString();
             // Mengambil path foto KTP dari JFileChooser
             String fotoKTP = btnUnggah.getText();
-//            if (ktpFile != null) {
-//                fotoKTP = ktpFile.getAbsolutePath();
-//            }
 
             // Role default adalah "user"
             String role = "user";
 
-            String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp, role) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, pekerjaan, gaji_pokok, foto_ktp, role) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement ps = connection.prepareStatement(query)) {
                 ps.setString(1, username); // username harus berupa String
