@@ -24,17 +24,18 @@ public class Notifikasi extends javax.swing.JFrame {
      */
     public Notifikasi() {
         initComponents();
+        startKafkaConsumer();
     }
     
     private void startKafkaConsumer() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092"); // Ganti dengan server Kafka Anda
-        props.put("group.id", "notifikasi-group");
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "notifikasi");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
         KafkaConsumer<Object, Object> kafkaConsumer = new KafkaConsumer<>(props);
-        kafkaConsumer.subscribe(Arrays.asList("pembayaran")); // Ganti dengan topik yang sesuai
+        kafkaConsumer.subscribe(Arrays.asList("pembayaran"));
 
         Thread consumerThread = new Thread(() -> {
             try {
@@ -100,6 +101,15 @@ public class Notifikasi extends javax.swing.JFrame {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
+        LstNotifikasi.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                LstNotifikasiAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
         jScrollPane1.setViewportView(LstNotifikasi);
 
         btnKembali.setBackground(new java.awt.Color(102, 102, 255));
@@ -146,6 +156,11 @@ public class Notifikasi extends javax.swing.JFrame {
        this.setVisible(false);
     }//GEN-LAST:event_btnKembaliActionPerformed
 
+    private void LstNotifikasiAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_LstNotifikasiAncestorAdded
+        
+    }//GEN-LAST:event_LstNotifikasiAncestorAdded
+
+    
     /**
      * @param args the command line arguments
      */

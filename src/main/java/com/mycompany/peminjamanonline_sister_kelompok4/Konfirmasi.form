@@ -199,6 +199,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Ditolak"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDitolakActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnDisetujui">
       <Properties>
@@ -213,6 +216,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Disetujui"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDisetujuiActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnBatal">
       <Properties>

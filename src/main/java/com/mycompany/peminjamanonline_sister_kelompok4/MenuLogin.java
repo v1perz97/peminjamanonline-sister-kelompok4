@@ -4,12 +4,14 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaLoginProducer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -23,7 +25,6 @@ public class MenuLogin extends javax.swing.JFrame {
     public MenuLogin() {
         initComponents();
         
-
     }
 
     /**
@@ -107,8 +108,6 @@ public class MenuLogin extends javax.swing.JFrame {
             }
         });
 
-        foto.setIcon(new javax.swing.ImageIcon("D:\\finalproject\\netbeans\\peminjamanonline-sister-kelompok4\\src\\main\\java\\com\\mycompany\\peminjamanonline_sister_kelompok4\\aset\\logoapk (1).png")); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -116,9 +115,6 @@ public class MenuLogin extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(138, 138, 138)
-                        .addComponent(foto))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(97, 97, 97)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -135,16 +131,19 @@ public class MenuLogin extends javax.swing.JFrame {
                                 .addGroup(layout.createSequentialGroup()
                                     .addGap(76, 76, 76)
                                     .addComponent(jLabel1)))
-                            .addComponent(CbPassword))))
+                            .addComponent(CbPassword)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(141, 141, 141)
+                        .addComponent(foto)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
                 .addComponent(foto)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -154,20 +153,20 @@ public class MenuLogin extends javax.swing.JFrame {
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(CbPassword)
-                .addGap(30, 30, 30)
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        MenuRegister FormMenuRegister = new MenuRegister();
+        Menu_Register FormMenuRegister = new Menu_Register();
         FormMenuRegister.setVisible(true);
-        this.dispose();
+        
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void CbPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbPasswordActionPerformed
@@ -188,7 +187,7 @@ public class MenuLogin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        KafkaLoginProducer.KirimPesanLogin(username);
         Connection conn = null;
         PreparedStatement pst = null;
         ResultSet rs = null;
@@ -204,21 +203,23 @@ public class MenuLogin extends javax.swing.JFrame {
             pst = conn.prepareStatement(sql);
             pst.setString(1, username);
             pst.setString(2, password);
-
+            
             rs = pst.executeQuery();
+            
 
             if (rs.next()) {
                 String role = rs.getString("role");
-
+                int iduser = rs.getInt("iduser");
+                
                 JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
+                               
                 if ("admin".equals(role)) {
                     
                     DashboardAdmin dashboardAdmin = new DashboardAdmin();
                     dashboardAdmin.setVisible(true);
                 } else {
                     
-                    DashboardNasabah dashboardNasabah = new DashboardNasabah(username);
+                    DashboardNasabah dashboardNasabah = new DashboardNasabah(iduser);
                     dashboardNasabah.setVisible(true);
                 }
 
@@ -226,6 +227,7 @@ public class MenuLogin extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
             }
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } finally {

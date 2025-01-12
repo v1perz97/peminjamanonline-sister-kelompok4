@@ -4,7 +4,13 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaKonfirmasiProducer;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
@@ -12,11 +18,14 @@ import org.apache.kafka.clients.producer.KafkaProducer;
  */
 public class Konfirmasi extends javax.swing.JFrame {
 
+    private Producer<String, String> kafkaProducer;
+
     /**
      * Creates new form RiwayatPinjaman
      */
     public Konfirmasi() {
         initComponents();
+        
     }
 
     /**
@@ -88,11 +97,21 @@ public class Konfirmasi extends javax.swing.JFrame {
         btnDitolak.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDitolak.setForeground(new java.awt.Color(255, 255, 255));
         btnDitolak.setText("Ditolak");
+        btnDitolak.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDitolakActionPerformed(evt);
+            }
+        });
 
         btnDisetujui.setBackground(new java.awt.Color(102, 102, 255));
         btnDisetujui.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnDisetujui.setForeground(new java.awt.Color(255, 255, 255));
         btnDisetujui.setText("Disetujui");
+        btnDisetujui.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDisetujuiActionPerformed(evt);
+            }
+        });
 
         btnBatal.setBackground(new java.awt.Color(102, 102, 255));
         btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -189,11 +208,58 @@ public class Konfirmasi extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void setData(String nama, String nik, String jumlah, String tenor, String cicilan) {
+        txtNama.setText(nama);
+        txtNik.setText(nik);
+        txtJumlah.setText(jumlah);
+        txtTenor.setText(tenor);
+        txtCicilan.setText(cicilan);
+    }
+
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
-       DashboardAdmin FormDashboardAdmin = new DashboardAdmin();
-       this.setVisible(false);
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBatalActionPerformed
 
+    private void btnDitolakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDitolakActionPerformed
+        updateStatusPengajuan(txtNik.getText(), "ditolak");
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDitolakActionPerformed
+
+    private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
+        updateStatusPengajuan(txtNik.getText(), "disetujui");
+        DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
+        FormDashboardNasabah.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDisetujuiActionPerformed
+
+    private void updateStatusPengajuan(String nik, String status) {
+    String updateQuery = "UPDATE pengajuan_pinjaman pp "
+            + "JOIN users u ON pp.iduser = u.iduser "
+            + "SET pp.status = ? "
+            + "WHERE u.nik = ?";
+    
+    KafkaKonfirmasiProducer.PesanKonfirmasi(nik, status);
+    try (Connection connection = DatabaseConnection.getConnection(); 
+         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+
+        statement.setString(1, status);  
+        statement.setString(2, nik);     
+
+        int rowsAffected = statement.executeUpdate();
+
+        if (rowsAffected > 0) {
+            System.out.println("Status pengajuan pinjaman diperbarui menjadi: " + status);
+        } else {
+            System.out.println("Gagal memperbarui status pengajuan pinjaman.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
     /**
      * @param args the command line arguments
      */
@@ -229,15 +295,7 @@ public class Konfirmasi extends javax.swing.JFrame {
             }
         });
     }
-    
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBatal;
     private javax.swing.JButton btnDisetujui;

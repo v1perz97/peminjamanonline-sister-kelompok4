@@ -1,9 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+//import java.sql.Connection;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+
+//import java.util.Date;
+//import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -13,15 +15,22 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Pembayaran extends javax.swing.JFrame {
+
+//    private RiwayatPinjaman riwayatPinjaman;
+//    private DefaultListModel<String> notificationsModel;
+//    private static final String NOTIFICATIONS_FILE = "notifications.txt";
     private Producer<String, String> kafkaProducer;
+    private final int iduser;
+
     /**
      * Creates new form Pembayaran
+     * @param iduser
      */
-    
-    
-    public Pembayaran() {
+    public Pembayaran(int iduser) {
         initComponents();
+        this.iduser = iduser;
         configureKafkaProducer();
+//       
     }
 
     /**
@@ -42,7 +51,7 @@ public class Pembayaran extends javax.swing.JFrame {
         txtJatuhTempo = new javax.swing.JLabel();
         btnBayar = new javax.swing.JButton();
         btnKembali = new javax.swing.JButton();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        DtTanggal = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -121,7 +130,7 @@ public class Pembayaran extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtTagihan)
                             .addComponent(txtJatuhTempo)
-                            .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(DtTanggal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnKembali)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 79, Short.MAX_VALUE)
@@ -139,7 +148,7 @@ public class Pembayaran extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(DtTanggal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
@@ -155,61 +164,39 @@ public class Pembayaran extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(); 
-       this.setVisible(false);
+        RiwayatPinjaman FormRiwayatPinjaman = new RiwayatPinjaman(iduser);
+        FormRiwayatPinjaman.setVisible(true);
+        this.dispose(); // Tutup form pembayaran
     }//GEN-LAST:event_btnKembaliActionPerformed
 
-    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        kafkaProducer.send(new ProducerRecord<>("pembayaran", "Sisa Tagihan User: " + txtTagihan.getText()));
-    }//GEN-LAST:event_btnBayarActionPerformed
+    private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {
+    }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
+        // Set the Nimbus look and feel
+        // ... (kode setting look and feel yang sama seperti sebelumnya) ...
+        int loggedInUserId = 1;
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran().setVisible(true);
+                new Pembayaran(loggedInUserId).setVisible(true);
             }
         });
+
     }
-    
+
     private void configureKafkaProducer() {
         var props = new java.util.Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<Object, Object> kafkaProducer = new KafkaProducer<>(props);
+        kafkaProducer = new KafkaProducer<>(props);
     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JDateChooser DtTanggal;
     private javax.swing.JButton btnBayar;
     private javax.swing.JButton btnKembali;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
