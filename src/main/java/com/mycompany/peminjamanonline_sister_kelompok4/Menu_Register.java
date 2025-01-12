@@ -4,6 +4,7 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaRegisterProducer;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +18,7 @@ import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import static org.apache.kafka.common.security.scram.internals.ScramFormatter.username;
 
 /**
  *
@@ -26,52 +28,26 @@ public class Menu_Register extends javax.swing.JFrame {
 
     private File ktpFile;
     private Connection connection;
-    pinjaman pjm = new pinjaman();
+    
     Properties props = new Properties();
-
-    void kirimdata() {
-        pjm.setUsername(txtNama.getText());
-        pjm.setEmail(txtEmail.getText());
-        pjm.setPassword(txtPassword.getText());
-        pjm.setNik(txtNik.getText());
-        pjm.setKontak(txtKontak.getText());
-        java.util.Date date = txtTanggalLahir.getDate();
-        if (date != null) {
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = sdf.format(date);
-            LocalDate tanggalLahir = LocalDate.parse(formattedDate);
-            pjm.setTanggalLahir(tanggalLahir);
-        }
-        pjm.setAlamat(txtAlamat.getText());
-        String jenisKelamin;
-        if (rbLakiLaki.isSelected()) {
-            jenisKelamin = "Laki-laki";
-        } else if (rbPerempuan.isSelected()) {
-            jenisKelamin = "Perempuan";
-        } else {
-            jenisKelamin = ""; // Jika tidak ada yang dipilih, nilai kosong
-        }
-        pjm.setJenisKelamin(jenisKelamin);
-
-        pjm.setPekerjaan(txtPekerjaan.getText()); // Ambil pekerjaan dari TextField
-        pjm.setGajiPokok(CbGaji.getSelectedItem().toString()); // Ambil gaji pokok dari ComboBox
-
-        try (Producer<String, String> producer = new KafkaProducer<>(props)) {
-            producer.send(new ProducerRecord<>("register", "", pjm.toString()));
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal mengirim data ke Kafka: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        this.dispose();
-    }
-
+    
+//    void kirimdata() {
+//        
+//        try (Producer<String, String> producer = new KafkaProducer<>(props)) {
+//            producer.send(new ProducerRecord<>("register", "",);
+//            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Gagal mengirim data ke Kafka: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//        }
+//        this.dispose();
+//    }
+    
     /**
      * Creates new form Menu_Register
      */
     public Menu_Register() {
         initComponents();
-        connectToDatabase();
+        
     }
 
     /**
@@ -325,9 +301,63 @@ public class Menu_Register extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        kirimdata();
-        simpanDataKeDatabase();
-        buatAkunAdmin();
+        String username = txtNama.getText();
+        String email = txtEmail.getText();
+        String password = txtPassword.getText();
+        String nik = txtNik.getText();
+        String kontak = txtKontak.getText();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if (txtTanggalLahir.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
+        String alamat = txtAlamat.getText();
+        String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan";
+        String pekerjaan = txtPekerjaan.getText();
+        String gaji_pokok = CbGaji.getSelectedItem().toString();
+        String gajiBersih = gaji_pokok.replaceAll("[^\\d.]", "");
+        String fotoKTP = btnUnggah.getText();
+        String role = "user";
+
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nik.isEmpty() || kontak.isEmpty()
+                || alamat.isEmpty() || pekerjaan.isEmpty() || gaji_pokok.isEmpty() || fotoKTP.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Harap isi semua kolom!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        KafkaRegisterProducer.KirimDataRegister(username, email, password, nik, kontak, tanggalLahirStr, alamat, jenisKelamin, pekerjaan, gaji_pokok, fotoKTP);
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (conn != null) {
+                String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, pekerjaan, gaji_pokok, foto_ktp, role) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                    stmt.setString(1, username);
+                    stmt.setString(2, email);
+                    stmt.setString(3, password);
+                    stmt.setString(4, nik);
+                    stmt.setString(5, kontak);
+                    stmt.setDate(6, java.sql.Date.valueOf(tanggalLahirStr));
+                    stmt.setString(7, alamat);
+                    stmt.setString(8, jenisKelamin);
+                    stmt.setString(9, pekerjaan);
+                    stmt.setDouble(10, Double.parseDouble(gajiBersih));
+                    stmt.setString(11, fotoKTP);
+                    stmt.setString(12, role);
+
+                    stmt.executeUpdate();
+                    JOptionPane.showMessageDialog(this, "Registrasi berhasil!");
+                    this.dispose(); 
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Gagal terhubung ke database.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void btnUnggahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnggahActionPerformed
@@ -345,9 +375,7 @@ public class Menu_Register extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBatal1ActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        props.put("bootstrap.servers", "192.168.38.245:9092,192.168.35.245:9093,192.168.32.190:9094");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
     }//GEN-LAST:event_formWindowOpened
 
     /**
@@ -415,15 +443,6 @@ public class Menu_Register extends javax.swing.JFrame {
     private com.toedter.calendar.JDateChooser txtTanggalLahir;
     // End of variables declaration//GEN-END:variables
 
-    private void connectToDatabase() {
-        try {
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/loan_app", "root", "");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
-        }
-    }
-
     private void clearForm() {
         txtNama.setText("");
         txtEmail.setText("");
@@ -437,108 +456,7 @@ public class Menu_Register extends javax.swing.JFrame {
         txtTanggalLahir.setDate(null);
     }
 
-    private void simpanDataKeDatabase() {
-        try {
-            // Data input dari pengguna
-            String username = txtNama.getText();
-            String email = txtEmail.getText();
-            String password = txtPassword.getText();
-            String nik = txtNik.getText();
-            String kontak = txtKontak.getText();
-
-            // Mengambil tanggal dari JCalendar
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
-
-            String alamat = txtAlamat.getText();
-            String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan"; // RadioButton untuk memilih jenis kelamin
-            String pekerjaan = txtPekerjaan.getText();
-            String gaji_pokok = CbGaji.getSelectedItem().toString();
-            // Mengambil path foto KTP dari JFileChooser
-            String fotoKTP = btnUnggah.getText();
-//            if (ktpFile != null) {
-//                fotoKTP = ktpFile.getAbsolutePath();
-//            }
-
-            // Role default adalah "user"
-            String role = "user";
-
-            String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp, role) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, username); // username harus berupa String
-                ps.setString(2, email); // email harus berupa String
-                ps.setString(3, password); // password harus berupa String
-                ps.setString(4, nik); // nik harus berupa String
-                ps.setString(5, kontak); // kontak harus berupa String
-                ps.setString(6, tanggalLahirStr); // tanggal_lahir harus berupa String atau Date
-                ps.setString(7, alamat); // alamat harus berupa String
-                ps.setString(8, jenisKelamin); // jenis_kelamin harus berupa String
-                ps.setString(9, pekerjaan); // Simpan pekerjaan sebagai string
-                ps.setString(10, gaji_pokok); // Simpan gaji_pokok sebagai string
-                ps.setString(11, fotoKTP); // foto_ktp harus berupa String (path atau URL)
-                ps.setString(12, role); // role default adalah "user"
-
-                int rowsInserted = ps.executeUpdate();
-                if (rowsInserted > 0) {
-                    JOptionPane.showMessageDialog(this, "Pendaftaran berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                    clearForm();
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Masukkan data akun yang valid.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-//    private void unggahKTP() {
-//        JFileChooser fileChooser = new JFileChooser();
-//        fileChooser.setDialogTitle("Pilih Foto KTP");
-//        int result = fileChooser.showOpenDialog(this);
-//        if (result == JFileChooser.APPROVE_OPTION) {
-//            ktpFile = fileChooser.getSelectedFile();
-//            btnUnggahKTP.setText(ktpFile.getAbsolutePath());
-//        }
-//    }
-    private void buatAkunAdmin() {
-        try {
-            String username = "admin";
-            String email = "admin@example.com";
-            String password = "admin123";
-            String nik = "1234567890";
-            String kontak = "081234567890";
-            String tanggalLahirStr = "1990-01-01"; // Tanggal lahir default untuk admin
-            String alamat = "Admin Office";
-            String jenisKelamin = "Laki-Laki"; // Default untuk admin
-            String fotoKTP = ""; // Kosongkan untuk admin
-            String role = "admin";
-
-            String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, foto_ktp, role) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, username);
-                ps.setString(2, email);
-                ps.setString(3, password);
-                ps.setString(4, nik);
-                ps.setString(5, kontak);
-                ps.setString(6, tanggalLahirStr);
-                ps.setString(7, alamat);
-                ps.setString(8, jenisKelamin);
-                ps.setString(9, fotoKTP);
-                ps.setString(10, role);
-
-                int rowsInserted = ps.executeUpdate();
-                if (rowsInserted > 0) {
-                    JOptionPane.showMessageDialog(this, "Akun admin berhasil dibuat.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat membuat akun admin: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal membuat akun admin.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    
 }
+
+

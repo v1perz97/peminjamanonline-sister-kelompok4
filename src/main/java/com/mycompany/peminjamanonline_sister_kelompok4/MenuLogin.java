@@ -4,28 +4,27 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaLoginProducer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+
 
 /**
  *
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
-    private Producer<String, String> kafkaProducer;
+    
     /**
      * Creates new form MenuLogin
      */
     public MenuLogin() {
         initComponents();
-        configureKafkaProducer();
+        
     }
 
     /**
@@ -188,7 +187,7 @@ public class MenuLogin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        KafkaLoginProducer.KirimPesanLogin(username);
         Connection conn = null;
         PreparedStatement pst = null;
         ResultSet rs = null;
@@ -295,11 +294,4 @@ public class MenuLogin extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
-private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
-    }}
+}

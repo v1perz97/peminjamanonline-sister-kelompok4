@@ -4,6 +4,8 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPengajuanProducer;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaRegisterProducer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,6 +15,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -52,7 +56,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     public PengajuanPinjaman(int userId) {
         this.iduser = userId;
         initComponents();
-        connectToDatabase();
+        
 
     }
 
@@ -243,40 +247,48 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
 
 
     private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
-        kirimdata();
-        simpanDataKeDatabase();
-    }//GEN-LAST:event_btnAjukanActionPerformed
-    private void simpanDataKeDatabase() {
+        int batasMaksPinjaman = 20000000;
+        int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
+
+        if (jumlahPinjaman > batasMaksPinjaman) {
+            JOptionPane.showMessageDialog(this, "Jumlah pinjaman tidak boleh lebih dari Rp 20.000.000.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        LocalDate tanggalPengajuan = LocalDate.now();
+        LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String tanggalPengajuanStr = tanggalPengajuan.format(formatter);
+        String tanggalCairStr = tanggalCair.format(formatter);
+
+        double bunga = 0.01;
+        double totalCair = jumlahPinjaman * (1 + bunga);
+        String totalCairStr = String.format("%.2f", totalCair);
+
+        String tenor = CbTenor.getSelectedItem().toString();
+        int tenorBulan = Integer.parseInt(tenor.split(" ")[0]);
+        double angsuranBulanan = totalCair / tenorBulan;
+        String angsuranBulananStr = String.format("%.2f", angsuranBulanan);
+
+        double sisaAngsuran = jumlahPinjaman * (1 + bunga);
+        String sisaAngsuranStr = String.format("%.2f", sisaAngsuran);
+
+        KafkaPengajuanProducer.KirimDataPengajuan(iduser, jumlahPinjaman, tanggalPengajuanStr, tanggalCairStr, bunga, totalCairStr, tenor, angsuranBulananStr, sisaAngsuranStr);
+
+        Connection connection = null;
         try {
-            // Batas maksimum pinjaman
-            int batasMaksPinjaman = 20000000; // 20 juta
-            int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
+            connection = DatabaseConnection.getConnection();
+        } catch (SQLException ex) {
+            Logger.getLogger(PengajuanPinjaman.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        int pinjamanId = 0;
 
-            // Validasi jumlah pinjaman
-            if (jumlahPinjaman > batasMaksPinjaman) {
-                JOptionPane.showMessageDialog(this, "Jumlah pinjaman tidak boleh lebih dari Rp 20.000.000.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            LocalDate tanggalPengajuan = LocalDate.now();
-            LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String tanggalPengajuanStr = tanggalPengajuan.format(formatter);
-            String tanggalCairStr = tanggalCair.format(formatter);
-
-            double bunga = 0.01; // Bunga 1%
-            double totalCair = jumlahPinjaman * (1 + bunga);
-            String tenor = CbTenor.getSelectedItem().toString();
-            int tenorBulan = Integer.parseInt(tenor.split(" ")[0]);
-            double angsuranBulanan = totalCair / tenorBulan;
-            double sisaAngsuran = jumlahPinjaman * (1 + bunga);
-
+        try {
             String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_angsuran) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            int pinjamanId;
 
             try (PreparedStatement psPinjaman = connection.prepareStatement(queryPinjaman, Statement.RETURN_GENERATED_KEYS)) {
-                psPinjaman.setInt(1, iduser); // ID user
+                psPinjaman.setInt(1, iduser);
                 psPinjaman.setInt(2, jumlahPinjaman);
                 psPinjaman.setString(3, tenor);
                 psPinjaman.setDouble(4, bunga);
@@ -289,7 +301,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 if (rowsInserted > 0) {
                     ResultSet generatedKeys = psPinjaman.getGeneratedKeys();
                     if (generatedKeys.next()) {
-                        pinjamanId = generatedKeys.getInt(1); // ID pinjaman yang baru dibuat
+                        pinjamanId = generatedKeys.getInt(1);
                     } else {
                         throw new SQLException("Gagal mendapatkan ID pinjaman.");
                     }
@@ -304,7 +316,7 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
                 psPengajuan.setInt(1, iduser);
                 psPengajuan.setInt(2, pinjamanId);
                 psPengajuan.setString(3, tanggalPengajuanStr);
-                psPengajuan.setString(4, "menunggu"); // Status default
+                psPengajuan.setString(4, "menunggu");
 
                 psPengajuan.executeUpdate();
             }
@@ -327,22 +339,24 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
             }
 
             JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose(); 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Masukkan jumlah pinjaman yang valid.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
 
+
+    }//GEN-LAST:event_btnAjukanActionPerformed
+    
     private void btnTampilActionPerformed(java.awt.event.ActionEvent evt) {
 
         try {
-            // Ambil input jumlah pinjaman dan tenor
+            
             int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
-            int tenor = 1; // Default tenor
-            double bunga = 0.01; // Bunga 1%
+            int tenor = 1;
+            double bunga = 0.01;
 
-            // Cek tenor berdasarkan pilihan di ComboBox
             String pilihanTenor = (String) CbTenor.getSelectedItem();
             switch (pilihanTenor) {
                 case "1 Bulan":
@@ -371,10 +385,6 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     }
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
     }//GEN-LAST:event_formWindowOpened
 
@@ -428,12 +438,4 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel txtCicilan;
     private javax.swing.JTextField txtJumlah;
 
-    private void connectToDatabase() {
-        try {
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/loan_app", "root", "");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
-        }
-    }
 }
