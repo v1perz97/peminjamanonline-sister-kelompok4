@@ -4,6 +4,7 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaKonfirmasiProducer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,7 +25,7 @@ public class Konfirmasi extends javax.swing.JFrame {
      */
     public Konfirmasi() {
         initComponents();
-        configureKafkaProducer();
+        
     }
 
     /**
@@ -236,29 +237,29 @@ public class Konfirmasi extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDisetujuiActionPerformed
 
     private void updateStatusPengajuan(String nik, String status) {
-        // Query untuk memperbarui status pada tabel pengajuan_pinjaman
-        String updateQuery = "UPDATE pengajuan_pinjaman pp "
-                + "JOIN users u ON pp.iduser = u.iduser "
-                + "SET pp.status = ? "
-                + "WHERE u.nik = ?";
+    String updateQuery = "UPDATE pengajuan_pinjaman pp "
+            + "JOIN users u ON pp.iduser = u.iduser "
+            + "SET pp.status = ? "
+            + "WHERE u.nik = ?";
+    
+    KafkaKonfirmasiProducer.PesanKonfirmasi(nik, status);
+    try (Connection connection = DatabaseConnection.getConnection(); 
+         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
 
-        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+        statement.setString(1, status);  
+        statement.setString(2, nik);     
 
-            statement.setString(1, status); // Set nilai status (ditolak/disetujui)
-            statement.setString(2, nik);    // Set nilai NIK
+        int rowsAffected = statement.executeUpdate();
 
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected > 0) {
-                System.out.println("Status pengajuan pinjaman diperbarui menjadi: " + status);
-            } else {
-                System.out.println("Gagal memperbarui status pengajuan pinjaman.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (rowsAffected > 0) {
+            System.out.println("Status pengajuan pinjaman diperbarui menjadi: " + status);
+        } else {
+            System.out.println("Gagal memperbarui status pengajuan pinjaman.");
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
-
+}
     /**
      * @param args the command line arguments
      */
@@ -295,14 +296,6 @@ public class Konfirmasi extends javax.swing.JFrame {
         });
     }
 
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBatal;
     private javax.swing.JButton btnDisetujui;
