@@ -182,12 +182,13 @@ public class MenuLogin extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
-
+        KafkaLoginProducer.PesanLogin(username);
+        
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        KafkaLoginProducer.KirimPesanLogin(username);
+        
         Connection conn = null;
         PreparedStatement pst = null;
         ResultSet rs = null;

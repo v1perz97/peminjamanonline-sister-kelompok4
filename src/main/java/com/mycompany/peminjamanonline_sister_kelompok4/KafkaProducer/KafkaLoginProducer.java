@@ -13,7 +13,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class KafkaLoginProducer {
-    public static void KirimPesanLogin(String username) {
+    public static void PesanLogin(String username) {
         
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");

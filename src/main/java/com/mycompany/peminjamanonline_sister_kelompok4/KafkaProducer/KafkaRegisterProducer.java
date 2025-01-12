@@ -23,7 +23,7 @@ public class KafkaRegisterProducer {
 
     KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
-    String message = "Username " + username + " dengan email " + email + " berhasil Register";
+    String message = "Username " + username + " Dengan Email " + email + " Berhasil Melakukan Registrasi";
 
     // Kirim pesan tanpa key (key = null)
     producer.send(new ProducerRecord<>("register", username, message));
