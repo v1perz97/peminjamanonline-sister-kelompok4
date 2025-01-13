@@ -17,9 +17,10 @@ import javax.swing.SwingUtilities;
  * @author ACER
  */
 public class Notifikasi extends javax.swing.JFrame {
-    
-     private final Vector<String> notifikasiList = new Vector<>();
+
+    private final Vector<String> notifikasiList = new Vector<>();
     private KafkaConsumer<Object, Object> kafkaConsumer;
+
     /**
      * Creates new form Notifikasi
      */
@@ -27,7 +28,7 @@ public class Notifikasi extends javax.swing.JFrame {
         initComponents();
         startKafkaConsumer();
     }
-    
+
     private void startKafkaConsumer() {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
@@ -35,7 +36,7 @@ public class Notifikasi extends javax.swing.JFrame {
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        KafkaConsumer<Object, Object> kafkaConsumer = new KafkaConsumer<>(props);
+        kafkaConsumer = new KafkaConsumer<>(props);
         kafkaConsumer.subscribe(Arrays.asList("pembayaran"));
 
         Thread consumerThread = new Thread(() -> {
@@ -44,8 +45,16 @@ public class Notifikasi extends javax.swing.JFrame {
                     ConsumerRecords<Object, Object> records = kafkaConsumer.poll(1000);
                     for (ConsumerRecord<Object, Object> record : records) {
                         String pesan = (String) record.value();
-                        notifikasiList.add(pesan);
-                        LstNotifikasi.setListData(notifikasiList);
+                        // Parse the message if needed. Assuming it's in a certain format.
+                        String[] data = pesan.split(","); // Adjust based on your actual message format.
+                        if (data.length >= 4) { // Example: id_user, total_cicilan, sisa_tagihan, catatan
+                            String notification = String.format("User ID: %s, Total Paid: %s, Remaining: %s, Note: %s",
+                                    data[0], data[1], data[2], data[3]);
+                            SwingUtilities.invokeLater(() -> {
+                                notifikasiList.add(notification);
+                                LstNotifikasi.setListData(notifikasiList);
+                            });
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -153,15 +162,15 @@ public class Notifikasi extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-       DashboardAdmin FormDashboardAdmin = new DashboardAdmin(); 
-       this.setVisible(false);
+        DashboardAdmin FormDashboardAdmin = new DashboardAdmin();
+        this.setVisible(false);
+        FormDashboardAdmin.setVisible(true); // Show back the Dashboard
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void LstNotifikasiAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_LstNotifikasiAncestorAdded
-        
+
     }//GEN-LAST:event_LstNotifikasiAncestorAdded
 
-    
     /**
      * @param args the command line arguments
      */

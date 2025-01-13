@@ -64,6 +64,8 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         jLabel15 = new javax.swing.JLabel();
         txtTanggalBayar = new javax.swing.JLabel();
         txtTanggalCair = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        txtPelunasan = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -158,35 +160,44 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         txtTanggalCair.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txtTanggalCair.setText("-");
 
+        jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel17.setText("Status pelunasan :");
+
+        txtPelunasan.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtPelunasan.setText("-");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
+                .addGap(219, 219, 219)
+                .addComponent(btnKembali)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel16)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel16))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtJatuhTempo)
-                            .addComponent(txtPinjaman)
-                            .addComponent(txtTenor)
-                            .addComponent(txtStatus)
-                            .addComponent(txtTanggalCair)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(86, 86, 86)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtTagihan)))
+                    .addComponent(txtJatuhTempo)
+                    .addComponent(txtPinjaman)
+                    .addComponent(txtTenor)
+                    .addComponent(txtStatus)
+                    .addComponent(txtTanggalCair)
+                    .addComponent(txtTagihan))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel17)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtPelunasan))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel15)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -197,10 +208,6 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtSisaTagihan)))
                 .addContainerGap(93, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(219, 219, 219)
-                .addComponent(btnKembali)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -232,10 +239,13 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                     .addComponent(txtStatus))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel17)
                     .addComponent(jLabel7)
                     .addComponent(txtTagihan)
-                    .addComponent(btnBayar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                    .addComponent(txtPelunasan))
+                .addGap(17, 17, 17)
+                .addComponent(btnBayar, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(btnKembali)
                 .addGap(16, 16, 16))
         );
@@ -320,6 +330,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -327,6 +338,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel txtJatuhTempo;
+    private javax.swing.JLabel txtPelunasan;
     private javax.swing.JLabel txtPinjaman;
     private javax.swing.JLabel txtSisaTagihan;
     private javax.swing.JLabel txtStatus;
@@ -346,7 +358,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
             // Updated SQL query to match the new table and column structure
             String query = "SELECT p.jumlah AS jumlah_pengajuan, t.jatuh_tempo, p.tanggal_cair, "
                     + "p.tenor, p.angsuran_bulanan, pp.status AS status_pengajuan, "
-                    + "p.sisa_tagihan, t.jumlah_bayar, t.tanggal_pembayaran "
+                    + "p.sisa_tagihan, p.status, t.jumlah_bayar, t.tanggal_pembayaran "
                     + "FROM pengajuan_pinjaman pp "
                     + "LEFT JOIN pinjaman p ON pp.pinjaman_id = p.pinjaman_id "
                     + "LEFT JOIN tagihan t ON p.pinjaman_id = t.pinjaman_id "
@@ -366,6 +378,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 txtTagihan.setText(rs.getString("jumlah_bayar") != null ? rs.getString("jumlah_bayar") : "-");
                 txtSisaTagihan.setText(rs.getString("sisa_tagihan") != null ? rs.getString("sisa_tagihan") : "-");
                 txtTanggalBayar.setText(rs.getString("tanggal_pembayaran") != null ? rs.getString("tanggal_pembayaran") : "-");
+                txtPelunasan.setText(rs.getString("status") != null ? rs.getString("status") : "-");
             } else {
                 // Data not found
                 txtPinjaman.setText("-");
@@ -376,6 +389,7 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 txtTagihan.setText("-");
                 txtSisaTagihan.setText("-");
                 txtTanggalBayar.setText("-");
+                txtPelunasan.setText("-");
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());
