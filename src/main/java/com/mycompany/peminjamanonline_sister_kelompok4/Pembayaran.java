@@ -199,13 +199,30 @@ public class Pembayaran extends javax.swing.JFrame {
             insertPaymentStmt.setString(4, txtJatuhTempo.getText());
             insertPaymentStmt.executeUpdate();
 
-            // Update sisa_tagihan in pinjaman table and change status to 'lunas' if fully paid
+            // Update sisa_tagihan in pinjaman table
             String updatePinjamanQuery = "UPDATE pinjaman SET sisa_tagihan = sisa_tagihan - ?, status = CASE WHEN sisa_tagihan - ? <= 0 THEN 'lunas' ELSE status END WHERE iduser = ?";
             PreparedStatement updatePinjamanStmt = connection.prepareStatement(updatePinjamanQuery);
             updatePinjamanStmt.setInt(1, amountToPay);
             updatePinjamanStmt.setInt(2, amountToPay);
             updatePinjamanStmt.setInt(3, iduser); // Assuming iduser corresponds to the user ID in pinjaman
             updatePinjamanStmt.executeUpdate();
+
+            // Check if the sisa_tagihan is now zero
+            String checkStatusQuery = "SELECT sisa_tagihan FROM pinjaman WHERE iduser = ?";
+            PreparedStatement checkStatusStmt = connection.prepareStatement(checkStatusQuery);
+            checkStatusStmt.setInt(1, iduser);
+            ResultSet rs = checkStatusStmt.executeQuery();
+
+            if (rs.next() && rs.getInt("sisa_tagihan") <= 0) {
+                // Insert into notifikasi table
+                String insertNotificationQuery = "INSERT INTO notifikasi (id_user, total_cicilan, sisa_tagihan, catatan) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertNotificationStmt = connection.prepareStatement(insertNotificationQuery);
+                insertNotificationStmt.setInt(1, iduser);
+                insertNotificationStmt.setInt(2, amountToPay); // Assuming total_cicilan is the amount paid
+                insertNotificationStmt.setInt(3, 0); // sisa_tagihan is 0
+                insertNotificationStmt.setString(4, "Pembayaran lunas");
+                insertNotificationStmt.executeUpdate();
+            }
 
             // Notify the user
             JOptionPane.showMessageDialog(this, "Pembayaran berhasil!");
