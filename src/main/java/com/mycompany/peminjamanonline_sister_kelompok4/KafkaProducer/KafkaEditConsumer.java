@@ -1,28 +1,37 @@
 package com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer;
 
 import com.mycompany.peminjamanonline_sister_kelompok4.DatabaseConnection;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.Duration;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import java.util.Properties;
 import java.util.Collections;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import java.util.Properties;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
-public class KafkaKonfirmasiConsumer extends JFrame {
-    private final String groupId = "group pengajuan";
+public class KafkaEditConsumer extends javax.swing.JFrame {
+    private final String groupId = "group_pengajuan";
     private JTextArea logArea;
-    private JButton startButton;
     private JLabel statusLabel;
     private volatile boolean isRunning = true;
 
-    public KafkaKonfirmasiConsumer() {
+    public KafkaEditConsumer() {
         setTitle("Kafka Consumer GUI");
         setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -34,7 +43,7 @@ public class KafkaKonfirmasiConsumer extends JFrame {
         headerPanel.setPreferredSize(new Dimension(700, 60));
         headerPanel.setLayout(new BorderLayout());
 
-        JLabel headerLabel = new JLabel("Topik Konfirmasi", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("Topik Edit", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
         headerLabel.setForeground(Color.WHITE);
         headerPanel.add(headerLabel, BorderLayout.CENTER);
@@ -62,10 +71,10 @@ public class KafkaKonfirmasiConsumer extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
 
         setVisible(true);
-        ConsumerKonfirmasi();
+        startConsumer();
     }
 
-    private void ConsumerKonfirmasi() {
+    private void startConsumer() {
         new Thread(() -> {
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -87,22 +96,19 @@ public class KafkaKonfirmasiConsumer extends JFrame {
                             log("Format pesan tidak valid: " + record.value());
                             continue;
                         }
-                        String nik = data[0];
-                        String status = data[1];
+                        String nik = data[0].trim();
+                        String status = data[1].trim();
 
                         try (Connection conn = DatabaseConnection.getConnection()) {
-                            String updateQuery = "UPDATE pengajuan_pinjaman pp "
-                                    + "JOIN users u ON pp.iduser = u.iduser "
-                                    + "SET pp.status = ? "
-                                    + "WHERE u.nik = ?";
-                            try (PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
+                            String sql = "UPDATE users SET username = ?, email = ?, password = ?, nik = ?, kontak = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ? WHERE iduser = ?";
+                            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                                 stmt.setString(1, status);
                                 stmt.setString(2, nik);
                                 int rowsUpdated = stmt.executeUpdate();
                                 if (rowsUpdated > 0) {
-                                    log("Status berhasil diperbarui untuk NIK: " + nik);
+                                    log("Berhsil Edit");
                                 } else {
-                                    log("Tidak ada data yang diperbarui untuk NIK: " + nik);
+                                    log("Tidak Berhasil Edit");
                                 }
                             }
                         } catch (Exception e) {
@@ -128,7 +134,7 @@ public class KafkaKonfirmasiConsumer extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            KafkaKonfirmasiConsumer gui = new KafkaKonfirmasiConsumer();
+            KafkaEditConsumer gui = new KafkaEditConsumer();
             gui.setVisible(true);
         });
     }

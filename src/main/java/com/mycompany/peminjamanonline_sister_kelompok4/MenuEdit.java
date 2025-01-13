@@ -4,6 +4,8 @@
  */
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaEditProducer;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaRegisterProducer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -264,8 +266,12 @@ public class MenuEdit extends javax.swing.JFrame {
         String alamat = txtAlamat.getText();
         String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-laki" : "Perempuan";
 
+        String tanggalLahirStr = new java.text.SimpleDateFormat("yyyy-MM-dd").format(tanggalLahir);
+
+        KafkaEditProducer.EditProfil(nama, email, nik, kontak, tanggalLahirStr, alamat, jenisKelamin);
+
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "UPDATE users SET username = ?, email = ?, password = ?, nik = ?, kontak = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ? WHERE iduser = ?"; // Update by iduser
+            String sql = "UPDATE users SET username = ?, email = ?, password = ?, nik = ?, kontak = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ? WHERE iduser = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, nama);
                 pstmt.setString(2, email);
@@ -275,12 +281,12 @@ public class MenuEdit extends javax.swing.JFrame {
                 pstmt.setDate(6, new java.sql.Date(tanggalLahir.getTime()));
                 pstmt.setString(7, alamat);
                 pstmt.setString(8, jenisKelamin);
-                pstmt.setInt(9, iduser); // Bind iduser as an integer
+                pstmt.setInt(9, iduser);
 
                 int rowsAffected = pstmt.executeUpdate();
                 if (rowsAffected > 0) {
                     JOptionPane.showMessageDialog(this, "Data berhasil diubah!", "Info", JOptionPane.INFORMATION_MESSAGE);
-                    DashboardNasabah formMenuNasabah = new DashboardNasabah(iduser); // Send username to the next form
+                    DashboardNasabah formMenuNasabah = new DashboardNasabah(iduser);
                     formMenuNasabah.setVisible(true);
                     this.dispose();
                 } else {
@@ -290,6 +296,7 @@ public class MenuEdit extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengubah data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }//GEN-LAST:event_btnUbahActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
