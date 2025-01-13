@@ -12,7 +12,7 @@ public class KafkaEditProducer {
     public static void EditProfil(String nama, String email, String nik, String kontak, String tanggalLahir, String alamat, String jenis_kelamin) {
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "192.168.43.134:9092, 192.168.43.57:9092, 192.168.43.97:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
