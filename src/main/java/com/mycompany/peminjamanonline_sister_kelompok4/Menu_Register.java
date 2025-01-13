@@ -302,16 +302,18 @@ public class Menu_Register extends javax.swing.JFrame {
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         String username = txtNama.getText();
-        String email = txtEmail.getText();
-        String password = txtPassword.getText();
-        String nik = txtNik.getText();
-        String kontak = txtKontak.getText();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        if (txtTanggalLahir.getDate() == null) {
-            JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
+String email = txtEmail.getText();
+String password = txtPassword.getText();
+String nik = txtNik.getText();
+String kontak = txtKontak.getText();
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+if (txtTanggalLahir.getDate() == null) {
+    JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+    return;
+}
+
+String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
         String alamat = txtAlamat.getText();
         String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan";
         String pekerjaan = txtPekerjaan.getText();
@@ -320,12 +322,20 @@ public class Menu_Register extends javax.swing.JFrame {
         String fotoKTP = btnUnggah.getText();
         String role = "user";
 
+// Validasi input kosong
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nik.isEmpty() || kontak.isEmpty()
                 || alamat.isEmpty() || pekerjaan.isEmpty() || gaji_pokok.isEmpty() || fotoKTP.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Harap isi semua kolom!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+// Validasi gaji bersih
+        if (gajiBersih.isEmpty() || !gajiBersih.matches("\\d+(\\.\\d+)?")) {
+            JOptionPane.showMessageDialog(this, "Harap pilih gaji pokok yang valid!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+// Mengirim data ke Kafka
         KafkaRegisterProducer.KirimDataRegister(username, email, password, nik, kontak, tanggalLahirStr, alamat, jenisKelamin, pekerjaan, gaji_pokok, fotoKTP);
 
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -348,7 +358,7 @@ public class Menu_Register extends javax.swing.JFrame {
 
                     stmt.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Registrasi berhasil!");
-                    this.dispose(); 
+                    this.dispose();
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Gagal terhubung ke database.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -357,6 +367,7 @@ public class Menu_Register extends javax.swing.JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data!", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 
