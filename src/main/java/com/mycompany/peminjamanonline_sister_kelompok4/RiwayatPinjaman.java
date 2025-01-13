@@ -258,7 +258,14 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBayarActionPerformed
-        Pembayaran pembayaran = new Pembayaran(iduser);
+        int pinjaman_id = getSelectedPinjamanId(); // Method to get the selected loan ID
+
+        if (pinjaman_id == -1) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih pinjaman yang valid.");
+            return;
+        }
+
+        Pembayaran pembayaran = new Pembayaran(iduser, pinjaman_id);
         pembayaran.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnBayarActionPerformed
@@ -407,5 +414,9 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 e.printStackTrace();
             }
         }
+    }
+
+    private int getSelectedPinjamanId() {
+         return 1;
     }
 }
