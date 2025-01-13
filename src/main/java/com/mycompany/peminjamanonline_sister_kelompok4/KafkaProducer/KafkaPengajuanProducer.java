@@ -16,7 +16,7 @@ public class KafkaPengajuanProducer {
     public static void KirimDataPengajuan(int iduser, int jumlahPinjaman, String tanggalPengajuanStr, String tanggalCairStr, double bunga, String totalCairStr, String tenor, String angsuranBulananStr, String sisaAngsuranStr) {
 
     Properties props = new Properties();
-    props.put("bootstrap.servers", "localhost:9092");
+    props.put("bootstrap.servers", "192.168.43.134:9092, 192.168.43.57:9092, 192.168.43.97:9092");
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 

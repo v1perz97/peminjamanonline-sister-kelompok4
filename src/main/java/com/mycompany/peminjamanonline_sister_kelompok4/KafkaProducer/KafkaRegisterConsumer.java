@@ -61,7 +61,7 @@ public class KafkaRegisterConsumer extends JFrame {
     private void ConsumerRegister() {
         new Thread(() -> {
             Properties props = new Properties();
-            props.put("bootstrap.servers", "192.168.43.134:9092, 192168.43.57:9093, 192168.43.97:9094");
+            props.put("bootstrap.servers", "192.168.43.134:9092, 192.168.43.57:9093, 192.168.43.97:9094");
             props.put("group.id", "nasabah");
             props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
