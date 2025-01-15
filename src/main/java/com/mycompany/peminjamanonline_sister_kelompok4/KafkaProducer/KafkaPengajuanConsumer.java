@@ -85,7 +85,7 @@ public class KafkaPengajuanConsumer extends JFrame {
     private void startConsumer() {
         new Thread(() -> {
             Properties props = new Properties();
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.43.134:9092, 192.168.43.57:9092, 192.168.43.97:9092");
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.2.82:9092,192.168.2.112:9093,192.168.2.154:9094");
             props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

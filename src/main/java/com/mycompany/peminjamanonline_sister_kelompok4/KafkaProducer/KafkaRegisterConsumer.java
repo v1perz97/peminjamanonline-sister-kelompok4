@@ -1,12 +1,15 @@
 package com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer;
 
-import com.mycompany.peminjamanonline_sister_kelompok4.DatabaseConnection;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -14,10 +17,20 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 public class KafkaRegisterConsumer extends JFrame {
 
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/loan_app";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";
+
+    private volatile boolean isRunning = true;
+
     private JTextArea logArea;
     private JLabel statusLabel;
 
     public KafkaRegisterConsumer() {
+        initComponents();
+    }
+
+    private void initComponents() {
         setTitle("Kafka Consumer GUI");
         setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -54,82 +67,125 @@ public class KafkaRegisterConsumer extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH);
 
         setVisible(true);
-
-        ConsumerRegister();
+        startKafkaConsumer();
     }
 
-    private void ConsumerRegister() {
-        new Thread(() -> {
-            Properties props = new Properties();
-            props.put("bootstrap.servers", "192.168.2.82:9092,192.168.2.112:9093,192.168.2.154:9094");
-            props.put("group.id", "nasabah1");
-            props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-            props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+    private void startKafkaConsumer() {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", "Admin2");
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("auto.offset.reset", "earliest");
 
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-            consumer.subscribe(Collections.singletonList("register"));
+        Thread consumerThread = new Thread(() -> {
+            try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+                consumer.subscribe(Collections.singletonList("register"));
 
-            log("Menunggu pesan dari Kafka...");
-
-            while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-                for (ConsumerRecord<String, String> record : records) {
-                    String[] data = record.value().split(",");
-                    if (data.length != 12) {
-                        log("Pesan Baru : " + record.value());
-                        continue;
-                    }
-
-                    String username = data[0];
-                    String email = data[1];
-                    String password = data[2];
-                    String nik = data[3];
-                    String kontak = data[4];
-                    String tanggalLahirStr = data[5];
-                    String alamat = data[6];
-                    String jenisKelamin = data[7];
-                    String pekerjaan = data[8];
-                    String gaji_pokok = data[9];
-                    String fotoKTP = data[10];
-                    String role = data[11];
-
-                    try (Connection conn = DatabaseConnection.getConnection()) {
-                        String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, pekerjaan, gaji_pokok, foto_ktp, role) "
-                                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-                            stmt.setString(1, username);
-                            stmt.setString(2, email);
-                            stmt.setString(3, password);
-                            stmt.setString(4, nik);
-                            stmt.setString(5, kontak);
-                            stmt.setDate(6, java.sql.Date.valueOf(tanggalLahirStr));
-                            stmt.setString(7, alamat);
-                            stmt.setString(8, jenisKelamin);
-                            stmt.setString(9, pekerjaan);
-                            stmt.setDouble(10, Double.parseDouble(gaji_pokok));
-                            stmt.setString(11, fotoKTP);
-                            stmt.setString(12, role);
-
-                            stmt.executeUpdate();
-                            log("Data saved to database: " + username);
-                        }
-                    } catch (Exception e) {
-                        log("Error saving data to database: " + e.getMessage());
-                        e.printStackTrace();
+                while (isRunning) {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                    for (ConsumerRecord<String, String> record : records) {
+                        String message = record.value();
+                        System.out.println("Received message: " + message);
+                        processMessage(message);
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    logArea.append("Error in consumer: " + e.getMessage() + "\n");
+                    statusLabel.setText("Status: Error dalam konsumen");
+                });
             }
-        }).start();
+        });
+
+        consumerThread.start();
     }
 
-    private void log(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    private void processMessage(String message) {
+        try {
+            System.out.println("Processing message: " + message);
+
+            Map<String, String> data = parseMessage(message);
+            if (data != null && !data.isEmpty()) {
+                String formattedMessage = String.format(
+                    "[%tF %<tT] Nama: %s | Email: %s",
+                    System.currentTimeMillis(),
+                    data.get("nama"),
+                    data.get("email")
+                );
+
+                SwingUtilities.invokeLater(() -> {
+                    logArea.append(formattedMessage + "\n");
+                    logArea.append("Full Data: " + data + "\n");
+                    statusLabel.setText("Status: Pesan diterima");
+                });
+
+                saveToDatabase(data);
+            } else {
+                SwingUtilities.invokeLater(() -> {
+                    logArea.append("Pesan tidak valid: " + message + "\n");
+                    statusLabel.setText("Status: Pesan tidak valid");
+                });
+            }
+        } catch (Exception e) {
+            SwingUtilities.invokeLater(() -> {
+                logArea.append("Error memproses pesan: " + e.getMessage() + "\n");
+                statusLabel.setText("Status: Error memproses pesan");
+            });
+            e.printStackTrace();
+        }
+    }
+
+    private Map<String, String> parseMessage(String message) {
+        Map<String, String> data = new HashMap<>();
+        try {
+            String[] pairs = message.replace("{", "").replace("}", "").split(",");
+            for (String pair : pairs) {
+                String[] keyValue = pair.split("=");
+                if (keyValue.length == 2) {
+                    data.put(keyValue[0].trim(), keyValue[1].trim());
+                }
+            }
+            System.out.println("Parsed data: " + data);
+        } catch (Exception e) {
+            System.err.println("Error parsing message: " + message);
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    private void saveToDatabase(Map<String, String> data) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String query = "INSERT INTO users (username, email, password, nik, kontak, tanggal_lahir, alamat, jenis_kelamin, pekerjaan, gaji_pokok, foto_ktp, role) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, data.get("nama"));
+                stmt.setString(2, data.get("email"));
+                stmt.setString(3, data.get("password"));
+                stmt.setString(4, data.get("nik"));
+                stmt.setString(5, data.get("kontak"));
+                stmt.setDate(6, java.sql.Date.valueOf(data.get("tanggal_lahir")));
+                stmt.setString(7, data.get("alamat"));
+                stmt.setString(8, data.get("jenis_kelamin"));
+                stmt.setString(9, data.get("pekerjaan"));
+                stmt.setDouble(10, Double.parseDouble(data.get("gaji_pokok")));
+                stmt.setString(11, data.get("foto_ktp"));
+                stmt.setString(12, "user"); // Assuming role is always "user"
+
+                stmt.executeUpdate();
+                System.out.println("Data saved to database successfully.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                logArea.append("Error saving to database: " + e.getMessage() + "\n");
+                statusLabel.setText("Status: Error menyimpan ke database");
+            });
+        }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            KafkaRegisterConsumer gui = new KafkaRegisterConsumer();
-            gui.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new KafkaRegisterConsumer());
     }
 }
