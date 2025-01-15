@@ -302,18 +302,16 @@ public class Menu_Register extends javax.swing.JFrame {
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         String username = txtNama.getText();
-String email = txtEmail.getText();
-String password = txtPassword.getText();
-String nik = txtNik.getText();
-String kontak = txtKontak.getText();
-SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-if (txtTanggalLahir.getDate() == null) {
-    JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-    return;
-}
-
-String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
+        String email = txtEmail.getText();
+        String password = txtPassword.getText();
+        String nik = txtNik.getText();
+        String kontak = txtKontak.getText();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if (txtTanggalLahir.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
         String alamat = txtAlamat.getText();
         String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan";
         String pekerjaan = txtPekerjaan.getText();
