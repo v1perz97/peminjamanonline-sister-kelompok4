@@ -1,12 +1,18 @@
-
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 //import java.sql.Connection;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPembayaranConsumer;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPembayaranProducer;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -22,24 +28,19 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class Pembayaran extends javax.swing.JFrame {
 
-    private Producer<String, String> kafkaProducer;
     private final int iduser;
-    private final int pinjaman_id;
-    private Connection connection;
+    private KafkaPembayaranProducer kafkaPembayaranProducer;
 
     /**
      * Creates new form Pembayaran
      *
      * @param iduser
-     * @param pinjaman_id
      */
-    public Pembayaran(int iduser, int pinjaman_id) {
+    public Pembayaran(int iduser) {
         initComponents();
         this.iduser = iduser;
-        this.pinjaman_id = pinjaman_id;
-        configureKafkaProducer();
-        connectToDatabase();
-        loadTagihan(); // Load tagihan saat form dibuka
+        this.kafkaPembayaranProducer = new KafkaPembayaranProducer();
+        loadTagihanData(); // Load tagihan saat form dibuka
 //       
     }
 
@@ -180,106 +181,51 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnBayarActionPerformed(java.awt.event.ActionEvent evt) {
-        try {
-            // Retrieve the amount to pay and jatuh_tempo from the tagihan table
-            int amountToPay = 0; // Initialize the variable
-            String jatuhTempo = ""; // Initialize jatuhTempo variable
-
-            String fetchTagihanQuery = "SELECT jumlah_bayar, jatuh_tempo FROM tagihan WHERE pinjaman_id = ?";
-            try (PreparedStatement fetchTagihanStmt = connection.prepareStatement(fetchTagihanQuery)) {
-                fetchTagihanStmt.setInt(1, pinjaman_id);
-                ResultSet rs = fetchTagihanStmt.executeQuery();
-
-                if (rs.next()) {
-                    amountToPay = rs.getInt("jumlah_bayar");
-                    jatuhTempo = rs.getString("jatuh_tempo");
-                    txtTagihan.setText(String.valueOf(amountToPay)); // Display amount in the label
-                    txtJatuhTempo.setText(jatuhTempo); // Display jatuh tempo in the label
-                } else {
-                    JOptionPane.showMessageDialog(this, "Tagihan tidak ditemukan.");
-                    return;
-                }
-            }
-
-            // Get the payment date from the date chooser
-            java.util.Date paymentDate = DtTanggal.getDate();
-            if (paymentDate == null) {
-                JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pembayaran.");
-                return;
-            }
-
-            // Convert date to SQL date
-            java.sql.Date sqlPaymentDate = new java.sql.Date(paymentDate.getTime());
-
-            // Insert payment record into the tagihan table
-            String insertPaymentQuery = "INSERT INTO tagihan (pinjaman_id, tanggal_pembayaran, jumlah_bayar, jatuh_tempo) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement insertPaymentStmt = connection.prepareStatement(insertPaymentQuery)) {
-                insertPaymentStmt.setInt(1, pinjaman_id);
-                insertPaymentStmt.setDate(2, sqlPaymentDate);
-                insertPaymentStmt.setInt(3, amountToPay);
-                insertPaymentStmt.setString(4, jatuhTempo); // Use jatuhTempo from the query
-                insertPaymentStmt.executeUpdate();
-            }
-
-            // Update sisa_tagihan in pinjaman table
-            String updatePinjamanQuery = "UPDATE pinjaman SET sisa_tagihan = sisa_tagihan - ?, status = CASE WHEN sisa_tagihan - ? <= 0 THEN 'lunas' ELSE status END WHERE id = ?";
-            try (PreparedStatement updatePinjamanStmt = connection.prepareStatement(updatePinjamanQuery)) {
-                updatePinjamanStmt.setInt(1, amountToPay);
-                updatePinjamanStmt.setInt(2, amountToPay);
-                updatePinjamanStmt.setInt(3, pinjaman_id);
-                updatePinjamanStmt.executeUpdate();
-            }
-
-            // Check if the sisa_tagihan is now zero
-            String checkStatusQuery = "SELECT sisa_tagihan FROM pinjaman WHERE id = ?";
-            try (PreparedStatement checkStatusStmt = connection.prepareStatement(checkStatusQuery)) {
-                checkStatusStmt.setInt(1, pinjaman_id);
-                ResultSet rs = checkStatusStmt.executeQuery();
-
-                if (rs.next() && rs.getInt("sisa_tagihan") <= 0) {
-                    // Insert into notifikasi table
-                    String insertNotificationQuery = "INSERT INTO notifikasi (id_user, total_cicilan, sisa_tagihan, catatan) VALUES (?, ?, ?, ?)";
-                    try (PreparedStatement insertNotificationStmt = connection.prepareStatement(insertNotificationQuery)) {
-                        insertNotificationStmt.setInt(1, iduser);
-                        insertNotificationStmt.setInt(2, amountToPay);
-                        insertNotificationStmt.setInt(3, 0);
-                        insertNotificationStmt.setString(4, "Pembayaran lunas");
-                        insertNotificationStmt.executeUpdate();
-                    }
-                }
-            }
-
-            // Notify the user
-            JOptionPane.showMessageDialog(this, "Pembayaran berhasil!");
-
-            // Reload tagihan after payment
-            loadTagihan();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Gagal melakukan pembayaran: " + e.getMessage());
+        DtTanggal.setDateFormatString("yyyy-MM-dd");
+        java.util.Date selectedDate = DtTanggal.getDate();
+        if (selectedDate == null) {
+            JOptionPane.showMessageDialog(this, "Tanggal pembayaran tidak boleh kosong!", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
         }
+
+        String tanggalPembayaran = new java.sql.Date(selectedDate.getTime()).toString();
+
+        // Ganti placeholder dengan nilai yang sebenarnya
+        String pinjamanId = "pinjaman_id"; // Ambil dari input atau database
+        String sisaTagihan = "sisa_tagihan"; // Ambil dari input atau database
+        String jumlahBayar = "jumlah_bayar"; // Ambil dari input atau database
+
+        // Format pesan sesuai kebutuhan consumer
+        String message = String.format(
+                "{\"iduser\":\"%s\", \"pinjaman_id\":\"%s\", \"tanggal_pembayaran\":\"%s\", \"sisa_tagihan\":\"%s\", \"jumlah_bayar\":\"%s\"}",
+                iduser, pinjamanId, tanggalPembayaran, sisaTagihan, jumlahBayar
+        );
+
+        // Kirim pesan ke Kafka
+        try {
+            kafkaPembayaranProducer.sendMessage("notifikasi-pembayaran", message);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengirim pesan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        kafkaPembayaranProducer.close();
+        super.dispose();
     }
 
     public static void main(String args[]) {
         // Set the Nimbus look and feel
         // ... (kode setting look and feel yang sama seperti sebelumnya) ...
         int loggedInUserId = 1;
-        int pinjamanId = 1;
+        new Thread(new KafkaPembayaranConsumer()).start();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran(loggedInUserId, pinjamanId).setVisible(true);
+                new Pembayaran(loggedInUserId).setVisible(true);
             }
         });
 
-    }
-
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -295,46 +241,26 @@ public class Pembayaran extends javax.swing.JFrame {
     private javax.swing.JLabel txtTagihan;
     // End of variables declaration//GEN-END:variables
 
-    private void connectToDatabase() {
-        try {
-            // Ganti dengan URL database Anda
-            String url = "jdbc:mysql://localhost:3306/loan_app";
-            String user = "root"; // Ganti dengan username database Anda
-            String password = ""; // Ganti dengan password database Anda
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Koneksi database gagal: " + e.getMessage());
-        }
-    }
+    private void loadTagihanData() {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/loan_app", "root", "")) {
+            String query = "SELECT jumlah_bayar, jatuh_tempo FROM tagihan WHERE pinjaman_id = (SELECT pinjaman_id FROM pinjaman WHERE iduser = ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, iduser);
 
-    private void loadTagihan() {
-        try {
-            System.out.println("Loading tagihan for pinjaman_id: " + pinjaman_id);
-            String query = "SELECT t.jumlah_bayar, t.jatuh_tempo "
-                    + "FROM tagihan t "
-                    + "JOIN pinjaman p ON t.pinjaman_id = p.pinjaman_id "
-                    + // Ensure this matches your schema
-                    "WHERE p.iduser = ? AND t.pinjaman_id = ?";
-            PreparedStatement pst = connection.prepareStatement(query);
-            pst.setInt(1, iduser); // Set the iduser to filter
-            pst.setInt(2, pinjaman_id); // Set the pinjaman_id to filter
-
-            ResultSet rs = pst.executeQuery();
-
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                int jumlahBayar = rs.getInt("jumlah_bayar");
-                String jatuhTempo = rs.getString("jatuh_tempo");
-                System.out.println("Jumlah Bayar: " + jumlahBayar + ", Jatuh Tempo: " + jatuhTempo); // Log the values
-                txtTagihan.setText(String.valueOf(jumlahBayar));
-                txtJatuhTempo.setText(jatuhTempo);
-            } else {
-                txtTagihan.setText("Tidak ada tagihan.");
-                txtJatuhTempo.setText("");
+                // Mengonversi double ke String
+                txtTagihan.setText(String.valueOf(rs.getDouble("jumlah_bayar")));
+                // Mengonversi Date ke String
+                Date jatuhTempo = rs.getDate("jatuh_tempo");
+                if (jatuhTempo != null) {
+                    txtJatuhTempo.setText(jatuhTempo.toString()); // Anda bisa menggunakan format lain jika perlu
+                } else {
+                    txtJatuhTempo.setText(""); // Atau set ke string kosong jika null
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Gagal memuat tagihan: " + e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat data tagihan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

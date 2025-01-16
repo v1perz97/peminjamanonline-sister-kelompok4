@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 public class KafkaPengajuanConsumer extends javax.swing.JFrame {
 
@@ -29,7 +28,6 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
     private JTextField txtTenor;
     private JTextField txtBunga;
     private JTextField txtCicilan;
-    
 
     public KafkaPengajuanConsumer() {
         TanpilanGUI();
@@ -38,10 +36,10 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
 
     private void TanpilanGUI() {
         setTitle("Data Pengajuan Pinjaman");
-        setIconImage(new ImageIcon("admin_icon.png").getImage()); // Tambahkan ikon pada window
+        setIconImage(new ImageIcon("admin_icon.png").getImage());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 700);
-        setLocationRelativeTo(null); // Menempatkan window di tengah layar
+        setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -51,7 +49,7 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         messageList = new JList<>(listModel);
         messageList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         messageList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageList.setBackground(new Color(240, 248, 255)); // Alice Blue
+        messageList.setBackground(new Color(240, 248, 255));
         messageList.setBorder(BorderFactory.createTitledBorder("Daftar Pinjaman"));
 
         scrollPane = new JScrollPane(messageList);
@@ -59,7 +57,7 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         JPanel detailPanel = new JPanel(new GridBagLayout());
         detailPanel.setBorder(BorderFactory.createTitledBorder("Detail Pinjaman"));
-        detailPanel.setBackground(new Color(245, 245, 245)); // Light Gray
+        detailPanel.setBackground(new Color(245, 245, 245));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -75,7 +73,7 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         // Tombol Tutup
         JButton closeButton = new JButton("Tutup");
         closeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        closeButton.setBackground(new Color(220, 20, 60)); // Crimson
+        closeButton.setBackground(new Color(220, 20, 60));
         closeButton.setForeground(Color.WHITE);
         closeButton.setFocusPainted(false);
         closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -87,7 +85,7 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(closeButton);
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+        mainPanel .add(buttonPanel, BorderLayout.NORTH);
 
         add(mainPanel);
 
@@ -124,7 +122,7 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         props.put("group.id", "pengajuan_consumer_group");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("auto.offset.reset", "earliest"); // Membaca pesan dari awal topik
+        props.put("auto.offset.reset", "earliest");
         props.put("enable.auto.commit", "true");
         props.put("auto.commit.interval.ms", "1000");
         props.put("session.timeout.ms", "30000");
@@ -155,18 +153,18 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
             Map<String, String> data = parseMessage(message);
             if (data != null) {
                 String formattedMessage = String.format(
-                    "[%tF %<tT] Jumlah: %s | Tenor: %s | Suku Bunga: %s | Angsuran Bulanan: %s | Tanggal Cair: %s | Total Cair: %s | Sisa Tagihan: %s | Status: %s",
+                    "[%tF %<tT] Jumlah: %s | Tenor: %s | Suku Bunga: %s | Angsuran Bulanan: %s | Tanggal Cair: %s | Total Cair: %s | Sisa Tagihan: %s | Status: %s ",
                     System.currentTimeMillis(),
-                    data.get("jumlah"), // jumlah pinjaman
-                    data.get("tenor"), // tenor pinjaman
-                    data.get("suku_bunga"), // suku bunga
-                    data.get("angsuran_bulanan"), // angsuran bulanan
-                    data.get("tanggal_cair"), // tanggal cair
-                    data.get("total_cair"), // total cair
-                    data.get("sisa_tagihan"), // sisa tagihan
-                    data.get("status") // status pinjaman
-            );
-
+                    data.get("jumlah"),
+                    data.get("tenor"),
+                    data.get("suku_bunga"),
+                    data.get("angsuran_bulanan"),
+                    data.get("tanggal_cair"),
+                    data.get("total_cair"),
+                    data.get("sisa_tagihan"),
+                    data.get("status"),
+                    data.get("statusPengajuan")
+                );
 
                 SwingUtilities.invokeLater(() -> {
                     listModel.addElement(formattedMessage);
@@ -183,8 +181,12 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
     }
 
     private void saveToDatabase(Map<String, String> data) {
+    if (!validateData(data)) {
+        System.err.println("Data tidak valid, tidak akan disimpan ke database.");
+        return;
+    }
+
     try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-        // Simpan data ke tabel pinjaman
         String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_tagihan, status) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmtPinjaman = conn.prepareStatement(queryPinjaman, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -196,25 +198,23 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
             stmtPinjaman.setDate(6, java.sql.Date.valueOf(data.get("tanggal_cair")));
             stmtPinjaman.setDouble(7, Double.parseDouble(data.get("total_cair")));
             stmtPinjaman.setDouble(8, Double.parseDouble(data.get("sisa_tagihan")));
-            stmtPinjaman.setString(9, data.get("status"));
+            stmtPinjaman.setString(9, data.get("status").trim()); // Pastikan status valid dan tidak ada spasi tambahan
 
             int rowsAffected = stmtPinjaman.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Data pinjaman berhasil disimpan ke database.");
-
                 // Ambil ID pinjaman yang baru saja disimpan
                 try (ResultSet generatedKeys = stmtPinjaman.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         long pinjamanId = generatedKeys.getLong(1);
-
                         // Simpan data ke tabel pengajuan_pinjaman
-                        String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status) "
+                        String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status_pengajuan) "
                                 + "VALUES (?, ?, ?, ?)";
                         try (PreparedStatement stmtPengajuan = conn.prepareStatement(queryPengajuan)) {
                             stmtPengajuan.setString(1, data.get("iduser"));
                             stmtPengajuan.setLong(2, pinjamanId);
                             stmtPengajuan.setDate(3, java.sql.Date.valueOf(data.get("tanggal_pengajuan")));
-                            stmtPengajuan.setString(4, data.get("status"));
+                            stmtPengajuan.setString(4, data.get("status_pengajuan").trim()); // Pastikan status valid
 
                             stmtPengajuan.executeUpdate();
                             System.out.println("Data pengajuan berhasil disimpan ke database.");
@@ -248,14 +248,11 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         e.printStackTrace();
     }
 }
-
-// Metode validasi data
-    private boolean validateData(Map<String, String> data) {
-    // Cek apakah data yang diperlukan ada
+private boolean validateData(Map<String, String> data) {
     String[] requiredFields = {
         "iduser", "jumlah", "tenor", "suku_bunga",
         "angsuran_bulanan", "tanggal_cair", "total_cair",
-        "sisa_tagihan", "status"
+        "sisa_tagihan", "status", "status_pengajuan"
     };
 
     for (String field : requiredFields) {
@@ -265,105 +262,51 @@ public class KafkaPengajuanConsumer extends javax.swing.JFrame {
         }
     }
 
-    // Validasi jumlah pinjaman
-    try {
-        double jumlah = Double.parseDouble(data.get("jumlah"));
-        if (jumlah <= 0) {
-            System.out.println("Jumlah pinjaman harus lebih besar dari 0");
-            return false;
-        }
-    } catch (NumberFormatException e) {
-        System.out.println("Format jumlah pinjaman tidak valid");
+    // Validasi status untuk tabel pinjaman
+    String status = data.get("status").trim();
+    if (!status.equals("lunas") && !status.equals("belum lunas")) {
+        System.out.println("Status pinjaman tidak valid");
         return false;
     }
 
-    // Validasi tenor
-    try {
-        int tenor = Integer.parseInt(data.get("tenor"));
-        if (tenor <= 0) {
-            System.out.println("Tenor harus lebih besar dari 0");
-            return false;
-        }
-    } catch (NumberFormatException e) {
-        System.out.println("Format tenor tidak valid");
-        return false;
-    }
-
-    // Validasi suku bunga
-    try {
-        double sukuBunga = Double.parseDouble(data.get("suku_bunga"));
-        if (sukuBunga < 0) {
-            System.out.println("Suku bunga tidak boleh negatif");
-            return false;
-        }
-    } catch (NumberFormatException e) {
-        System.out.println("Format suku bunga tidak valid");
-        return false;
-    }
-
-    // Validasi angsuran bulanan
-    try {
-        double angsuranBulanan = Double.parseDouble(data.get("angsuran_bulanan"));
-        if (angsuranBulanan < 0) {
-            System.out.println("Angsuran bulanan tidak boleh negatif");
-            return false;
-        }
-    } catch (NumberFormatException e) {
-        System.out.println("Format angsuran bulanan tidak valid");
-        return false;
-    }
-
-    // Validasi tanggal cair
-    try {
-        java.sql.Date.valueOf(data.get("tanggal_cair")); // Cek format tanggal
-    } catch (IllegalArgumentException e) {
-        System.out.println("Format tanggal cair tidak valid");
-        return false;
-    }
-
-    // Validasi status
-    String status = data.get("status");
-    if (!status.equals("approved") && !status.equals("pending") && !status.equals("rejected")) {
-        System.out.println("Status tidak valid");
+    // Validasi status untuk tabel pengajuan_pinjaman
+    String pengajuanStatus = data.get("status_pengajuan").trim();
+    if (!pengajuanStatus.equals("menunggu") && !pengajuanStatus.equals("disetujui") && !pengajuanStatus.equals("ditolak")) {
+        System.out.println("Status pengajuan tidak valid");
         return false;
     }
 
     return true;
 }
-// Metode parsing pesan yang lebih robust
+
     private Map<String, String> parseMessage(String message) {
-    Map<String, String> data = new HashMap<>();
-    try {
-        // Hapus kurung kurawal dan split
-        message = message.replace("{", "").replace("}", "").trim();
-        String[] pairs = message.split(",");
+        Map<String, String> data = new HashMap<>();
+        try {
+            message = message.replace("{", "").replace("}", "").trim();
+            String[] pairs = message.split(",");
 
-        for (String pair : pairs) {
-            String[] keyValue = pair.split("=");
-            if (keyValue.length == 2) {
-                String key = keyValue[0].trim();
-                String value = keyValue[1].trim();
-                data.put(key, value);
+            for (String pair : pairs) {
+                String[] keyValue = pair.split("=");
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+                    data.put(key, value);
+                }
             }
+
+            System.out.println("Parsed message data: " + data);
+        } catch (Exception e) {
+            System.err.println("Error parsing message: " + message);
+            e.printStackTrace();
         }
-
-        // Debug print
-        System.out.println("Parsed message data: " + data);
-    } catch (Exception e) {
-        System.err.println("Error parsing message: " + message);
-        e.printStackTrace();
+        return data;
     }
-    return data;
-}
 
-// Metode updateFields yang lebih aman
     private void updateFields(Map<String, String> data) {
-        // Gunakan getOrDefault untuk menghindari NullPointerException
         txtJumlah.setText(data.getOrDefault("jumlah", ""));
         txtTenor.setText(data.getOrDefault("tenor", ""));
-        txtBunga.setText(data.getOrDefault("bunga", ""));
-        txtCicilan.setText(data.getOrDefault("cicilan", ""));
-        
+        txtBunga.setText(data.getOrDefault("suku_bunga", ""));
+        txtCicilan.setText(data.getOrDefault("angsuran_bulanan", ""));
     }
 
     public static void main(String[] args) {

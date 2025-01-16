@@ -11,25 +11,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-
 
 /**
  *
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
+
     Properties props = new Properties();
+
     /**
      * Creates new form MenuLogin
      */
     public MenuLogin() {
         initComponents();
-        
+
     }
+
     public void KirimData(String username, String password) {
 
         props.setProperty("bootstrap.servers", "localhost:9092");
@@ -57,7 +61,7 @@ public class MenuLogin extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(this,
                                 "Login berhasil!",
                                 "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                        
+
                     });
                 }
             });
@@ -68,6 +72,7 @@ public class MenuLogin extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -207,7 +212,7 @@ public class MenuLogin extends javax.swing.JFrame {
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         Menu_Register FormMenuRegister = new Menu_Register();
         FormMenuRegister.setVisible(true);
-        
+
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void CbPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbPasswordActionPerformed
@@ -228,10 +233,72 @@ public class MenuLogin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        KirimData(username, password);
-        JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+
+        try {
+            String url = "jdbc:mysql://localhost:3306/loan_app";
+            String dbUsername = "root";
+            String dbPassword = "";
+
+            conn = DriverManager.getConnection(url, dbUsername, dbPassword);
+
+            // Pastikan Anda menggunakan hashing untuk password di database
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            pst = conn.prepareStatement(sql);
+            pst.setString(1, username);
+            pst.setString(2, password); // Gantilah ini dengan password yang sudah di-hash jika menggunakan hashing
+
+            rs = pst.executeQuery();
+
+            if (rs.next()) {
+                String role = rs.getString("role");
+                int iduser = rs.getInt("iduser");
+
+                // Hanya tampilkan pesan login berhasil sekali
+                JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+                if ("admin".equals(role)) {
+                    DashboardAdmin dashboardAdmin = new DashboardAdmin();
+                    dashboardAdmin.setVisible(true);
+                } else {
+                    DashboardNasabah dashboardNasabah = new DashboardNasabah(iduser);
+                    dashboardNasabah.setVisible(true);
+                }
+
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        try {
+            // Panggil KirimData hanya jika login berhasil
+            if (rs != null && rs.next()) {
+                KirimData(username, password);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MenuLogin.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**

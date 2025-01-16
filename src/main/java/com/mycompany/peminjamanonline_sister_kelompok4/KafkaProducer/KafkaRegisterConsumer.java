@@ -129,7 +129,7 @@ public class KafkaRegisterConsumer extends javax.swing.JFrame {
     private void startKafkaConsumer() {
        
         Properties props = new Properties();
-        props.put("bootstrap.servers", "192.168.18.200:9092, 192.168.18.134:9093");
+        props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "admin_group_" + UUID.randomUUID().toString());
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");

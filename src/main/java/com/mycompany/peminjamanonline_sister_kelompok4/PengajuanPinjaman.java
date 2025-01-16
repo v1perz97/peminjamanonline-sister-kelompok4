@@ -30,8 +30,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class PengajuanPinjaman extends javax.swing.JFrame {
 private final int iduser; // Store the user ID
 
-    public void KirimData(String iduser, String jumlah, String tenor, String sukuBunga, String angsuranBulanan,
-                          String tanggalCair, String totalCair, String sisaTagihan, String status) {
+    public void KirimData(String iduser, String jumlah, String tenor, String sukuBunga, String angsuranBulanan, String tanggalCair, String totalCair, String sisaTagihan, String status, String status_pengajuan) {
 
         Properties props = new Properties();
         props.setProperty("bootstrap.servers", "localhost:9092");
@@ -40,11 +39,18 @@ private final int iduser; // Store the user ID
 
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
             String message = String.format(
-                    "iduser=%s, jumlah=%s, tenor=%s, suku_bunga=%s, angsuran_bulanan=%s, tanggal_cair=%s, total_cair=%s, sisa_tagihan=%s, status=%s",
-                    iduser.trim(), jumlah.trim(), tenor.trim(), sukuBunga.trim(), angsuranBulanan.trim(),
-                    tanggalCair.trim(), totalCair.trim(), sisaTagihan.trim(), status.trim()
+                    "iduser=%s, jumlah=%s, tenor=%s, suku_bunga=%s, angsuran_bulanan=%s, tanggal_cair=%s, total_cair=%s, sisa_tagihan=%s, status=%s, status_pengajuan=%s",
+                    iduser.trim(),
+                    jumlah.trim(),
+                    tenor.trim(),
+                    sukuBunga.trim(),
+                    angsuranBulanan.trim(),
+                    tanggalCair.trim(),
+                    totalCair.trim(),
+                    sisaTagihan.trim(),
+                    status.trim(),
+                    status_pengajuan.trim() // Menambahkan statusPengajuan
             );
-
             ProducerRecord<String, String> record = new ProducerRecord<>("pengajuan", message);
 
             producer.send(record, (metadata, exception) -> {
@@ -293,7 +299,6 @@ private final int iduser; // Store the user ID
 
         double bunga = 0.01; // Default 1%
         txtBunga.setText("1"); // Set text field
-//        txtBunga.setEditable(false); // Nonaktifkan edit
 
         // Hitung tanggal pengajuan dan tanggal cair
         LocalDate tanggalPengajuan = LocalDate.now();
@@ -323,10 +328,19 @@ private final int iduser; // Store the user ID
         // Update txtCicilan dengan format Rupiah
         txtCicilan.setText(String.format("Rp %,d", (int)Math.round(angsuranBulanan)));
 
+        // Set status pengajuan
+        String statusPengajuan = "Menunggu"; // Set status pengajuan
+
         // Kirim data ke Kafka
-        KirimData(String.valueOf(iduser), String.valueOf(jumlahPinjaman), String.valueOf(tenorBulan), 
-                  String.valueOf(bunga * 100), angsuranBulananStr, tanggalCairStr, 
-                  totalCairStr, sisaAngsuranStr, "pending");
+        KirimData(String.valueOf(iduser), 
+                  String.valueOf(jumlahPinjaman), 
+                  String.valueOf(tenorBulan), 
+                  String.valueOf(bunga * 100), 
+                  angsuranBulananStr, 
+                  tanggalCairStr, 
+                  totalCairStr, 
+                  sisaAngsuranStr, 
+                  statusPengajuan);
         
         JOptionPane.showMessageDialog(this, "Data berhasil dikirim!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
     

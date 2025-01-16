@@ -26,7 +26,7 @@ public class Menu_Register extends javax.swing.JFrame {
             String alamat, String jenisKelamin, String pekerjaan, String gajiPokok,
             String fotoKTP, String role) {
 
-        props.setProperty("bootstrap.servers", "192.168.18.200:9092, 192.168.18.134:9093");
+        props.setProperty("bootstrap.servers", "localhost:9092");
         props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
