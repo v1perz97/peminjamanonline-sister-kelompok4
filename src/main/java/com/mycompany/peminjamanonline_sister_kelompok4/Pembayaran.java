@@ -1,6 +1,8 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 //import java.sql.Connection;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPembayaranConsumer;
+import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPembayaranProducer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -8,7 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
@@ -24,9 +28,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class Pembayaran extends javax.swing.JFrame {
 
-    private Producer<String, String> kafkaProducer;
     private final int iduser;
-    private Connection connection;
+    private KafkaPembayaranProducer kafkaPembayaranProducer;
 
     /**
      * Creates new form Pembayaran
@@ -36,7 +39,7 @@ public class Pembayaran extends javax.swing.JFrame {
     public Pembayaran(int iduser) {
         initComponents();
         this.iduser = iduser;
-        configureKafkaProducer();
+        this.kafkaPembayaranProducer = new KafkaPembayaranProducer();
         loadTagihanData(); // Load tagihan saat form dibuka
 //       
     }
@@ -187,64 +190,42 @@ public class Pembayaran extends javax.swing.JFrame {
 
         String tanggalPembayaran = new java.sql.Date(selectedDate.getTime()).toString();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/loan_app", "root", "")) {
-            conn.setAutoCommit(false);
+        // Ganti placeholder dengan nilai yang sebenarnya
+        String pinjamanId = "pinjaman_id"; // Ambil dari input atau database
+        String sisaTagihan = "sisa_tagihan"; // Ambil dari input atau database
+        String jumlahBayar = "jumlah_bayar"; // Ambil dari input atau database
 
-            // Update tanggal pembayaran pada tabel tagihan
-            String updateTagihan = "UPDATE tagihan SET tanggal_pembayaran = ? WHERE pinjaman_id = (SELECT pinjaman_id FROM pinjaman WHERE iduser = ?) LIMIT 1";
-            PreparedStatement stmtUpdateTagihan = conn.prepareStatement(updateTagihan);
-            stmtUpdateTagihan.setDate(1, Date.valueOf(tanggalPembayaran));
-            stmtUpdateTagihan.setInt(2, iduser);
-            stmtUpdateTagihan.executeUpdate();
+        // Format pesan sesuai kebutuhan consumer
+        String message = String.format(
+                "{\"iduser\":\"%s\", \"pinjaman_id\":\"%s\", \"tanggal_pembayaran\":\"%s\", \"sisa_tagihan\":\"%s\", \"jumlah_bayar\":\"%s\"}",
+                iduser, pinjamanId, tanggalPembayaran, sisaTagihan, jumlahBayar
+        );
 
-            // Update sisa tagihan pada tabel pinjaman
-            String updatePinjaman = "UPDATE pinjaman SET sisa_tagihan = sisa_tagihan - (SELECT SUM(jumlah_bayar) FROM tagihan WHERE pinjaman_id = pinjaman.pinjaman_id) WHERE iduser = ?";
-            PreparedStatement stmtUpdatePinjaman = conn.prepareStatement(updatePinjaman);
-            stmtUpdatePinjaman.setInt(1, iduser);
-            stmtUpdatePinjaman.executeUpdate();
-
-            // Cek apakah sisa_tagihan sudah 0 dan ubah status menjadi lunas
-            String checkAndUpdateStatus = "UPDATE pinjaman SET status = 'lunas' WHERE sisa_tagihan = 0 AND iduser = ?";
-            PreparedStatement stmtUpdateStatus = conn.prepareStatement(checkAndUpdateStatus);
-            stmtUpdateStatus.setInt(1, iduser);
-            stmtUpdateStatus.executeUpdate();
-
-            conn.commit();
-
-            JOptionPane.showMessageDialog(this, "Pembayaran berhasil!", "Info", JOptionPane.INFORMATION_MESSAGE);
-
-            // Kirim notifikasi pembayaran berhasil
-            sendKafkaNotification("Pembayaran berhasil untuk ID User: " + iduser);
-
-            // Kembali ke form Riwayat Pinjaman
-            RiwayatPinjaman riwayatPinjaman = new RiwayatPinjaman(iduser);
-            riwayatPinjaman.setVisible(true);
-            dispose();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal melakukan pembayaran: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        // Kirim pesan ke Kafka
+        try {
+            kafkaPembayaranProducer.sendMessage("notifikasi-pembayaran", message);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengirim pesan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    @Override
+    public void dispose() {
+        kafkaPembayaranProducer.close();
+        super.dispose();
     }
 
     public static void main(String args[]) {
         // Set the Nimbus look and feel
         // ... (kode setting look and feel yang sama seperti sebelumnya) ...
         int loggedInUserId = 1;
+        new Thread(new KafkaPembayaranConsumer()).start();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Pembayaran(loggedInUserId).setVisible(true);
             }
         });
 
-    }
-
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -268,16 +249,18 @@ public class Pembayaran extends javax.swing.JFrame {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                txtTagihan.setText("Tagihan: " + rs.getDouble("jumlah_bayar"));
-                txtJatuhTempo.setText("Jatuh Tempo: " + rs.getDate("jatuh_tempo"));
+                // Mengonversi double ke String
+                txtTagihan.setText(String.valueOf(rs.getDouble("jumlah_bayar")));
+                // Mengonversi Date ke String
+                Date jatuhTempo = rs.getDate("jatuh_tempo");
+                if (jatuhTempo != null) {
+                    txtJatuhTempo.setText(jatuhTempo.toString()); // Anda bisa menggunakan format lain jika perlu
+                } else {
+                    txtJatuhTempo.setText(""); // Atau set ke string kosong jika null
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Gagal memuat data tagihan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private void sendKafkaNotification(String message) {
-        ProducerRecord<String, String> record = new ProducerRecord<>("notifikasi-pembayaran", message);
-        kafkaProducer.send(record);
     }
 }

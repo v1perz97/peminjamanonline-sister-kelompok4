@@ -5,7 +5,7 @@
 package com.mycompany.peminjamanonline_sister_kelompok4;
 
 import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaPengajuanProducer;
-import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaRegisterProducer;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -27,26 +28,54 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class PengajuanPinjaman extends javax.swing.JFrame {
+private final int iduser; // Store the user ID
 
-    private final int iduser; // Store the user ID
-    pengajuan pgj = new pengajuan();
-    Properties props = new Properties();
-    private Connection connection;
+    public void KirimData(String iduser, String jumlah, String tenor, String sukuBunga, String angsuranBulanan, String tanggalCair, String totalCair, String sisaTagihan, String status, String status_pengajuan) {
 
-    void kirimdata() {
-        pgj.setJumlah(txtJumlah.getText());
-        pgj.setSukuBunga(txtBunga.getText());
-        pgj.setTenor(CbTenor.getSelectedItem().toString());
-        pgj.setAngsuran(txtCicilan.getText());
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        try (Producer<String, String> producer = new KafkaProducer<>(props)) {
-            producer.send(new ProducerRecord<>("pengajuan", "", pgj.toString()));
-            JOptionPane.showMessageDialog(this, "Data berhasil disimpan!");
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+            String message = String.format(
+                    "iduser=%s, jumlah=%s, tenor=%s, suku_bunga=%s, angsuran_bulanan=%s, tanggal_cair=%s, total_cair=%s, sisa_tagihan=%s, status=%s, status_pengajuan=%s",
+                    iduser.trim(),
+                    jumlah.trim(),
+                    tenor.trim(),
+                    sukuBunga.trim(),
+                    angsuranBulanan.trim(),
+                    tanggalCair.trim(),
+                    totalCair.trim(),
+                    sisaTagihan.trim(),
+                    status.trim(),
+                    status_pengajuan.trim() // Menambahkan statusPengajuan
+            );
+            ProducerRecord<String, String> record = new ProducerRecord<>("pengajuan", message);
+
+            producer.send(record, (metadata, exception) -> {
+                if (exception != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Error mengirim data ke Kafka: " + exception.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                    exception.printStackTrace();
+                } else {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Pengajuan berhasil!",
+                                "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                    });
+                }
+            });
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal mengirim data ke Kafka: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-
-    }
+}
 
     /**
      * Creates new form PengajuanPinjaman
@@ -247,141 +276,111 @@ public class PengajuanPinjaman extends javax.swing.JFrame {
 
 
     private void btnAjukanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAjukanActionPerformed
+        try {
+        // Hapus format Rp dan koma dari input jumlah
+        int jumlahPinjaman = Integer.parseInt(txtJumlah.getText().replaceAll("[^\\d]", ""));
+        
         int batasMaksPinjaman = 20000000;
-        int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
-
+        int batasMinimuPinjaman = 1000000;
+        
+        // Validasi jumlah pinjaman
+        if (jumlahPinjaman < batasMinimuPinjaman) {
+            JOptionPane.showMessageDialog(this, "Jumlah pinjaman minimal Rp 1.000.000.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         if (jumlahPinjaman > batasMaksPinjaman) {
             JOptionPane.showMessageDialog(this, "Jumlah pinjaman tidak boleh lebih dari Rp 20.000.000.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        String tenor = CbTenor.getSelectedItem().toString();
+        int tenorBulan = Integer.parseInt(tenor.split(" ")[0]); // Misalkan formatnya "12 Bulan"
+
+        double bunga = 0.01; // Default 1%
+        txtBunga.setText("1"); // Set text field
+
+        // Hitung tanggal pengajuan dan tanggal cair
         LocalDate tanggalPengajuan = LocalDate.now();
         LocalDate tanggalCair = tanggalPengajuan.plusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String tanggalPengajuanStr = tanggalPengajuan.format(formatter);
         String tanggalCairStr = tanggalCair.format(formatter);
 
-        double bunga = 0.01;
-        double totalCair = jumlahPinjaman * (1 + bunga);
-        String totalCairStr = String.format("%.2f", totalCair);
+        // Hitung total cair
+        double totalCair = jumlahPinjaman * (1 + bunga); // Total cair = jumlah pinjaman + bunga
+        String totalCairStr = String.format("%.2f", totalCair); // Format total cair menjadi string dengan 2 desimal
 
-        String tenor = CbTenor.getSelectedItem().toString();
-        int tenorBulan = Integer.parseInt(tenor.split(" ")[0]);
-        double angsuranBulanan = totalCair / tenorBulan;
-        String angsuranBulananStr = String.format("%.2f", angsuranBulanan);
+        // Hitung angsuran bulanan
+        double angsuranBulanan = totalCair / tenorBulan; // Angsuran bulanan = total cair / tenor
+        String angsuranBulananStr = String.format("%.2f", angsuranBulanan); // Format angsuran bulanan menjadi string dengan 2 desimal
 
-        double sisaAngsuran = jumlahPinjaman * (1 + bunga);
-        String sisaAngsuranStr = String.format("%.2f", sisaAngsuran);
+        // Hitung sisa angsuran
+        double sisaAngsuran = totalCair; // Sisa angsuran sama dengan total cair pada awalnya
+        String sisaAngsuranStr = String.format("%.2f", sisaAngsuran); // Format sisa angsuran menjadi string dengan 2 desimal
 
-        KafkaPengajuanProducer.KirimDataPengajuan(iduser, jumlahPinjaman, tanggalPengajuanStr, tanggalCairStr, bunga, totalCairStr, tenor, angsuranBulananStr, sisaAngsuranStr);
-
-        Connection connection = null;
-        try {
-            connection = DatabaseConnection.getConnection();
-        } catch (SQLException ex) {
-            Logger.getLogger(PengajuanPinjaman.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        int pinjamanId = 0;
-
-        try {
-            String queryPinjaman = "INSERT INTO pinjaman (iduser, jumlah, tenor, suku_bunga, angsuran_bulanan, tanggal_cair, total_cair, sisa_tagihan, status) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement psPinjaman = connection.prepareStatement(queryPinjaman, Statement.RETURN_GENERATED_KEYS)) {
-                psPinjaman.setInt(1, iduser);
-                psPinjaman.setInt(2, jumlahPinjaman);
-                psPinjaman.setString(3, tenor);
-                psPinjaman.setDouble(4, bunga);
-                psPinjaman.setDouble(5, angsuranBulanan);
-                psPinjaman.setString(6, tanggalCairStr);
-                psPinjaman.setDouble(7, totalCair);
-                psPinjaman.setDouble(8, sisaAngsuran);
-                psPinjaman.setString(9, "belum lunas");
-
-                int rowsInserted = psPinjaman.executeUpdate();
-                if (rowsInserted > 0) {
-                    ResultSet generatedKeys = psPinjaman.getGeneratedKeys();
-                    if (generatedKeys.next()) {
-                        pinjamanId = generatedKeys.getInt(1);
-                    } else {
-                        throw new SQLException("Gagal mendapatkan ID pinjaman.");
-                    }
-                } else {
-                    throw new SQLException("Gagal menyimpan data ke tabel pinjaman.");
-                }
-            }
-
-            String queryPengajuan = "INSERT INTO pengajuan_pinjaman (iduser, pinjaman_id, tanggal_pengajuan, status) "
-                    + "VALUES (?, ?, ?, ?)";
-            try (PreparedStatement psPengajuan = connection.prepareStatement(queryPengajuan)) {
-                psPengajuan.setInt(1, iduser);
-                psPengajuan.setInt(2, pinjamanId);
-                psPengajuan.setString(3, tanggalPengajuanStr);
-                psPengajuan.setString(4, "menunggu");
-
-                psPengajuan.executeUpdate();
-            }
-
-            String queryTagihan = "INSERT INTO tagihan (pinjaman_id, jumlah_bayar, jatuh_tempo) "
-                    + "VALUES (?, ?, ?)";
-            try (PreparedStatement psTagihan = connection.prepareStatement(queryTagihan)) {
-                for (int i = 1; i <= tenorBulan; i++) {
-                    LocalDate jatuhTempo = tanggalCair.plusMonths(i);
-                    String jatuhTempoStr = jatuhTempo.format(formatter);
-
-                    psTagihan.setInt(1, pinjamanId);
-                    psTagihan.setString(2, tanggalCairStr);
-                    psTagihan.setString(3, jatuhTempoStr);
-
-                    psTagihan.addBatch();
-                }
-                psTagihan.executeBatch();
-            }
-
-            JOptionPane.showMessageDialog(this, "Pengajuan pinjaman berhasil disimpan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-            this.dispose(); 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Masukkan jumlah pinjaman yang valid.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Validasi input
+        if (txtJumlah.getText().trim().isEmpty() || tenor.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Semua kolom harus diisi", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
+        // Update txtCicilan dengan format Rupiah
+        txtCicilan.setText(String.format("Rp %,d", (int)Math.round(angsuranBulanan)));
 
+        // Set status pengajuan
+        String statusPengajuan = "Menunggu"; // Set status pengajuan
+
+        // Kirim data ke Kafka
+        KirimData(String.valueOf(iduser), 
+                  String.valueOf(jumlahPinjaman), 
+                  String.valueOf(tenorBulan), 
+                  String.valueOf(bunga * 100), 
+                  angsuranBulananStr, 
+                  tanggalCairStr, 
+                  totalCairStr, 
+                  sisaAngsuranStr, 
+                  statusPengajuan);
+        
+        JOptionPane.showMessageDialog(this, "Data berhasil dikirim!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+    
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Format jumlah atau tenor tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnAjukanActionPerformed
     
     private void btnTampilActionPerformed(java.awt.event.ActionEvent evt) {
+try {
+        int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
+        int tenor = 1;
+        double bunga = 0.01; // Default bunga 1%
 
-        try {
-            
-            int jumlahPinjaman = Integer.parseInt(txtJumlah.getText());
-            int tenor = 1;
-            double bunga = 0.01;
-
-            String pilihanTenor = (String) CbTenor.getSelectedItem();
-            switch (pilihanTenor) {
-                case "1 Bulan":
-                    tenor = 1;
-                    break;
-                case "3 Bulan":
-                    tenor = 3;
-                    break;
-                case "6 Bulan":
-                    tenor = 6;
-                    break;
-                case "12 Bulan":
-                    tenor = 12;
-                    break;
-            }
-
-            // Hitung cicilan
-            double cicilan = (jumlahPinjaman * (1 + bunga)) / tenor;
-            int cicilanBulanan = (int) Math.round(cicilan); // Konversi ke bilangan bulat
-
-            // Tampilkan hasil cicilan
-            txtCicilan.setText(String.valueOf(cicilanBulanan));
-        } catch (NumberFormatException e) {
-            txtCicilan.setText("Input tidak valid!");
+        String pilihanTenor = (String) CbTenor.getSelectedItem();
+        switch (pilihanTenor) {
+            case "1 Bulan":
+                tenor = 1;
+                break;
+            case "3 Bulan":
+                tenor = 3;
+                break;
+            case "6 Bulan":
+                tenor = 6;
+                break;
+            case "12 Bulan":
+                tenor = 12;
+                break;
         }
+
+        // Hitung cicilan dengan bunga 1%
+        double totalCair = jumlahPinjaman * (1 + bunga);
+        double cicilan = totalCair / tenor;
+        int cicilanBulanan = (int) Math.round(cicilan);
+
+        // Tampilkan hasil cicilan
+        txtCicilan.setText(String.format("Rp %,d", cicilanBulanan));
+    } catch (NumberFormatException e) {
+        txtCicilan.setText("Input tidak valid!");
+    }
     }
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened

@@ -5,27 +5,48 @@
 package com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer;
 
 import java.util.Properties;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
- * @author ACER
+ * @author Zion Exeon Ch
  */
 public class KafkaPembayaranProducer {
-    public static void KirimDataPembayaran(String amountToPayStr, String paymentDateStr) {
 
-    Properties props = new Properties();
-    props.put("bootstrap.servers", "192.168.43.134:9092, 192.168.43.57:9092, 192.168.43.97:9092");
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    private final KafkaProducer<String, String> producer;
 
-    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+    public KafkaPembayaranProducer() {
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.producer = new KafkaProducer<>(props);
+    }
 
-    String message = "User Melakukan Pembayaran Sebesar : "+amountToPayStr+" Pada Tanggal : " +paymentDateStr;
+    public void sendMessage(String topic, String message) {
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
+        producer.send(record, (metadata, exception) -> {
+            if (exception != null) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                            "Error sending data to Kafka: " + exception.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                });
+                exception.printStackTrace();
+            } else {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null,
+                            "Message sent successfully!",
+                            "Success", JOptionPane.INFORMATION_MESSAGE);
+                });
+            }
+        });
+    }
 
-    producer.send(new ProducerRecord<>("pembayaran", null, message));
-
-    producer.close();
+    public void close() {
+        producer.close();
     }
 }
