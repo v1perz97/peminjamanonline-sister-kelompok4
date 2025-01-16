@@ -10,7 +10,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 
 /**
@@ -18,7 +22,7 @@ import javax.swing.JOptionPane;
  * @author ACER
  */
 public class MenuLogin extends javax.swing.JFrame {
-    
+    Properties props = new Properties();
     /**
      * Creates new form MenuLogin
      */
@@ -26,7 +30,44 @@ public class MenuLogin extends javax.swing.JFrame {
         initComponents();
         
     }
+    public void KirimData(String username, String password) {
 
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+            String message = String.format(
+                    "username=%s, password=%s",
+                    username.trim(), password.trim()
+            );
+
+            ProducerRecord<String, String> record = new ProducerRecord<>("login", message);
+
+            producer.send(record, (metadata, exception) -> {
+                if (exception != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Error mengirim data ke Kafka: " + exception.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                    exception.printStackTrace();
+                } else {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Login berhasil!",
+                                "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                        
+                    });
+                }
+            });
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -182,70 +223,15 @@ public class MenuLogin extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
-        KafkaLoginProducer.PesanLogin(username);
-        
+
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        Connection conn = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+        KirimData(username, password);
+        JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
-        try {
-            String url = "jdbc:mysql://localhost:3306/loan_app";
-            String dbUsername = "root";
-            String dbPassword = "";
-
-            conn = DriverManager.getConnection(url, dbUsername, dbPassword);
-
-            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, username);
-            pst.setString(2, password);
-            
-            rs = pst.executeQuery();
-            
-
-            if (rs.next()) {
-                String role = rs.getString("role");
-                int iduser = rs.getInt("iduser");
-                
-                JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                               
-                if ("admin".equals(role)) {
-                    
-                    DashboardAdmin dashboardAdmin = new DashboardAdmin();
-                    dashboardAdmin.setVisible(true);
-                } else {
-                    
-                    DashboardNasabah dashboardNasabah = new DashboardNasabah(iduser);
-                    dashboardNasabah.setVisible(true);
-                }
-
-                this.dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pst != null) {
-                    pst.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**

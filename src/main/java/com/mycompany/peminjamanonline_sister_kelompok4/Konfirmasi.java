@@ -8,6 +8,9 @@ import com.mycompany.peminjamanonline_sister_kelompok4.KafkaProducer.KafkaKonfir
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -17,7 +20,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Konfirmasi extends javax.swing.JFrame {
-
+    Properties props = new Properties();
     private Producer<String, String> kafkaProducer;
 
     /**
@@ -26,6 +29,45 @@ public class Konfirmasi extends javax.swing.JFrame {
     public Konfirmasi() {
         initComponents();
         
+    }
+    public void UbahData(String status, String nik) {
+
+        props.setProperty("bootstrap.servers", "localhost:9092");
+        props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+    // Misalkan status dan nik adalah parameter yang diterima oleh metode ini
+    String message = String.format(
+            "status=%s, nik=%s",
+            status.trim(), nik.trim()
+    );
+
+            ProducerRecord<String, String> record = new ProducerRecord<>("register", message);
+
+            producer.send(record, (metadata, exception) -> {
+                if (exception != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Error mengirim data ke Kafka: " + exception.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                    exception.printStackTrace();
+                } else {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Registrasi berhasil!",
+                                "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                        
+                    });
+                }
+            });
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -223,43 +265,20 @@ public class Konfirmasi extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBatalActionPerformed
 
     private void btnDitolakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDitolakActionPerformed
-        updateStatusPengajuan(txtNik.getText(), "ditolak");
+        UbahData(txtNik.getText(), "ditolak");
         DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
         FormDashboardNasabah.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnDitolakActionPerformed
 
     private void btnDisetujuiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisetujuiActionPerformed
-        updateStatusPengajuan(txtNik.getText(), "disetujui");
+        UbahData(txtNik.getText(), "disetujui");
         DashboardAdmin FormDashboardNasabah = new DashboardAdmin();
         FormDashboardNasabah.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnDisetujuiActionPerformed
 
-    private void updateStatusPengajuan(String nik, String status) {
-    String updateQuery = "UPDATE pengajuan_pinjaman pp "
-            + "JOIN users u ON pp.iduser = u.iduser "
-            + "SET pp.status = ? "
-            + "WHERE u.nik = ?";
     
-    KafkaKonfirmasiProducer.PesanKonfirmasi(nik, status);
-    try (Connection connection = DatabaseConnection.getConnection(); 
-         PreparedStatement statement = connection.prepareStatement(updateQuery)) {
-
-        statement.setString(1, status);  
-        statement.setString(2, nik);     
-
-        int rowsAffected = statement.executeUpdate();
-
-        if (rowsAffected > 0) {
-            System.out.println("Status pengajuan pinjaman diperbarui menjadi: " + status);
-        } else {
-            System.out.println("Gagal memperbarui status pengajuan pinjaman.");
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
     /**
      * @param args the command line arguments
      */
