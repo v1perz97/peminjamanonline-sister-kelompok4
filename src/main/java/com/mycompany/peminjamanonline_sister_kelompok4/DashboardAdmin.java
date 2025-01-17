@@ -404,7 +404,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private void fetchData() {
         // Initialize table model
         DefaultTableModel model = new DefaultTableModel(
-                new String[]{"ID", "Nama", "NIK", "Jumlah Pinjaman", "Tenor", "Angsuran Bulanan", "Status"}, 0
+                new String[]{"ID", "Nama", "NIK", "Jumlah Pinjaman", "Tenor", "Angsuran Bulanan", "status_pengajuan"}, 0
         );
         tblPengajuan.setModel(model);
 
@@ -417,7 +417,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 + "COALESCE(pinjaman.jumlah, 0) AS jumlah, "
                 + "COALESCE(pinjaman.tenor, '') AS tenor, "
                 + "COALESCE(pinjaman.angsuran_bulanan, 0) AS angsuran_bulanan, "
-                + "pengajuan_pinjaman.status " // Status from pengajuan_pinjaman
+                + "pengajuan_pinjaman.status_pengajuan " // Status from pengajuan_pinjaman
                 + "FROM users "
                 + "INNER JOIN pengajuan_pinjaman ON users.iduser = pengajuan_pinjaman.iduser " // Only users with loan submissions
                 + "LEFT JOIN pinjaman ON users.iduser = pinjaman.iduser";
@@ -435,7 +435,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
                         rs.getDouble("jumlah"), // Jumlah Pinjaman
                         rs.getString("tenor"), // Tenor
                         rs.getDouble("angsuran_bulanan"), // Angsuran Bulanan
-                        rs.getString("status") // Status from pengajuan_pinjaman
+                        rs.getString("status_pengajuan") // Status from pengajuan_pinjaman
                     });
                 }
             }

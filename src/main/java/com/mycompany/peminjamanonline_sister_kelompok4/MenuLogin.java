@@ -227,78 +227,75 @@ public class MenuLogin extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String username = txtUsername.getText();
-        String password = new String(txtPassword.getPassword());
+    String password = new String(txtPassword.getPassword());
 
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    if (username.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Username atau password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    boolean loginBerhasil = false;
+    int iduser = -1;
+    String role = "";
+
+    try {
+        String url = "jdbc:mysql://localhost:3306/loan_app";
+        String dbUsername = "root";
+        String dbPassword = "";
+
+        conn = DriverManager.getConnection(url, dbUsername, dbPassword);
+
+        // Pastikan Anda menggunakan hashing untuk password di database
+        String sql = "SELECT iduser, role FROM users WHERE username = ? AND password = ?";
+        pst = conn.prepareStatement(sql);
+        pst.setString(1, username);
+        pst.setString(2, password); 
+
+        rs = pst.executeQuery();
+
+        if (rs.next()) {
+            loginBerhasil = true;
+            iduser = rs.getInt("iduser");
+            role = rs.getString("role");
         }
-
-        Connection conn = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    } finally {
+        // Selalu tutup resource
         try {
-            String url = "jdbc:mysql://localhost:3306/loan_app";
-            String dbUsername = "root";
-            String dbPassword = "";
-
-            conn = DriverManager.getConnection(url, dbUsername, dbPassword);
-
-            // Pastikan Anda menggunakan hashing untuk password di database
-            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, username);
-            pst.setString(2, password); // Gantilah ini dengan password yang sudah di-hash jika menggunakan hashing
-
-            rs = pst.executeQuery();
-
-            if (rs.next()) {
-                String role = rs.getString("role");
-                int iduser = rs.getInt("iduser");
-
-                // Hanya tampilkan pesan login berhasil sekali
-                JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
-                if ("admin".equals(role)) {
-                    DashboardAdmin dashboardAdmin = new DashboardAdmin();
-                    dashboardAdmin.setVisible(true);
-                } else {
-                    DashboardNasabah dashboardNasabah = new DashboardNasabah(iduser);
-                    dashboardNasabah.setVisible(true);
-                }
-
-                this.dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
+            if (rs != null) rs.close();
+            if (pst != null) pst.close();
+            if (conn != null) conn.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pst != null) {
-                    pst.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            ex.printStackTrace();
+        }
+    }
+
+    // Proses login setelah koneksi database ditutup
+    if (loginBerhasil) {
+        // Hanya tampilkan pesan login berhasil sekali
+        JOptionPane.showMessageDialog(this, "Login berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+        // Kirim data ke Kafka
+        KirimData(username, password);
+
+        // Arahkan ke dashboard sesuai role
+        if ("admin".equals(role)) {
+            DashboardAdmin dashboardAdmin = new DashboardAdmin();
+            dashboardAdmin.setVisible(true);
+        } else {
+            DashboardNasabah dashboardNasabah = new DashboardNasabah(iduser);
+            dashboardNasabah.setVisible(true);
         }
 
-        try {
-            // Panggil KirimData hanya jika login berhasil
-            if (rs != null && rs.next()) {
-                KirimData(username, password);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(MenuLogin.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
