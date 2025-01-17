@@ -20,6 +20,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  * @author ACER
  */
 public class Konfirmasi extends javax.swing.JFrame {
+
     Properties props = new Properties();
     private Producer<String, String> kafkaProducer;
 
@@ -28,22 +29,22 @@ public class Konfirmasi extends javax.swing.JFrame {
      */
     public Konfirmasi() {
         initComponents();
-        
-    }
-    public void UbahData(String status, String nik) {
 
+    }
+
+    public void UbahData(String nik, String status) {
         props.setProperty("bootstrap.servers", "localhost:9092");
         props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
-    // Misalkan status dan nik adalah parameter yang diterima oleh metode ini
-    String message = String.format(
-            "status=%s, nik=%s",
-            status.trim(), nik.trim()
-    );
+            // Mengirim pesan dengan format yang benar tanpa ID
+            String message = String.format(
+                    "{status_pengajuan=%s, nik=%s}",
+                    status.trim(), nik.trim()
+            );
 
-            ProducerRecord<String, String> record = new ProducerRecord<>("register", message);
+            ProducerRecord<String, String> record = new ProducerRecord<>("konfirmasi", message);
 
             producer.send(record, (metadata, exception) -> {
                 if (exception != null) {
@@ -56,9 +57,8 @@ public class Konfirmasi extends javax.swing.JFrame {
                 } else {
                     SwingUtilities.invokeLater(() -> {
                         JOptionPane.showMessageDialog(this,
-                                "Registrasi berhasil!",
+                                "Konfirmasi berhasil!",
                                 "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                        
                     });
                 }
             });
@@ -278,7 +278,6 @@ public class Konfirmasi extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnDisetujuiActionPerformed
 
-    
     /**
      * @param args the command line arguments
      */

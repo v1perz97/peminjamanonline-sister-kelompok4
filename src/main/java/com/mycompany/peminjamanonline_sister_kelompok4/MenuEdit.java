@@ -67,7 +67,7 @@ public class MenuEdit extends javax.swing.JFrame {
         btnUbah = new javax.swing.JButton();
         btnBatal = new javax.swing.JButton();
         jLabel12 = new javax.swing.JLabel();
-        txtKontak1 = new javax.swing.JTextField();
+        txtPekerjaan = new javax.swing.JTextField();
         jComboBox1 = new javax.swing.JComboBox<>();
         jLabel13 = new javax.swing.JLabel();
 
@@ -196,7 +196,7 @@ public class MenuEdit extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtKontak1))
+                            .addComponent(txtPekerjaan))
                         .addContainerGap())))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -245,7 +245,7 @@ public class MenuEdit extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(txtKontak1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPekerjaan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -262,40 +262,47 @@ public class MenuEdit extends javax.swing.JFrame {
 
     private void btnUbahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahActionPerformed
         String username = txtNama.getText().trim();
-        String email = txtEmail.getText().trim();
-        String password = txtPassword.getText().trim();
-        String nik = txtNIK.getText().trim();
-        String kontak = txtKontak.getText().trim();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    String email = txtEmail.getText().trim();
+    String password = txtPassword.getText().trim();
+    String nik = txtNIK.getText().trim();
+    String kontak = txtKontak.getText().trim();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        if (txtTanggalLahir.getDate() == null) {
-            JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
-        String alamat = txtAlamat.getText().trim();
-        String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan";
-        String pekerjaan = txtKontak1.getText().trim(); // Gunakan txtKontak1 untuk pekerjaan
-        String gaji_pokok = (String) jComboBox1.getSelectedItem(); // Ambil dari ComboBox
+    if (txtTanggalLahir.getDate() == null) {
+        JOptionPane.showMessageDialog(this, "Harap pilih tanggal lahir!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    String tanggalLahirStr = sdf.format(txtTanggalLahir.getDate());
+    String alamat = txtAlamat.getText().trim();
+    String jenisKelamin = rbLakiLaki.isSelected() ? "Laki-Laki" : "Perempuan";
+    String pekerjaan = txtPekerjaan.getText().trim();
+    String gaji_pokok = (String) jComboBox1.getSelectedItem();
 
-        // Tambahkan default foto KTP dan role
-        String fotoKTP = "default.jpg"; // Atau sesuaikan dengan logika unggah foto
-        String role = "user";
+    // Tambahkan default foto KTP dan role
+    String fotoKTP = "default.jpg"; // Atau sesuaikan dengan logika unggah foto
+    String role = "user";
 
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nik.isEmpty() || kontak.isEmpty()
-                || tanggalLahirStr.isEmpty() || alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty()
-                || gaji_pokok.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Semua kolom harus diisi", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nik.isEmpty() || kontak.isEmpty()
+            || tanggalLahirStr.isEmpty() || alamat.isEmpty() || jenisKelamin.isEmpty() || pekerjaan.isEmpty()
+            || gaji_pokok.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Semua kolom harus diisi", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            JOptionPane.showMessageDialog(this, "Format email tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+        JOptionPane.showMessageDialog(this, "Format email tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        EditProfil(username, email, password, nik, kontak, tanggalLahirStr, alamat,
-                jenisKelamin, pekerjaan, gaji_pokok, fotoKTP, role);
+    // Kirim data ke Kafka dan periksa keberhasilan
+    boolean isSuccess = EditProfil(username, email, password, nik, kontak, tanggalLahirStr, alamat,
+            jenisKelamin, pekerjaan, gaji_pokok, fotoKTP, role);
+    
+    if (isSuccess) {
+        JOptionPane.showMessageDialog(this, "Data berhasil dikirim!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+    } else {
+        JOptionPane.showMessageDialog(this, "Gagal mengirim data!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnUbahActionPerformed
 
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
@@ -360,14 +367,14 @@ public class MenuEdit extends javax.swing.JFrame {
     private javax.swing.JTextField txtAlamat;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtKontak;
-    private javax.swing.JTextField txtKontak1;
     private javax.swing.JTextField txtNIK;
     private javax.swing.JTextField txtNama;
     private javax.swing.JTextField txtPassword;
+    private javax.swing.JTextField txtPekerjaan;
     private com.toedter.calendar.JDateChooser txtTanggalLahir;
     // End of variables declaration//GEN-END:variables
     
-    public static void EditProfil(String username, String email, String password, String nik, 
+    public static boolean EditProfil(String username, String email, String password, String nik, 
                                String kontak, String tanggalLahir, String alamat, 
                                String jenisKelamin, String pekerjaan, String gajiPokok, 
                                String fotoKTP, String role) {
@@ -386,9 +393,11 @@ public class MenuEdit extends javax.swing.JFrame {
         );
 
         ProducerRecord<String, String> record = new ProducerRecord<>("edit", message);
-        producer.send(record);
+        producer.send(record).get(); // Tunggu hingga pengiriman selesai
+        return true; // Pengiriman berhasil
     } catch (Exception e) {
         e.printStackTrace();
+        return false; // Pengiriman gagal
     }
 }
     private void tampilmenuedit() {
@@ -407,7 +416,7 @@ public class MenuEdit extends javax.swing.JFrame {
             txtKontak.setText(rs.getString("kontak"));
             txtTanggalLahir.setDate(rs.getDate("tanggal_lahir"));
             txtAlamat.setText(rs.getString("alamat"));
-            txtKontak1.setText(rs.getString("pekerjaan")); // Set pekerjaan
+            txtPekerjaan.setText(rs.getString("pekerjaan")); // Set pekerjaan
 
             // Set gender (radio button)
             String jenisKelamin = rs.getString("jenis_kelamin");

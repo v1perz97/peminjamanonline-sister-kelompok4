@@ -340,7 +340,9 @@ public class Menu_Register extends javax.swing.JFrame {
 
         KirimData(username, email, password, nik, kontak, tanggalLahirStr, alamat, jenisKelamin, pekerjaan, gaji_pokok, fotoKTP, role);
         JOptionPane.showMessageDialog(this, "Data berhasil dikirim!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
+        MenuLogin FormMenuLogin = new MenuLogin();
+        FormMenuLogin.setVisible(false);
+        this.dispose();
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 

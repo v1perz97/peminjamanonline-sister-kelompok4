@@ -38,20 +38,18 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
     private JRadioButton rbLakiLaki;
     private JRadioButton rbPerempuan;
     private JComboBox<String> jComboBox1;
-    
-    
 
     public KafkaEditConsumer() {
-        TanpilanGUI();
+        initializeGUI();
         startKafkaConsumer();
     }
 
-    private void TanpilanGUI() {
+    private void initializeGUI() {
         setTitle("Edit Profil");
-        setIconImage(new ImageIcon("admin_icon.png").getImage()); // Tambahkan ikon pada window
+        setIconImage(new ImageIcon("admin_icon.png").getImage());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 700);
-        setLocationRelativeTo(null); // Menempatkan window di tengah layar
+        setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -61,8 +59,8 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
         messageList = new JList<>(listModel);
         messageList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         messageList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageList.setBackground(new Color(240, 248, 255)); // Alice Blue
-        messageList.setBorder(BorderFactory.createTitledBorder("User Edit"));
+        messageList.setBackground(new Color(240, 248, 255));
+        messageList.setBorder(BorderFactory.createTitledBorder("User  Edit"));
 
         scrollPane = new JScrollPane(messageList);
         scrollPane.setPreferredSize(new Dimension(300, 400));
@@ -71,7 +69,7 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
         // Detail panel
         JPanel detailPanel = new JPanel(new GridBagLayout());
         detailPanel.setBorder(BorderFactory.createTitledBorder("Detail Edit"));
-        detailPanel.setBackground(new Color(245, 245, 245)); // Light Gray
+        detailPanel.setBackground(new Color(245, 245, 245));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -79,13 +77,41 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
 
         addDetailField(detailPanel, gbc, "Nama:", txtNama = new JTextField(20), 0);
         addDetailField(detailPanel, gbc, "Email:", txtEmail = new JTextField(20), 1);
-        
+        addDetailField(detailPanel, gbc, "Password:", txtPassword = new JTextField(20), 2);
+        addDetailField(detailPanel, gbc, "NIK:", txtNik = new JTextField(20), 3);
+        addDetailField(detailPanel, gbc, "Kontak:", txtKontak = new JTextField(20), 4);
+        addDetailField(detailPanel, gbc, "Alamat:", txtAlamat = new JTextField(20), 5);
+        addDetailField(detailPanel, gbc, "Pekerjaan:", txtPekerjaan = new JTextField(20), 6);
+        txtTanggalLahir = new JDateChooser();
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        detailPanel .add(new JLabel("Tanggal Lahir:"), gbc);
+        gbc.gridx = 1;
+        detailPanel.add(txtTanggalLahir, gbc);
+
+        rbLakiLaki = new JRadioButton("Laki-Laki");
+        rbPerempuan = new JRadioButton("Perempuan");
+        ButtonGroup genderGroup = new ButtonGroup();
+        genderGroup.add(rbLakiLaki);
+        genderGroup.add(rbPerempuan);
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        detailPanel.add(rbLakiLaki, gbc);
+        gbc.gridx = 1;
+        detailPanel.add(rbPerempuan, gbc);
+
+        jComboBox1 = new JComboBox<>(new String[]{"< 1 Juta", "2 Juta - 5 Juta", "5 Juta - 10 Juta", "10 Juta - 15 Juta", "> 15 Juta"});
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        detailPanel.add(new JLabel("Gaji Pokok:"), gbc);
+        gbc.gridx = 1;
+        detailPanel.add(jComboBox1, gbc);
 
         mainPanel.add(detailPanel, BorderLayout.SOUTH);
 
         JButton closeButton = new JButton("Tutup");
         closeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        closeButton.setBackground(new Color(220, 20, 60)); // Crimson
+        closeButton.setBackground(new Color(220, 20, 60));
         closeButton.setForeground(Color.WHITE);
         closeButton.setFocusPainted(false);
         closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -125,24 +151,24 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
 
     private void updateDetailFields(String message) {
         Map<String, String> data = parseMessage(message);
-        updateFields(data);
+        if (validateData(data)) {
+            updateFields(data);
+        } else {
+            JOptionPane.showMessageDialog(this, "Data tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void startKafkaConsumer() {
-       
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "admin_group_" + UUID.randomUUID().toString());
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("auto.offset.reset", "earliest");
-        props.put("partition.assignment.strategy",
-                "org.apache.kafka.clients.consumer.RoundRobinAssignor");
+        props.put("partition.assignment.strategy", "org.apache.kafka.clients.consumer.RoundRobinAssignor");
 
         Thread consumerThread = new Thread(() -> {
-            try (org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer
-                    = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props)) {
-
+            try (org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props)) {
                 consumer.subscribe(Collections.singletonList("edit"));
 
                 while (isRunning) {
@@ -161,7 +187,7 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
     private void processMessage(String message) {
         try {
             Map<String, String> data = parseMessage(message);
-            if (data != null) {
+            if (data != null && validateData(data)) {
                 String formattedMessage = String.format(
                         "[%tF %<tT] "
                         + "Username: %s | "
@@ -175,7 +201,7 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
                         + "Gaji Pokok: %s",
                         System.currentTimeMillis(),
                         data.getOrDefault("username", "N/A"),
-                        data.getOrDefault("email", "N/A"),
+ data.getOrDefault("email", "N/A"),
                         data.getOrDefault("nik", "N/A"),
                         data.getOrDefault("kontak", "N/A"),
                         data.getOrDefault("tanggal_lahir", "N/A"),
@@ -200,172 +226,135 @@ public class KafkaEditConsumer extends javax.swing.JFrame {
     }
 
     private void saveToDatabase(Map<String, String> data) {
-    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-        String sql = "UPDATE users SET " +
-            "username = ?, email = ?, password = ?, nik = ?, " +
-            "kontak = ?, tanggal_lahir = ?, alamat = ?, " +
-            "jenis_kelamin = ?, pekerjaan = ?, gaji_pokok = ? " +
-            "WHERE nik = ?";
-        
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, data.get("username"));
-            pstmt.setString(2, data.get("email"));
-            pstmt.setString(3, data.get("password"));
-            pstmt.setString(4, data.get("nik"));
-            pstmt.setString(5, data.get("kontak"));
-            pstmt.setDate(6, java.sql.Date.valueOf(data.get("tanggal_lahir")));
-            pstmt.setString(7, data.get("alamat"));
-            pstmt.setString(8, data.get("jenis_kelamin"));
-            pstmt.setString(9, data.get("pekerjaan"));
-            pstmt.setString(10, data.get("gaji_pokok"));
-            pstmt.setString(11, data.get("nik"));
+        if (!validateData(data)) {
+            JOptionPane.showMessageDialog(this, "Data tidak valid, tidak dapat disimpan!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Data berhasil diperbarui untuk NIK: " + data.get("nik"));
-                
-                // Tambahkan log ke list model
-                SwingUtilities.invokeLater(() -> {
-                    listModel.addElement("Data berhasil diperbarui: " + data.get("username"));
-                    messageList.ensureIndexIsVisible(listModel.getSize() - 1);
-                });
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String sql = "UPDATE users SET " +
+                "username = ?, email = ?, password = ?, nik = ?, " +
+                "kontak = ?, tanggal_lahir = ?, alamat = ?, " +
+                "jenis_kelamin = ?, pekerjaan = ?, gaji_pokok = ? " +
+                "WHERE nik = ?";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, data.get("username"));
+                pstmt.setString(2, data.get("email"));
+                pstmt.setString(3, data.get("password"));
+                pstmt.setString(4, data.get("nik"));
+                pstmt.setString(5, data.get("kontak"));
+                pstmt.setDate(6, java.sql.Date.valueOf(data.get("tanggal_lahir")));
+                pstmt.setString(7, data.get("alamat"));
+                pstmt.setString(8, data.get("jenis_kelamin"));
+                pstmt.setString(9, data.get("pekerjaan"));
+                pstmt.setString(10, data.get("gaji_pokok"));
+                pstmt.setString(11, data.get("nik"));
+
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Data berhasil diperbarui untuk NIK: " + data.get("nik"));
+                    SwingUtilities.invokeLater(() -> {
+                        listModel.addElement("Data berhasil diperbarui: " + data.get("username"));
+                        messageList.ensureIndexIsVisible(listModel.getSize() - 1);
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            SwingUtilities.invokeLater(() -> {
+                listModel.addElement("Gagal memperbarui database: " + e.getMessage());
+                messageList.ensureIndexIsVisible(listModel.getSize() - 1);
+            });
+            e.printStackTrace();
+        }
+    }
+
+    private boolean validateData(Map<String, String> data) {
+        String[] requiredFields = {
+            "username", "email", "nik", "kontak", 
+            "tanggal_lahir", "alamat", "jenis_kelamin", 
+            "pekerjaan", "gaji_pokok"
+        };
+
+        for (String field : requiredFields) {
+            if (!data.containsKey(field) || data.get(field) == null || data.get(field).trim().isEmpty()) {
+                System.out.println("Field yang hilang atau kosong: " + field);
+                return false;
             }
         }
-    } catch (SQLException e) {
-        SwingUtilities.invokeLater(() -> {
-            listModel.addElement("Gagal memperbarui database: " + e.getMessage());
-            messageList.ensureIndexIsVisible(listModel.getSize() - 1);
-        });
-        e.printStackTrace();
-    }
-}
 
-// Metode validasi data
-    private boolean validateData(Map<String, String> data) {
-    // Cek apakah data yang diperlukan ada untuk edit profil
-    String[] requiredFields = {
-        "username",  // Nama pengguna
-        "email",     // Email
-        "nik",       // Nomor Induk Kependudukan
-        "kontak",    // Nomor kontak
-        "tanggal_lahir", // Tanggal lahir
-        "alamat",    // Alamat
-        "jenis_kelamin", // Jenis kelamin
-        "pekerjaan", // Pekerjaan
-        "gaji_pokok" // Gaji pokok
-    };
-
-    for (String field : requiredFields) {
-        if (!data.containsKey(field) || data.get(field) == null || data.get(field).trim().isEmpty()) {
-            System.out.println("Field yang hilang atau kosong: " + field);
+        if (!data.get("email").matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            System.out.println("Format email tidak valid");
             return false;
         }
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.parse(data.get("tanggal_lahir"));
+        } catch (ParseException e) {
+            System.out.println("Format tanggal lahir tidak valid");
+            return false;
+        }
+
+        if (!data.get("kontak").matches("\\d+")) {
+            System.out.println("Nomor kontak harus berupa angka");
+            return false;
+        }
+
+        return true;
     }
 
-    // Validasi tambahan
-    // Contoh: Validasi format email
-    if (!data.get("email").matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-        System.out.println("Format email tidak valid");
-        return false;
-    }
-
-    // Validasi tanggal lahir
-    try {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.parse(data.get("tanggal_lahir"));
-    } catch (ParseException e) {
-        System.out.println("Format tanggal lahir tidak valid");
-        return false;
-    }
-
-    // Validasi kontak (misalnya harus berupa angka)
-    if (!data.get("kontak").matches("\\d+")) {
-        System.out.println("Nomor kontak harus berupa angka");
-        return false;
-    }
-
-    return true;
-}
-
-
-// Metode parsing pesan yang lebih robust
     private Map<String, String> parseMessage(String message) {
         Map<String, String> data = new HashMap<>();
         try {
-            // Hapus kurung kurawal jika ada
             message = message.replace("{", "").replace("}", "");
-
-            // Split berdasarkan koma
             String[] pairs = message.split(",");
 
             for (String pair : pairs) {
-                // Split berdasarkan tanda sama dengan
                 String[] keyValue = pair.split("=");
-
                 if (keyValue.length == 2) {
-                    // Trim key dan value untuk menghapus spasi tambahan
-                    String key = keyValue[0].trim();
+                    String key = keyValue [0].trim();
                     String value = keyValue[1].trim();
-
-                    // Tambahkan ke map
                     data.put(key, value);
                 }
             }
-
             System.out.println("Parsed data: " + data);
         } catch (Exception e) {
             System.err.println("Error parsing message: " + message);
             e.printStackTrace();
         }
-
         return data;
     }
 
-// Metode updateFields yang lebih aman
     private void updateFields(Map<String, String> data) {
-        // Gunakan getOrDefault untuk menghindari NullPointerException
         txtNama.setText(data.getOrDefault("username", ""));
         txtEmail.setText(data.getOrDefault("email", ""));
         txtPassword.setText(data.getOrDefault("password", ""));
         txtNik.setText(data.getOrDefault("nik", ""));
         txtKontak.setText(data.getOrDefault("kontak", ""));
-
-        // Untuk tanggal lahir, Anda mungkin perlu menambahkan JDateChooser atau JTextField
         txtTanggalLahir.setDate(parseDate(data.getOrDefault("tanggal_lahir", "")));
-
         txtAlamat.setText(data.getOrDefault("alamat", ""));
-
-        // Untuk jenis kelamin, Anda mungkin perlu mengatur radio button
+        
         String jenisKelamin = data.getOrDefault("jenis_kelamin", "");
-        if ("Laki-Laki".equalsIgnoreCase(jenisKelamin)) {
-            rbLakiLaki.setSelected(true);
-            rbPerempuan.setSelected(false);
-        } else if ("Perempuan".equalsIgnoreCase(jenisKelamin)) {
-            rbLakiLaki.setSelected(false);
-            rbPerempuan.setSelected(true);
-        }
+        rbLakiLaki.setSelected("Laki-Laki".equalsIgnoreCase(jenisKelamin));
+        rbPerempuan.setSelected("Perempuan".equalsIgnoreCase(jenisKelamin));
 
         txtPekerjaan.setText(data.getOrDefault("pekerjaan", ""));
-
-        // Untuk gaji pokok, set ComboBox
-        String gajiPokok = data.getOrDefault("gaji_pokok", "");
-        jComboBox1.setSelectedItem(gajiPokok);
+        jComboBox1.setSelectedItem(data.getOrDefault("gaji_pokok", ""));
     }
 
-// Tambahan method untuk parsing tanggal
-private Date parseDate(String dateString) {
-    if (dateString == null || dateString.isEmpty()) {
-        return null;
+    private Date parseDate(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return null;
+        }
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            return sdf.parse(dateString);
+        } catch (ParseException e) {
+            System.err.println("Error parsing date: " + dateString);
+            return null;
+        }
     }
-    
-    try {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return sdf.parse(dateString);
-    } catch (ParseException e) {
-        System.err.println("Error parsing date: " + dateString);
-        return null;
-    }
-}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new KafkaEditConsumer().setVisible(true));

@@ -21,12 +21,11 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class RiwayatPinjaman extends javax.swing.JFrame {
 
-    private Producer<String, String> kafkaProducer;
     private final int iduser;
 
     public RiwayatPinjaman(int iduser) {
         initComponents();
-        configureKafkaProducer();
+        
         this.iduser = iduser;
         tampilDataPinjaman();
     }
@@ -315,14 +314,6 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
         return sdf.format(date);
     }
 
-    private void configureKafkaProducer() {
-        var props = new java.util.Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        kafkaProducer = new KafkaProducer<>(props);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBayar;
     private javax.swing.JButton btnKembali;
@@ -349,38 +340,53 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void tampilDataPinjaman() {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = DatabaseConnection.getConnection();
+    Connection conn = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    try {
+        conn = DatabaseConnection.getConnection();
 
-            // Updated SQL query to match the new table and column structure
-            String query = "SELECT p.jumlah AS jumlah_pengajuan, t.jatuh_tempo, p.tanggal_cair, "
-                    + "p.tenor, p.angsuran_bulanan, pp.status AS status_pengajuan, "
-                    + "p.sisa_tagihan, p.status, t.jumlah_bayar, t.tanggal_pembayaran "
-                    + "FROM pengajuan_pinjaman pp "
-                    + "LEFT JOIN pinjaman p ON pp.pinjaman_id = p.pinjaman_id "
-                    + "LEFT JOIN tagihan t ON p.pinjaman_id = t.pinjaman_id "
-                    + "WHERE pp.iduser = ?";
+        // Updated SQL query to match the new table and column structure
+        String query = "SELECT p.jumlah AS jumlah_pengajuan, t.jatuh_tempo, p.tanggal_cair, "
+                + "p.tenor, p.angsuran_bulanan, pp.status_pengajuan AS status_pengajuan, "
+                + "p.sisa_tagihan, p.status, t.jumlah_bayar, t.tanggal_pembayaran "
+                + "FROM pengajuan_pinjaman pp "
+                + "LEFT JOIN pinjaman p ON pp.pinjaman_id = p.pinjaman_id "
+                + "LEFT JOIN tagihan t ON p.pinjaman_id = t.pinjaman_id "
+                + "WHERE pp.iduser = ?";
 
-            ps = conn.prepareStatement(query);
-            ps.setInt(1, iduser); // Set parameter ID user with type int
-            rs = ps.executeQuery();
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, iduser); // Set parameter ID user with type int
+        rs = ps.executeQuery();
 
-            if (rs.next()) {
-                // Data found
+        if (rs.next()) {
+            // Data found
+            String statusPengajuan = rs.getString("status_pengajuan");
+
+            if ("Disetujui".equalsIgnoreCase(statusPengajuan)) {
+                // Tampilkan semua data jika status disetujui
                 txtPinjaman.setText(rs.getString("jumlah_pengajuan") != null ? rs.getString("jumlah_pengajuan") : "-");
                 txtJatuhTempo.setText(rs.getString("jatuh_tempo") != null ? rs.getString("jatuh_tempo") : "-");
                 txtTanggalCair.setText(rs.getString("tanggal_cair") != null ? rs.getString("tanggal_cair") : "-");
                 txtTenor.setText(rs.getString("tenor") != null ? rs.getString("tenor") : "-");
-                txtStatus.setText(rs.getString("status_pengajuan") != null ? rs.getString("status_pengajuan") : "-");
+                txtStatus.setText(statusPengajuan);
                 txtTagihan.setText(rs.getString("jumlah_bayar") != null ? rs.getString("jumlah_bayar") : "-");
                 txtSisaTagihan.setText(rs.getString("sisa_tagihan") != null ? rs.getString("sisa_tagihan") : "-");
                 txtTanggalBayar.setText(rs.getString("tanggal_pembayaran") != null ? rs.getString("tanggal_pembayaran") : "-");
                 txtPelunasan.setText(rs.getString("status") != null ? rs.getString("status") : "-");
+            } else if ("Ditolak".equalsIgnoreCase(statusPengajuan)) {
+                // Tampilkan hanya status jika ditolak
+                txtPinjaman.setText("-");
+                txtJatuhTempo.setText("-");
+                txtTanggalCair.setText("-");
+                txtTenor.setText("-");
+                txtStatus.setText(statusPengajuan);
+                txtTagihan.setText("-");
+                txtSisaTagihan.setText("-");
+                txtTanggalBayar.setText("-");
+                txtPelunasan.setText("-");
             } else {
-                // Data not found
+                // Status lainnya (misalnya Pending)
                 txtPinjaman.setText("-");
                 txtJatuhTempo.setText("-");
                 txtTanggalCair.setText("-");
@@ -391,24 +397,36 @@ public class RiwayatPinjaman extends javax.swing.JFrame {
                 txtTanggalBayar.setText("-");
                 txtPelunasan.setText("-");
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        } else {
+            // Data not found
+            txtPinjaman.setText("-");
+            txtJatuhTempo.setText("-");
+            txtTanggalCair.setText("-");
+            txtTenor.setText("-");
+            txtStatus.setText("Pending");
+            txtTagihan.setText("-");
+            txtSisaTagihan.setText("-");
+            txtTanggalBayar.setText("-");
+            txtPelunasan.setText("-");
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());
+    } finally {
+        try {
+            if (rs != null) {
+                rs.close();
             }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            e .printStackTrace();
         }
     }
+}
 
     private int getSelectedPinjamanId() {
          return 1;

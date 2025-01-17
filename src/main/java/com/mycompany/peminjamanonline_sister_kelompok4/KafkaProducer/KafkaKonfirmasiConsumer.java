@@ -27,7 +27,6 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
     private JTextField txtId;
     private JTextField txtNik;
     private JTextField txtStatus;
-    
 
     public KafkaKonfirmasiConsumer() {
         TanpilanGUI();
@@ -36,10 +35,10 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
 
     private void TanpilanGUI() {
         setTitle("Data Konfirmasi User");
-        setIconImage(new ImageIcon("admin_icon.png").getImage()); // Tambahkan ikon pada window
+        setIconImage(new ImageIcon("admin_icon.png").getImage());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 700);
-        setLocationRelativeTo(null); // Menempatkan window di tengah layar
+        setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -49,7 +48,7 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
         messageList = new JList<>(listModel);
         messageList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         messageList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        messageList.setBackground(new Color(240, 248, 255)); // Alice Blue
+        messageList.setBackground(new Color(240, 248, 255));
         messageList.setBorder(BorderFactory.createTitledBorder("Daftar Konfirmasi User"));
 
         scrollPane = new JScrollPane(messageList);
@@ -59,21 +58,21 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
         // Detail panel
         JPanel detailPanel = new JPanel(new GridBagLayout());
         detailPanel.setBorder(BorderFactory.createTitledBorder("Detail Konfirmasi"));
-        detailPanel.setBackground(new Color(245, 245, 245)); // Light Gray
+        detailPanel.setBackground(new Color(245, 245, 245));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         addDetailField(detailPanel, gbc, "Nama:", txtId = new JTextField(20), 0);
-        addDetailField(detailPanel, gbc, "Email:", txtNik = new JTextField(20), 1);
-        addDetailField(detailPanel, gbc, "Password:", txtStatus = new JTextField(20), 2);
+        addDetailField(detailPanel, gbc, "NIK:", txtNik = new JTextField(20), 1);
+        addDetailField(detailPanel, gbc, "Status:", txtStatus = new JTextField(20), 2);
 
         mainPanel.add(detailPanel, BorderLayout.SOUTH);
 
         JButton closeButton = new JButton("Tutup");
         closeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        closeButton.setBackground(new Color(220, 20, 60)); // Crimson
+        closeButton.setBackground(new Color(220, 20, 60));
         closeButton.setForeground(Color.WHITE);
         closeButton.setFocusPainted(false);
         closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -117,20 +116,16 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
     }
 
     private void startKafkaConsumer() {
-       
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", "admin_group_" + UUID.randomUUID().toString());
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("auto.offset.reset", "earliest");
-        props.put("partition.assignment.strategy",
-                "org.apache.kafka.clients.consumer.RoundRobinAssignor");
+        props.put("partition.assignment.strategy", "org.apache.kafka.clients.consumer.RoundRobinAssignor");
 
         Thread consumerThread = new Thread(() -> {
-            try (org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer
-                    = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props)) {
-
+            try (org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props)) {
                 consumer.subscribe(Collections.singletonList("konfirmasi"));
 
                 while (isRunning) {
@@ -150,13 +145,12 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
         try {
             Map<String, String> data = parseMessage(message);
             if (data != null) {
+                // Hanya menampilkan NIK dan status_pengajuan
                 String formattedMessage = String.format(
-                        "[%tF %<tT] Id: %s | nik: %s | status: %s",
+                        "[%tF %<tT] NIK: %s | Status: %s",
                         System.currentTimeMillis(),
-                        data.get("Id"), // username
-                        data.get("nik"), // email
-                        data.get("status") // password
-                        
+                        data.get("nik"),
+                        data.get("status_pengajuan")
                 );
 
                 SwingUtilities.invokeLater(() -> {
@@ -174,56 +168,49 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
     }
 
     private void saveToDatabase(Map<String, String> data) {
-    String updateQuery = "UPDATE pengajuan_pinjaman pp "
-        + "JOIN users u ON pp.iduser = u.iduser "
-        + "SET pp.status = ? "
-        + "WHERE u.nik = ?";
+        String updateQuery = "UPDATE pengajuan_pinjaman pp "
+                + "JOIN users u ON pp.iduser = u.iduser "
+                + "SET pp.status_pengajuan = ? "
+                + "WHERE u.nik = ?";
 
-    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD); 
-         PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD); PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
 
-        // Validasi data sebelum menyimpan
-        if (!validateData(data)) {
-            System.out.println("Data tidak valid, gagal menyimpan.");
-            return;
+            if (!validateData(data)) {
+                System.out.println("Data tidak valid, gagal menyimpan.");
+                return;
+            }
+
+            pstmt.setString(1, data.get("status_pengajuan"));
+            pstmt.setString(2, data.get("nik"));
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Data berhasil disimpan.");
+            } else {
+                System.out.println("Tidak ada data yang diupdate.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error saat menyimpan data: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Mengatur parameter untuk query
-        pstmt.setString(1, data.get("status")); // status yang ingin diupdate
-        pstmt.setString(2, data.get("nik"));    // nik untuk kondisi WHERE
-
-        // Eksekusi update
-        int rowsAffected = pstmt.executeUpdate();
-        if (rowsAffected > 0) {
-            System.out.println("Data berhasil disimpan.");
-        } else {
-            System.out.println("Tidak ada data yang diupdate.");
-        }
-
-    } catch (SQLException e) {
-        System.err.println("Error saat menyimpan data: " + e.getMessage());
-        e.printStackTrace();
     }
-}
 
-// Metode validasi data
     private boolean validateData(Map<String, String> data) {
-    // Cek apakah data yang diperlukan ada
-    String[] requiredFields = {
-        "status", // Field yang diperlukan untuk update status
-        "nik"     // Field yang diperlukan untuk kondisi WHERE
-    };
+        String[] requiredFields = {
+            "status_pengajuan",
+            "nik"
+        };
 
-    for (String field : requiredFields) {
-        if (!data.containsKey(field) || data.get(field) == null || data.get(field).trim().isEmpty()) {
-            System.out.println("Field yang hilang atau kosong: " + field);
-            return false;
+        for (String field : requiredFields) {
+            if (!data.containsKey(field) || data.get(field) == null || data.get(field).trim().isEmpty()) {
+                System.out.println("Field yang hilang atau kosong: " + field);
+                return false;
+            }
         }
+        return true;
     }
-    return true;
-}
 
-// Metode parsing pesan yang lebih robust
     private Map<String, String> parseMessage(String message) {
         Map<String, String> data = new HashMap<>();
         try {
@@ -256,13 +243,10 @@ public class KafkaKonfirmasiConsumer extends javax.swing.JFrame {
         return data;
     }
 
-// Metode updateFields yang lebih aman
     private void updateFields(Map<String, String> data) {
-        // Gunakan getOrDefault untuk menghindari NullPointerException
         txtId.setText(data.getOrDefault("Id User", ""));
         txtNik.setText(data.getOrDefault("Nik", ""));
         txtStatus.setText(data.getOrDefault("Status", ""));
-        
     }
 
     public static void main(String[] args) {
